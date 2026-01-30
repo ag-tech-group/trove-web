@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { useAuth } from "@/lib/auth"
 import { getErrorMessage } from "@/lib/api-errors"
 import { baseUrl } from "@/api/api"
@@ -89,7 +89,9 @@ export function LoginPage() {
     <div className="flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center pb-2">
-          <TroveLogo layout="vertical" />
+          <Link to="/">
+            <TroveLogo layout="vertical" />
+          </Link>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
@@ -194,6 +196,14 @@ export function LoginPage() {
             >
               {mode === "signin" ? "Sign up" : "Sign in"}
             </button>
+          </p>
+          <p className="text-muted-foreground mt-4 text-center text-xs">
+            <Link
+              to="/privacy-policy"
+              className="underline-offset-4 hover:underline"
+            >
+              Privacy Policy
+            </Link>
           </p>
         </CardContent>
       </Card>
