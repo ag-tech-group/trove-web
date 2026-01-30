@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { useAuth } from "@/lib/auth"
 import { getErrorMessage } from "@/lib/api-errors"
 import { baseUrl } from "@/api/api"
@@ -194,6 +194,14 @@ export function LoginPage() {
             >
               {mode === "signin" ? "Sign up" : "Sign in"}
             </button>
+          </p>
+          <p className="text-muted-foreground mt-4 text-center text-xs">
+            <Link
+              to="/privacy-policy"
+              className="underline-offset-4 hover:underline"
+            >
+              Privacy Policy
+            </Link>
           </p>
         </CardContent>
       </Card>
