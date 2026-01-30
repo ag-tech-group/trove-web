@@ -24,10 +24,11 @@ export async function renderRoute(route: string) {
 
   const testAuth = {
     isAuthenticated: true,
-    token: "test-token",
+    isLoading: false,
     email: "test@example.com",
     login: () => {},
-    logout: () => {},
+    logout: async () => {},
+    checkAuth: async () => {},
   }
 
   const testRouter = createRouter({

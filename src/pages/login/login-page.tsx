@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useAuth } from "@/lib/auth"
+import { getErrorMessage } from "@/lib/api-errors"
 import {
   useAuthJwtLoginAuthJwtLoginPost,
   useRegisterRegisterAuthRegisterPost,
@@ -11,29 +12,6 @@ import { TroveLogo } from "@/components/trove-logo"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-async function extractErrorMessage(err: unknown, fallback: string) {
-  try {
-    const response = (err as { response?: Response })?.response
-    if (!response) return fallback
-
-    const body = await response.clone().json()
-    const detail = body?.detail
-
-    if (typeof detail === "string") return detail
-    // ValidationError[] from 422 responses
-    if (Array.isArray(detail) && detail.length > 0) {
-      return detail.map((e: { msg: string }) => e.msg).join(". ")
-    }
-    // {[key: string]: string} from ErrorModel
-    if (typeof detail === "object" && detail !== null) {
-      return Object.values(detail).join(". ")
-    }
-  } catch {
-    // Fall through to fallback
-  }
-  return fallback
-}
-
 export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -43,27 +21,26 @@ export function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  const handleLogin = (token: string) => {
-    login(token, email)
+  const handleLogin = () => {
+    login(email)
     navigate({ to: "/" })
   }
 
   const loginMutation = useAuthJwtLoginAuthJwtLoginPost({
     mutation: {
-      onSuccess: (response) => {
-        // orvalClient returns the raw JSON body; onSuccess only fires for 2xx
-        handleLogin(
-          (response as unknown as { access_token: string }).access_token
-        )
+      meta: { skipGlobalError: true },
+      onSuccess: () => {
+        handleLogin()
       },
       onError: async (err) => {
-        setError(await extractErrorMessage(err, "Invalid email or password."))
+        setError(await getErrorMessage(err, "Invalid email or password."))
       },
     },
   })
 
   const registerMutation = useRegisterRegisterAuthRegisterPost({
     mutation: {
+      meta: { skipGlobalError: true },
       onSuccess: () => {
         // Registration succeeded — sign them in automatically
         loginMutation.mutate({
@@ -71,7 +48,7 @@ export function LoginPage() {
         })
       },
       onError: async (err) => {
-        setError(await extractErrorMessage(err, "Registration failed."))
+        setError(await getErrorMessage(err, "Registration failed."))
       },
     },
   })
