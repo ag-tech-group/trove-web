@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react"
 import { QueryClient } from "@tanstack/react-query"
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router"
+import { Toaster } from "sonner"
 
 const TanStackRouterDevtools = import.meta.env.PROD
   ? () => null
@@ -22,10 +23,11 @@ interface RouterContext {
   queryClient: QueryClient
   auth: {
     isAuthenticated: boolean
-    token: string | null
+    isLoading: boolean
     email: string | null
-    login: (token: string, email: string) => void
-    logout: () => void
+    login: (email: string) => void
+    logout: () => Promise<void>
+    checkAuth: () => Promise<void>
   }
 }
 
@@ -37,6 +39,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
+      <Toaster position="bottom-right" richColors closeButton />
       <Suspense fallback={null}>
         <TanStackRouterDevtools />
         <ReactQueryDevtools />

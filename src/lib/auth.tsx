@@ -6,56 +6,92 @@ import {
   useMemo,
   useState,
 } from "react"
-import { setOnUnauthorized } from "@/api/api"
+import { baseUrl, setOnUnauthorized } from "@/api/api"
 
-const TOKEN_KEY = "trove_auth_token"
 const EMAIL_KEY = "trove_auth_email"
 
 interface AuthContextValue {
   isAuthenticated: boolean
-  token: string | null
+  isLoading: boolean
   email: string | null
-  login: (token: string, email: string) => void
-  logout: () => void
+  login: (email: string) => void
+  logout: () => Promise<void>
+  checkAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY)
-  )
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [email, setEmail] = useState<string | null>(() =>
     localStorage.getItem(EMAIL_KEY)
   )
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
+  const clearState = useCallback(() => {
     localStorage.removeItem(EMAIL_KEY)
-    setToken(null)
+    setIsAuthenticated(false)
     setEmail(null)
   }, [])
 
-  const login = useCallback((newToken: string, newEmail: string) => {
-    localStorage.setItem(TOKEN_KEY, newToken)
+  const logout = useCallback(async () => {
+    try {
+      await fetch(`${baseUrl}/auth/jwt/logout`, {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch {
+      // Clear state regardless of fetch success
+    }
+    clearState()
+  }, [clearState])
+
+  const login = useCallback((newEmail: string) => {
     localStorage.setItem(EMAIL_KEY, newEmail)
-    setToken(newToken)
     setEmail(newEmail)
+    setIsAuthenticated(true)
   }, [])
 
+  const checkAuth = useCallback(async () => {
+    try {
+      const res = await fetch(`${baseUrl}/auth/me`, {
+        credentials: "include",
+      })
+      if (res.ok) {
+        const user = await res.json()
+        setIsAuthenticated(true)
+        setEmail(user.email)
+        localStorage.setItem(EMAIL_KEY, user.email)
+      } else {
+        clearState()
+      }
+    } catch {
+      clearState()
+    } finally {
+      setIsLoading(false)
+    }
+  }, [clearState])
+
   useEffect(() => {
-    setOnUnauthorized(logout)
-  }, [logout])
+    checkAuth()
+  }, [checkAuth])
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      clearState()
+    })
+  }, [clearState])
 
   const value = useMemo(
     () => ({
-      isAuthenticated: token !== null,
-      token,
+      isAuthenticated,
+      isLoading,
       email,
       login,
       logout,
+      checkAuth,
     }),
-    [token, email, login, logout]
+    [isAuthenticated, isLoading, email, login, logout, checkAuth]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
