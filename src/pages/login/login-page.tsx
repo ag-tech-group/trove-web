@@ -89,7 +89,9 @@ export function LoginPage() {
     <div className="flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center pb-2">
-          <TroveLogo layout="vertical" />
+          <Link to="/">
+            <TroveLogo layout="vertical" />
+          </Link>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">

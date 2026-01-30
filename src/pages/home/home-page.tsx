@@ -9,10 +9,10 @@ export function HomePage() {
   return (
     <div className="min-h-svh">
       <header className="border-border flex items-center justify-between border-b px-6 py-3">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <TroveFrameIcon className="text-primary h-5" />
           <span className="font-serif text-lg tracking-tight">Trove</span>
-        </div>
+        </Link>
         {isAuthenticated ? (
           <div className="flex items-center gap-4">
             <span className="text-muted-foreground text-sm">{email}</span>
