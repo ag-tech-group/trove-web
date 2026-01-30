@@ -7,6 +7,7 @@ import {
 } from "@/api/generated/hooks/auth/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { TroveLogo } from "@/components/trove-logo"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -100,9 +101,8 @@ export function LoginPage() {
   return (
     <div className="flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
-        <CardHeader className="items-center gap-1 pb-2">
-          <img src="/trove.svg" alt="" className="size-12" />
-          <h1 className="text-3xl tracking-tight">Trove</h1>
+        <CardHeader className="items-center pb-2">
+          <TroveLogo layout="vertical" />
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
