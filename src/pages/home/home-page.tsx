@@ -1,33 +1,36 @@
+import { Link } from "@tanstack/react-router"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 
 export function HomePage() {
+  const { isAuthenticated, email, logout } = useAuth()
+
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-8">
-      <h1 className="text-4xl font-bold tracking-tight">React Modern Stack</h1>
-      <p className="text-muted-foreground max-w-md text-center">
-        A production-ready template with React 19, TanStack Router, TanStack
-        Query, shadcn/ui, and Tailwind CSS v4.
-      </p>
-      <div className="flex gap-4">
-        <Button variant="link" asChild>
-          <a
-            href="https://tanstack.com/router"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            TanStack Router
-          </a>
-        </Button>
-        <Button variant="link" asChild>
-          <a
-            href="https://ui.shadcn.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            shadcn/ui
-          </a>
-        </Button>
-      </div>
+    <div className="min-h-svh">
+      <header className="border-border flex items-center justify-between border-b px-6 py-3">
+        <div className="flex items-center gap-2">
+          <img src="/trove.svg" alt="" className="size-6" />
+          <span className="font-serif text-lg tracking-tight">Trove</span>
+        </div>
+        {isAuthenticated ? (
+          <div className="flex items-center gap-4">
+            <span className="text-muted-foreground text-sm">{email}</span>
+            <Button variant="ghost" size="sm" onClick={logout}>
+              Sign out
+            </Button>
+          </div>
+        ) : (
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/login">Sign in</Link>
+          </Button>
+        )}
+      </header>
+      <main className="p-8">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome to Trove</h1>
+        <p className="text-muted-foreground mt-2">
+          Your personal collection manager.
+        </p>
+      </main>
     </div>
   )
 }

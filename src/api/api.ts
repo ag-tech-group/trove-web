@@ -9,14 +9,22 @@ export function setOnUnauthorized(callback: () => void) {
   onUnauthorized = callback
 }
 
+const TOKEN_KEY = "trove_auth_token"
+
 export const api = ky.create({
   prefixUrl: baseUrl,
   timeout: 30000,
   // Retries are handled by TanStack React Query
   retry: 0,
-  // Use httpOnly cookies for auth (sent automatically by browser, secure against XSS)
-  credentials: "include",
   hooks: {
+    beforeRequest: [
+      (request) => {
+        const token = localStorage.getItem(TOKEN_KEY)
+        if (token) {
+          request.headers.set("Authorization", `Bearer ${token}`)
+        }
+      },
+    ],
     afterResponse: [
       async (_request, _options, response) => {
         if (response.status === 401 && onUnauthorized) {

@@ -7,18 +7,13 @@ describe("HomePage", () => {
     await renderRoute("/")
 
     expect(
-      screen.getByRole("heading", { name: /react modern stack/i })
+      screen.getByRole("heading", { name: /welcome to trove/i })
     ).toBeInTheDocument()
   })
 
-  it("renders navigation links", async () => {
+  it("renders the navbar with sign in link", async () => {
     await renderRoute("/")
 
-    expect(
-      screen.getByRole("link", { name: /tanstack router/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole("link", { name: /shadcn\/ui/i })
-    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /sign in/i })).toBeInTheDocument()
   })
 })

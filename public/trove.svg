@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Crown facets -->
+  <polygon points="11,5 4,14 16,14" fill="#C8895A"/>
+  <polygon points="11,5 21,5 16,14" fill="#B87845"/>
+  <polygon points="21,5 28,14 16,14" fill="#A06835"/>
+  <!-- Pavilion facets -->
+  <polygon points="4,14 16,14 16,28" fill="#8A5530"/>
+  <polygon points="28,14 16,14 16,28" fill="#704828"/>
+</svg>
