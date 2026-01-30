@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router"
 
 import { routeTree } from "@/routeTree.gen"
+import { AuthProvider } from "@/lib/auth"
 
 export async function renderRoute(route: string) {
   const testQueryClient = new QueryClient({
@@ -21,11 +22,20 @@ export async function renderRoute(route: string) {
 
   const memoryHistory = createMemoryHistory({ initialEntries: [route] })
 
+  const testAuth = {
+    isAuthenticated: true,
+    token: "test-token",
+    email: "test@example.com",
+    login: () => {},
+    logout: () => {},
+  }
+
   const testRouter = createRouter({
     routeTree,
     history: memoryHistory,
     context: {
       queryClient: testQueryClient,
+      auth: testAuth,
     },
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
@@ -35,7 +45,9 @@ export async function renderRoute(route: string) {
   await act(async () => {
     result = render(
       <QueryClientProvider client={testQueryClient}>
-        <RouterProvider router={testRouter} />
+        <AuthProvider>
+          <RouterProvider router={testRouter} />
+        </AuthProvider>
       </QueryClientProvider>
     )
   })
@@ -48,7 +60,9 @@ export async function renderRoute(route: string) {
       await act(async () => {
         rerender(
           <QueryClientProvider client={testQueryClient}>
-            <RouterProvider router={testRouter} />
+            <AuthProvider>
+              <RouterProvider router={testRouter} />
+            </AuthProvider>
           </QueryClientProvider>
         )
       })
