@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
+import { TroveFrameIcon } from "@/components/trove-logo"
 
 export function HomePage() {
   const { isAuthenticated, email, logout } = useAuth()
@@ -9,7 +10,7 @@ export function HomePage() {
     <div className="min-h-svh">
       <header className="border-border flex items-center justify-between border-b px-6 py-3">
         <div className="flex items-center gap-2">
-          <img src="/trove.svg" alt="" className="size-6" />
+          <TroveFrameIcon className="text-primary h-5" />
           <span className="font-serif text-lg tracking-tight">Trove</span>
         </div>
         {isAuthenticated ? (

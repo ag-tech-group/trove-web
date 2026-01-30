@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer frame -->
+  <rect x="4" y="4" width="56" height="56" stroke="#CD853F" stroke-width="2" fill="none"/>
+  <!-- Middle decorative band -->
+  <rect x="9" y="9" width="46" height="46" stroke="#CD853F" stroke-width="0.5" fill="none"/>
+  <!-- Inner frame -->
+  <rect x="13" y="13" width="38" height="38" stroke="#CD853F" stroke-width="1" fill="none"/>
+  <!-- Top center ornament -->
+  <ellipse cx="32" cy="4" rx="7" ry="3" stroke="#CD853F" stroke-width="1" fill="transparent"/>
+  <circle cx="32" cy="4" r="1.5" fill="#CD853F"/>
+  <!-- Bottom center ornament -->
+  <ellipse cx="32" cy="60" rx="7" ry="3" stroke="#CD853F" stroke-width="1" fill="transparent"/>
+  <!-- Side flourishes -->
+  <path d="M4 28 Q0 32 4 36" stroke="#CD853F" stroke-width="1" fill="none"/>
+  <path d="M60 28 Q64 32 60 36" stroke="#CD853F" stroke-width="1" fill="none"/>
+</svg>
