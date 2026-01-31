@@ -5,7 +5,7 @@ import { TroveFrameIcon } from "@/components/trove-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export function AppHeader() {
-  const { email, logout } = useAuth()
+  const { isAuthenticated, email, logout } = useAuth()
 
   return (
     <header className="border-border flex items-center justify-between border-b px-6 py-3">
@@ -15,12 +15,20 @@ export function AppHeader() {
       </Link>
       <div className="flex items-center gap-4">
         <ThemeToggle />
-        <span className="text-muted-foreground hidden text-sm sm:inline">
-          {email}
-        </span>
-        <Button variant="ghost" size="sm" onClick={logout}>
-          Sign out
-        </Button>
+        {isAuthenticated ? (
+          <>
+            <span className="text-muted-foreground hidden text-sm sm:inline">
+              {email}
+            </span>
+            <Button variant="ghost" size="sm" onClick={logout}>
+              Sign out
+            </Button>
+          </>
+        ) : (
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/login">Sign in</Link>
+          </Button>
+        )}
       </div>
     </header>
   )

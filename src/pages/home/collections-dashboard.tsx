@@ -9,8 +9,7 @@ import {
   getListCollectionsCollectionsGetQueryKey,
 } from "@/api/generated/hooks/collections/collections"
 import { getErrorMessage } from "@/lib/api-errors"
-import { AppHeader } from "@/components/app-header"
-import { Footer } from "@/components/footer"
+import { AppLayout } from "@/components/app-layout"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,63 +31,55 @@ export function CollectionsDashboard() {
   const collections = data?.data
 
   return (
-    <div className="flex min-h-svh flex-col">
-      <AppHeader />
-
-      <main className="flex-1 px-6 py-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">
-              My Collections
-            </h1>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Collection
-            </Button>
-          </div>
-
-          {isLoading ? (
-            <CollectionsSkeleton />
-          ) : collections && collections.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {collections.map((c) => (
-                <Link
-                  key={c.id}
-                  to="/collections/$collectionId"
-                  params={{ collectionId: c.id }}
-                  className="block"
-                >
-                  <Card className="hover:border-primary/40 h-full transition-colors">
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-lg">{c.name}</CardTitle>
-                        <Badge variant="secondary">
-                          {c.item_count ?? 0}{" "}
-                          {(c.item_count ?? 0) === 1 ? "item" : "items"}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    {c.description && (
-                      <CardContent className="pt-0">
-                        <p className="text-muted-foreground line-clamp-2 text-sm">
-                          {c.description}
-                        </p>
-                      </CardContent>
-                    )}
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <EmptyState onAdd={() => setDialogOpen(true)} />
-          )}
+    <AppLayout>
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">My Collections</h1>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Collection
+          </Button>
         </div>
-      </main>
 
-      <Footer />
+        {isLoading ? (
+          <CollectionsSkeleton />
+        ) : collections && collections.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {collections.map((c) => (
+              <Link
+                key={c.id}
+                to="/collections/$collectionId"
+                params={{ collectionId: c.id }}
+                className="block"
+              >
+                <Card className="hover:border-primary/40 h-full transition-colors">
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-lg">{c.name}</CardTitle>
+                      <Badge variant="secondary">
+                        {c.item_count ?? 0}{" "}
+                        {(c.item_count ?? 0) === 1 ? "item" : "items"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  {c.description && (
+                    <CardContent className="pt-0">
+                      <p className="text-muted-foreground line-clamp-2 text-sm">
+                        {c.description}
+                      </p>
+                    </CardContent>
+                  )}
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <EmptyState onAdd={() => setDialogOpen(true)} />
+        )}
+      </div>
 
       <CreateCollectionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
-    </div>
+    </AppLayout>
   )
 }
 
