@@ -25,8 +25,7 @@ import {
 import { useListCategoriesCategoriesGet } from "@/api/generated/hooks/categories/categories"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
-import { AppHeader } from "@/components/app-header"
-import { Footer } from "@/components/footer"
+import { AppLayout } from "@/components/app-layout"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -99,149 +98,140 @@ export function CollectionDetailPage() {
   }, [itemsRes, sort])
 
   return (
-    <div className="flex min-h-svh flex-col">
-      <AppHeader />
+    <AppLayout>
+      <div className="mx-auto max-w-5xl">
+        <Link
+          to="/"
+          className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1 text-sm"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Collections
+        </Link>
 
-      <main className="flex-1 px-6 py-8">
-        <div className="mx-auto max-w-5xl">
-          <Link
-            to="/"
-            className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1 text-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Collections
-          </Link>
-
-          {collLoading ? (
-            <CollectionHeaderSkeleton />
-          ) : collection ? (
-            <>
-              <div className="mb-6 flex items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight">
-                    {collection.name}
-                  </h1>
-                  {collection.description && (
-                    <p className="text-muted-foreground mt-1">
-                      {collection.description}
-                    </p>
-                  )}
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    {collection.item_count ?? 0}{" "}
-                    {(collection.item_count ?? 0) === 1 ? "item" : "items"}
+        {collLoading ? (
+          <CollectionHeaderSkeleton />
+        ) : collection ? (
+          <>
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">
+                  {collection.name}
+                </h1>
+                {collection.description && (
+                  <p className="text-muted-foreground mt-1">
+                    {collection.description}
                   </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button onClick={() => setAddItemOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Item
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setDeleteOpen(true)}
-                        className="text-destructive-foreground"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                )}
+                <p className="text-muted-foreground mt-1 text-sm">
+                  {collection.item_count ?? 0}{" "}
+                  {(collection.item_count ?? 0) === 1 ? "item" : "items"}
+                </p>
               </div>
-
-              {/* Filters */}
-              <div className="mb-4 flex flex-wrap items-center gap-3">
-                <div className="relative min-w-[200px] flex-1">
-                  <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-                  <Input
-                    placeholder="Search items..."
-                    className="pl-8"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="All categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All categories</SelectItem>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={sort}
-                  onValueChange={(v) => setSort(v as SortKey)}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="name">Name</SelectItem>
-                    <SelectItem value="date">Date Added</SelectItem>
-                    <SelectItem value="value">Value</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-2">
+                <Button onClick={() => setAddItemOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Item
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setDeleteOpen(true)}
+                      className="text-destructive-foreground"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
+            </div>
 
-              {/* Items */}
-              {itemsLoading ? (
-                <ItemsSkeleton />
-              ) : sortedItems.length > 0 ? (
-                <div className="grid gap-3">
-                  {sortedItems.map((item) => (
-                    <ItemCard key={item.id} item={item} />
+            {/* Filters */}
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[200px] flex-1">
+                <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+                <Input
+                  placeholder="Search items..."
+                  className="pl-8"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="All categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All categories</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
                   ))}
-                </div>
-              ) : (
-                <ItemsEmptyState onAdd={() => setAddItemOpen(true)} />
-              )}
+                </SelectContent>
+              </Select>
+              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="date">Date Added</SelectItem>
+                  <SelectItem value="value">Value</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              <EditCollectionDialog
-                open={editOpen}
-                onOpenChange={setEditOpen}
-                collectionId={collectionId}
-                defaultValues={{
-                  name: collection.name,
-                  description: collection.description ?? "",
-                }}
-              />
-              <DeleteCollectionDialog
-                open={deleteOpen}
-                onOpenChange={setDeleteOpen}
-                collectionId={collectionId}
-                collectionName={collection.name}
-              />
-              <AddItemDialog
-                open={addItemOpen}
-                onOpenChange={setAddItemOpen}
-                collectionId={collectionId}
-              />
-            </>
-          ) : (
-            <p className="text-muted-foreground py-12 text-center">
-              Collection not found.
-            </p>
-          )}
-        </div>
-      </main>
+            {/* Items */}
+            {itemsLoading ? (
+              <ItemsSkeleton />
+            ) : sortedItems.length > 0 ? (
+              <div className="grid gap-3">
+                {sortedItems.map((item) => (
+                  <ItemCard key={item.id} item={item} />
+                ))}
+              </div>
+            ) : (
+              <ItemsEmptyState onAdd={() => setAddItemOpen(true)} />
+            )}
 
-      <Footer />
-    </div>
+            <EditCollectionDialog
+              open={editOpen}
+              onOpenChange={setEditOpen}
+              collectionId={collectionId}
+              defaultValues={{
+                name: collection.name,
+                description: collection.description ?? "",
+              }}
+            />
+            <DeleteCollectionDialog
+              open={deleteOpen}
+              onOpenChange={setDeleteOpen}
+              collectionId={collectionId}
+              collectionName={collection.name}
+            />
+            <AddItemDialog
+              open={addItemOpen}
+              onOpenChange={setAddItemOpen}
+              collectionId={collectionId}
+            />
+          </>
+        ) : (
+          <p className="text-muted-foreground py-12 text-center">
+            Collection not found.
+          </p>
+        )}
+      </div>
+    </AppLayout>
   )
 }
 
