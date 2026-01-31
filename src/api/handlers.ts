@@ -1,4 +1,4 @@
-import type { HttpHandler } from "msw"
+import { http, HttpResponse, type HttpHandler } from "msw"
 
 /**
  * Import generated MSW handlers after running `pnpm generate-api`
@@ -8,4 +8,7 @@ import type { HttpHandler } from "msw"
  *  export const handlers: HttpHandler[] = [...getDefaultMock(), ...getRacersMock()]
  */
 
-export const handlers: HttpHandler[] = []
+export const handlers: HttpHandler[] = [
+  // Return 401 for /auth/me by default (unauthenticated)
+  http.get("*/auth/me", () => HttpResponse.json(null, { status: 401 })),
+]
