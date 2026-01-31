@@ -9,6 +9,7 @@ import {
 
 import { routeTree } from "@/routeTree.gen"
 import { AuthProvider } from "@/lib/auth"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export async function renderRoute(route: string) {
   const testQueryClient = new QueryClient({
@@ -46,9 +47,11 @@ export async function renderRoute(route: string) {
   await act(async () => {
     result = render(
       <QueryClientProvider client={testQueryClient}>
-        <AuthProvider>
-          <RouterProvider router={testRouter} />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <RouterProvider router={testRouter} />
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     )
   })
