@@ -27,6 +27,7 @@ export async function renderRoute(route: string) {
     isAuthenticated: true,
     isLoading: false,
     email: "test@example.com",
+    userId: "test-user-id",
     login: () => {},
     logout: async () => {},
     checkAuth: async () => {},
