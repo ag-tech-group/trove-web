@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { TroveLogo } from "@/components/trove-logo"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Footer } from "@/components/footer"
 
 const OAUTH_ERROR_MESSAGES: Record<string, string> = {
   oauth_denied: "Google sign-in was cancelled.",
@@ -86,7 +87,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-4">
+    <div className="flex min-h-svh flex-col items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center pb-2">
           <Link to="/">
@@ -207,6 +208,9 @@ export function LoginPage() {
           </p>
         </CardContent>
       </Card>
+      <div className="mt-auto w-full">
+        <Footer />
+      </div>
     </div>
   )
 }

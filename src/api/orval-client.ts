@@ -50,7 +50,7 @@ export const orvalClient = async <T>(
 
   // 204 No Content - orval types these responses as void
   if (response.status === 204) {
-    return undefined as T
+    return { data: undefined, status: 204, headers: response.headers } as T
   }
 
   // Ensure we have JSON content
@@ -61,7 +61,8 @@ export const orvalClient = async <T>(
     )
   }
 
-  return response.json()
+  const json = await response.json()
+  return { data: json, status: response.status, headers: response.headers } as T
 }
 
 export default orvalClient
