@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 import { AuthProvider, useAuth } from "./lib/auth"
+import { ThemeProvider } from "./components/theme-provider"
 import { getErrorMessage } from "./lib/api-errors"
 
 const queryClient = new QueryClient({
@@ -54,9 +55,11 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ThemeProvider defaultTheme="system" storageKey="trove_theme">
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 )
