@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest"
 import { screen } from "@testing-library/react"
-import { renderRoute } from "@/test/renderers"
+import { renderWithFileRoutes } from "@/test/renderers"
 
 describe("HomePage", () => {
   it("renders the hero heading for signed-out users", async () => {
-    await renderRoute("/")
+    await renderWithFileRoutes(<div />)
 
     expect(
       await screen.findByRole("heading", {
@@ -14,7 +14,7 @@ describe("HomePage", () => {
   })
 
   it("renders the navbar with sign in link", async () => {
-    await renderRoute("/")
+    await renderWithFileRoutes(<div />)
 
     expect(
       await screen.findByRole("link", { name: /sign in/i })
