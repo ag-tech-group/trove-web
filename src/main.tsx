@@ -7,11 +7,11 @@ import { RouterProvider, createRouter } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { toast } from "sonner"
-import "./index.css"
-import { routeTree } from "./routeTree.gen"
-import { AuthProvider, useAuth } from "./lib/auth"
 import { ThemeProvider } from "./components/theme-provider"
+import "./index.css"
 import { getErrorMessage } from "./lib/api-errors"
+import { AuthProvider, useAuth } from "./lib/auth"
+import { routeTree } from "./routeTree.gen"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,7 +55,7 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="trove_theme">
+      <ThemeProvider defaultTheme="dark" storageKey="trove_theme">
         <AuthProvider>
           <App />
         </AuthProvider>
