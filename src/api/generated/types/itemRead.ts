@@ -7,6 +7,7 @@
  */
 import type { Condition } from './condition';
 import type { ItemNoteRead } from './itemNoteRead';
+import type { ItemReadTypeFields } from './itemReadTypeFields';
 import type { MarkRead } from './markRead';
 import type { ProvenanceEntryRead } from './provenanceEntryRead';
 import type { TagRead } from './tagRead';
@@ -32,6 +33,7 @@ export interface ItemRead {
   depth_cm?: string | null;
   weight_kg?: string | null;
   materials?: string | null;
+  type_fields?: ItemReadTypeFields;
   id: string;
   user_id: string;
   collection_id: string | null;

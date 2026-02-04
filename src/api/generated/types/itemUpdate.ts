@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.2.0
  */
 import type { Condition } from './condition';
+import type { ItemUpdateTypeFields } from './itemUpdateTypeFields';
 
 /**
  * Schema for updating an Item.
@@ -29,4 +30,5 @@ export interface ItemUpdate {
   depth_cm?: number | string | null;
   weight_kg?: number | string | null;
   materials?: string | null;
+  type_fields?: ItemUpdateTypeFields;
 }

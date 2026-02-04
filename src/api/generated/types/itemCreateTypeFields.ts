@@ -6,11 +6,4 @@
  * OpenAPI spec version: 0.2.0
  */
 
-/**
- * Schema for updating a Collection.
- */
-export interface CollectionUpdate {
-  name?: string | null;
-  description?: string | null;
-  type?: string | null;
-}
+export type ItemCreateTypeFields = { [key: string]: unknown } | null;

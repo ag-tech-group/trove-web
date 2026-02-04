@@ -9,7 +9,11 @@ import {
   getGetItemItemsItemIdGetQueryKey,
   getListItemsItemsGetQueryKey,
 } from "@/api/generated/hooks/items/items"
-import { getGetCollectionCollectionsCollectionIdGetQueryKey } from "@/api/generated/hooks/collections/collections"
+import {
+  getGetCollectionCollectionsCollectionIdGetQueryKey,
+  useGetCollectionCollectionsCollectionIdGet,
+} from "@/api/generated/hooks/collections/collections"
+import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
@@ -44,6 +48,17 @@ export function ItemDetailPage() {
 
   const { data: itemRes, isLoading } = useGetItemItemsItemIdGet(itemId)
   const item = itemRes?.status === 200 ? itemRes.data : undefined
+
+  const { data: collectionRes } = useGetCollectionCollectionsCollectionIdGet(
+    item?.collection_id ?? "",
+    { query: { enabled: !!item?.collection_id } }
+  )
+  const collection =
+    collectionRes?.status === 200 ? collectionRes.data : undefined
+  const collectionType = collection?.type
+
+  const { types } = useCollectionTypes()
+  const typeDef = findCollectionType(types, collectionType)
 
   const backTo = item?.collection_id
     ? `/collections/${item.collection_id}`
@@ -141,12 +156,39 @@ export function ItemDetailPage() {
                   label="Acquisition Source"
                   value={item.acquisition_source}
                 />
+                {item.type_fields && typeDef && typeDef.fields.length > 0 && (
+                  <>
+                    <Separator className="my-3" />
+                    <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                      {typeDef.label} Details
+                    </p>
+                    {typeDef.fields.map((field) => {
+                      const raw = (
+                        item.type_fields as Record<string, unknown>
+                      )?.[field.name]
+                      if (!raw) return null
+                      let display = String(raw)
+                      if (field.type === "enum" && field.options) {
+                        const opt = field.options.find((o) => o.value === raw)
+                        if (opt) display = opt.label
+                      }
+                      return (
+                        <DetailRow
+                          key={field.name}
+                          label={field.label}
+                          value={display}
+                        />
+                      )
+                    })}
+                  </>
+                )}
                 {!item.description &&
                   !item.location &&
                   !item.acquisition_date &&
                   !item.acquisition_price &&
                   !item.estimated_value &&
-                  !item.acquisition_source && (
+                  !item.acquisition_source &&
+                  !item.type_fields && (
                     <EmptyTab message="No details recorded yet." />
                   )}
               </TabsContent>
@@ -204,6 +246,7 @@ export function ItemDetailPage() {
               open={editOpen}
               onOpenChange={setEditOpen}
               item={item}
+              collectionType={collectionType}
             />
             <DeleteItemDialog
               open={deleteOpen}
@@ -258,10 +301,12 @@ function EditItemDialog({
   open,
   onOpenChange,
   item,
+  collectionType,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   item: ItemRead
+  collectionType?: string
 }) {
   const queryClient = useQueryClient()
   return (
@@ -272,6 +317,7 @@ function EditItemDialog({
         </DialogHeader>
         <ItemForm
           defaultValues={item}
+          collectionType={collectionType}
           onSuccess={() => {
             queryClient.invalidateQueries({
               queryKey: getGetItemItemsItemIdGetQueryKey(item.id),

@@ -13,4 +13,6 @@ export interface CollectionCreate {
   /** @maxLength 200 */
   name: string;
   description?: string | null;
+  /** @maxLength 50 */
+  type?: string;
 }

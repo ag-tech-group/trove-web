@@ -16,11 +16,15 @@ export const listCollectionsCollectionsGetResponseNameMax = 200;
 
 export const listCollectionsCollectionsGetResponseDescriptionOneMax = 2000;
 
+export const listCollectionsCollectionsGetResponseTypeDefault = `general`;
+export const listCollectionsCollectionsGetResponseTypeMax = 50;
+
 export const listCollectionsCollectionsGetResponseItemCountDefault = 0;
 
 export const ListCollectionsCollectionsGetResponseItem = zod.object({
   "name": zod.string().max(listCollectionsCollectionsGetResponseNameMax),
   "description": zod.union([zod.string().max(listCollectionsCollectionsGetResponseDescriptionOneMax),zod.null()]).optional(),
+  "type": zod.string().max(listCollectionsCollectionsGetResponseTypeMax).default(listCollectionsCollectionsGetResponseTypeDefault),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
@@ -37,11 +41,15 @@ export const createCollectionCollectionsPostBodyNameMax = 200;
 
 export const createCollectionCollectionsPostBodyDescriptionOneMax = 2000;
 
+export const createCollectionCollectionsPostBodyTypeDefault = `general`;
+export const createCollectionCollectionsPostBodyTypeMax = 50;
+
 
 
 export const CreateCollectionCollectionsPostBody = zod.object({
   "name": zod.string().max(createCollectionCollectionsPostBodyNameMax),
-  "description": zod.union([zod.string().max(createCollectionCollectionsPostBodyDescriptionOneMax),zod.null()]).optional()
+  "description": zod.union([zod.string().max(createCollectionCollectionsPostBodyDescriptionOneMax),zod.null()]).optional(),
+  "type": zod.string().max(createCollectionCollectionsPostBodyTypeMax).default(createCollectionCollectionsPostBodyTypeDefault)
 }).describe('Schema for creating a Collection.')
 
 /**
@@ -56,11 +64,15 @@ export const getCollectionCollectionsCollectionIdGetResponseNameMax = 200;
 
 export const getCollectionCollectionsCollectionIdGetResponseDescriptionOneMax = 2000;
 
+export const getCollectionCollectionsCollectionIdGetResponseTypeDefault = `general`;
+export const getCollectionCollectionsCollectionIdGetResponseTypeMax = 50;
+
 export const getCollectionCollectionsCollectionIdGetResponseItemCountDefault = 0;
 
 export const GetCollectionCollectionsCollectionIdGetResponse = zod.object({
   "name": zod.string().max(getCollectionCollectionsCollectionIdGetResponseNameMax),
   "description": zod.union([zod.string().max(getCollectionCollectionsCollectionIdGetResponseDescriptionOneMax),zod.null()]).optional(),
+  "type": zod.string().max(getCollectionCollectionsCollectionIdGetResponseTypeMax).default(getCollectionCollectionsCollectionIdGetResponseTypeDefault),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
@@ -80,22 +92,29 @@ export const updateCollectionCollectionsCollectionIdPatchBodyNameOneMax = 200;
 
 export const updateCollectionCollectionsCollectionIdPatchBodyDescriptionOneMax = 2000;
 
+export const updateCollectionCollectionsCollectionIdPatchBodyTypeOneMax = 50;
+
 
 
 export const UpdateCollectionCollectionsCollectionIdPatchBody = zod.object({
   "name": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchBodyNameOneMax),zod.null()]).optional(),
-  "description": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchBodyDescriptionOneMax),zod.null()]).optional()
+  "description": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchBodyDescriptionOneMax),zod.null()]).optional(),
+  "type": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchBodyTypeOneMax),zod.null()]).optional()
 }).describe('Schema for updating a Collection.')
 
 export const updateCollectionCollectionsCollectionIdPatchResponseNameMax = 200;
 
 export const updateCollectionCollectionsCollectionIdPatchResponseDescriptionOneMax = 2000;
 
+export const updateCollectionCollectionsCollectionIdPatchResponseTypeDefault = `general`;
+export const updateCollectionCollectionsCollectionIdPatchResponseTypeMax = 50;
+
 
 
 export const UpdateCollectionCollectionsCollectionIdPatchResponse = zod.object({
   "name": zod.string().max(updateCollectionCollectionsCollectionIdPatchResponseNameMax),
   "description": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchResponseDescriptionOneMax),zod.null()]).optional(),
+  "type": zod.string().max(updateCollectionCollectionsCollectionIdPatchResponseTypeMax).default(updateCollectionCollectionsCollectionIdPatchResponseTypeDefault),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
