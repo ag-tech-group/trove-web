@@ -14,6 +14,9 @@ import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
 import { ItemForm } from "@/components/item-form"
+import { MarkList } from "@/components/mark-list"
+import { ProvenanceList } from "@/components/provenance-list"
+import { ItemNoteList } from "@/components/item-note-list"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -109,6 +112,8 @@ export function ItemDetailPage() {
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="provenance">Provenance</TabsTrigger>
                 <TabsTrigger value="dimensions">Dimensions</TabsTrigger>
+                <TabsTrigger value="marks">Marks</TabsTrigger>
+                <TabsTrigger value="notes">Notes</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="mt-4 space-y-3">
@@ -132,11 +137,16 @@ export function ItemDetailPage() {
                     item.estimated_value ? `$${item.estimated_value}` : null
                   }
                 />
+                <DetailRow
+                  label="Acquisition Source"
+                  value={item.acquisition_source}
+                />
                 {!item.description &&
                   !item.location &&
                   !item.acquisition_date &&
                   !item.acquisition_price &&
-                  !item.estimated_value && (
+                  !item.estimated_value &&
+                  !item.acquisition_source && (
                     <EmptyTab message="No details recorded yet." />
                   )}
               </TabsContent>
@@ -145,16 +155,13 @@ export function ItemDetailPage() {
                 <DetailRow label="Artist / Maker" value={item.artist_maker} />
                 <DetailRow label="Origin" value={item.origin} />
                 <DetailRow label="Date / Era" value={item.date_era} />
-                <DetailRow
-                  label="Provenance Notes"
-                  value={item.provenance_notes}
+                {(item.artist_maker || item.origin || item.date_era) && (
+                  <Separator className="my-3" />
+                )}
+                <ProvenanceList
+                  itemId={item.id}
+                  entries={item.provenance_entries ?? []}
                 />
-                {!item.artist_maker &&
-                  !item.origin &&
-                  !item.date_era &&
-                  !item.provenance_notes && (
-                    <EmptyTab message="No provenance information recorded." />
-                  )}
               </TabsContent>
 
               <TabsContent value="dimensions" className="mt-4 space-y-3">
@@ -183,20 +190,15 @@ export function ItemDetailPage() {
                     <EmptyTab message="No dimensions recorded." />
                   )}
               </TabsContent>
-            </Tabs>
 
-            {/* Notes */}
-            {item.notes && (
-              <>
-                <Separator className="my-6" />
-                <div>
-                  <h2 className="mb-2 text-lg font-semibold">Notes</h2>
-                  <p className="text-muted-foreground text-sm whitespace-pre-wrap">
-                    {item.notes}
-                  </p>
-                </div>
-              </>
-            )}
+              <TabsContent value="marks" className="mt-4">
+                <MarkList itemId={item.id} marks={item.marks ?? []} />
+              </TabsContent>
+
+              <TabsContent value="notes" className="mt-4">
+                <ItemNoteList itemId={item.id} notes={item.item_notes ?? []} />
+              </TabsContent>
+            </Tabs>
 
             <EditItemDialog
               open={editOpen}

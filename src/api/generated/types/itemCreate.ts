@@ -18,17 +18,16 @@ export interface ItemCreate {
   location?: string | null;
   acquisition_date?: string | null;
   acquisition_price?: number | string | null;
+  acquisition_source?: string | null;
   estimated_value?: number | string | null;
   artist_maker?: string | null;
   origin?: string | null;
   date_era?: string | null;
-  provenance_notes?: string | null;
   height_cm?: number | string | null;
   width_cm?: number | string | null;
   depth_cm?: number | string | null;
   weight_kg?: number | string | null;
   materials?: string | null;
-  notes?: string | null;
   collection_id?: string | null;
   tag_ids?: string[];
 }

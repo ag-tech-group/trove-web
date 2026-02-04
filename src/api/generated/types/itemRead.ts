@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.2.0
  */
 import type { Condition } from './condition';
+import type { ItemNoteRead } from './itemNoteRead';
+import type { MarkRead } from './markRead';
+import type { ProvenanceEntryRead } from './provenanceEntryRead';
 import type { TagRead } from './tagRead';
 
 /**
@@ -19,21 +22,23 @@ export interface ItemRead {
   location?: string | null;
   acquisition_date?: string | null;
   acquisition_price?: string | null;
+  acquisition_source?: string | null;
   estimated_value?: string | null;
   artist_maker?: string | null;
   origin?: string | null;
   date_era?: string | null;
-  provenance_notes?: string | null;
   height_cm?: string | null;
   width_cm?: string | null;
   depth_cm?: string | null;
   weight_kg?: string | null;
   materials?: string | null;
-  notes?: string | null;
   id: string;
   user_id: string;
   collection_id: string | null;
   tags?: TagRead[];
+  marks?: MarkRead[];
+  provenance_entries?: ProvenanceEntryRead[];
+  item_notes?: ItemNoteRead[];
   created_at: string;
   updated_at: string;
 }
