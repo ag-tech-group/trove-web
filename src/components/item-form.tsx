@@ -76,15 +76,17 @@ export function ItemForm({
     defaultValues?.estimated_value ?? ""
   )
 
+  // Acquisition (cont.)
+  const [acquisitionSource, setAcquisitionSource] = useState(
+    defaultValues?.acquisition_source ?? ""
+  )
+
   // Provenance
   const [artistMaker, setArtistMaker] = useState(
     defaultValues?.artist_maker ?? ""
   )
   const [origin, setOrigin] = useState(defaultValues?.origin ?? "")
   const [dateEra, setDateEra] = useState(defaultValues?.date_era ?? "")
-  const [provenanceNotes, setProvenanceNotes] = useState(
-    defaultValues?.provenance_notes ?? ""
-  )
 
   // Dimensions
   const [heightCm, setHeightCm] = useState(defaultValues?.height_cm ?? "")
@@ -92,9 +94,6 @@ export function ItemForm({
   const [depthCm, setDepthCm] = useState(defaultValues?.depth_cm ?? "")
   const [weightKg, setWeightKg] = useState(defaultValues?.weight_kg ?? "")
   const [materials, setMaterials] = useState(defaultValues?.materials ?? "")
-
-  // Notes
-  const [notes, setNotes] = useState(defaultValues?.notes ?? "")
 
   const createMutation = useCreateItemItemsPost({
     mutation: {
@@ -129,17 +128,16 @@ export function ItemForm({
     location: location || undefined,
     acquisition_date: acquisitionDate || undefined,
     acquisition_price: acquisitionPrice || undefined,
+    acquisition_source: acquisitionSource || undefined,
     estimated_value: estimatedValue || undefined,
     artist_maker: artistMaker || undefined,
     origin: origin || undefined,
     date_era: dateEra || undefined,
-    provenance_notes: provenanceNotes || undefined,
     height_cm: heightCm || undefined,
     width_cm: widthCm || undefined,
     depth_cm: depthCm || undefined,
     weight_kg: weightKg || undefined,
     materials: materials || undefined,
-    notes: notes || undefined,
     collection_id: collectionId ?? defaultValues?.collection_id ?? undefined,
     tag_ids: selectedTagIds,
   })
@@ -248,6 +246,16 @@ export function ItemForm({
               />
             </div>
           </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-acq-source">Source</Label>
+            <Input
+              id="item-acq-source"
+              maxLength={200}
+              placeholder="e.g. Auction house, Estate sale"
+              value={acquisitionSource}
+              onChange={(e) => setAcquisitionSource(e.target.value)}
+            />
+          </div>
         </div>
       </CollapsibleSection>
 
@@ -278,15 +286,6 @@ export function ItemForm({
               id="item-date-era"
               value={dateEra}
               onChange={(e) => setDateEra(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="item-prov-notes">Provenance Notes</Label>
-            <Textarea
-              id="item-prov-notes"
-              rows={2}
-              value={provenanceNotes}
-              onChange={(e) => setProvenanceNotes(e.target.value)}
             />
           </div>
         </div>
@@ -353,17 +352,6 @@ export function ItemForm({
           </div>
         </div>
       </CollapsibleSection>
-
-      {/* Notes */}
-      <div className="grid gap-1.5">
-        <Label htmlFor="item-notes">Notes</Label>
-        <Textarea
-          id="item-notes"
-          rows={3}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-      </div>
 
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isPending}>
