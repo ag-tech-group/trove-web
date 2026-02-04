@@ -63,6 +63,7 @@ export const ListItemsItemsGetResponseItem = zod.object({
   "depth_cm": zod.union([zod.string().regex(listItemsItemsGetResponseDepthCmOneRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.string().regex(listItemsItemsGetResponseWeightKgOneRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(listItemsItemsGetResponseMaterialsOneMax),zod.null()]).optional(),
+  "type_fields": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
@@ -159,6 +160,7 @@ export const CreateItemItemsPostBody = zod.object({
   "depth_cm": zod.union([zod.number().min(createItemItemsPostBodyDepthCmOneMin),zod.string().regex(createItemItemsPostBodyDepthCmTwoRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.number().min(createItemItemsPostBodyWeightKgOneMin),zod.string().regex(createItemItemsPostBodyWeightKgTwoRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(createItemItemsPostBodyMaterialsOneMax),zod.null()]).optional(),
+  "type_fields": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
   "collection_id": zod.union([zod.uuid(),zod.null()]).optional(),
   "tag_ids": zod.array(zod.uuid()).optional()
 }).describe('Schema for creating an Item.')
@@ -212,6 +214,7 @@ export const GetItemItemsItemIdGetResponse = zod.object({
   "depth_cm": zod.union([zod.string().regex(getItemItemsItemIdGetResponseDepthCmOneRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.string().regex(getItemItemsItemIdGetResponseWeightKgOneRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(getItemItemsItemIdGetResponseMaterialsOneMax),zod.null()]).optional(),
+  "type_fields": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
@@ -312,7 +315,8 @@ export const UpdateItemItemsItemIdPatchBody = zod.object({
   "width_cm": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyWidthCmOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyWidthCmTwoRegExp),zod.null()]).optional(),
   "depth_cm": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyDepthCmOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyDepthCmTwoRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyWeightKgOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyWeightKgTwoRegExp),zod.null()]).optional(),
-  "materials": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyMaterialsOneMax),zod.null()]).optional()
+  "materials": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyMaterialsOneMax),zod.null()]).optional(),
+  "type_fields": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional()
 }).describe('Schema for updating an Item.')
 
 export const updateItemItemsItemIdPatchResponseNameMax = 200;
@@ -356,6 +360,7 @@ export const UpdateItemItemsItemIdPatchResponse = zod.object({
   "depth_cm": zod.union([zod.string().regex(updateItemItemsItemIdPatchResponseDepthCmOneRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.string().regex(updateItemItemsItemIdPatchResponseWeightKgOneRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseMaterialsOneMax),zod.null()]).optional(),
+  "type_fields": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),

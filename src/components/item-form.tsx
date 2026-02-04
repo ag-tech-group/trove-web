@@ -31,6 +31,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { cn } from "@/lib/utils"
+import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
 
 const CONDITIONS: { value: Condition; label: string }[] = [
   { value: "excellent", label: "Excellent" },
@@ -43,12 +44,14 @@ const CONDITIONS: { value: Condition; label: string }[] = [
 interface ItemFormProps {
   defaultValues?: ItemRead
   collectionId?: string
+  collectionType?: string
   onSuccess: () => void
 }
 
 export function ItemForm({
   defaultValues,
   collectionId,
+  collectionType,
   onSuccess,
 }: ItemFormProps) {
   const isEdit = !!defaultValues
@@ -95,6 +98,19 @@ export function ItemForm({
   const [weightKg, setWeightKg] = useState(defaultValues?.weight_kg ?? "")
   const [materials, setMaterials] = useState(defaultValues?.materials ?? "")
 
+  // Type-specific fields
+  const [typeFields, setTypeFields] = useState<Record<string, string>>(() => {
+    const tf = defaultValues?.type_fields
+    if (!tf || typeof tf !== "object") return {}
+    const result: Record<string, string> = {}
+    for (const [k, v] of Object.entries(tf)) {
+      if (typeof v === "string") result[k] = v
+    }
+    return result
+  })
+  const { types } = useCollectionTypes()
+  const typeDef = findCollectionType(types, collectionType)
+
   const createMutation = useCreateItemItemsPost({
     mutation: {
       onSuccess: () => {
@@ -121,26 +137,35 @@ export function ItemForm({
 
   const isPending = createMutation.isPending || updateMutation.isPending
 
-  const buildData = () => ({
-    name,
-    description: description || undefined,
-    condition: (condition as Condition) || undefined,
-    location: location || undefined,
-    acquisition_date: acquisitionDate || undefined,
-    acquisition_price: acquisitionPrice || undefined,
-    acquisition_source: acquisitionSource || undefined,
-    estimated_value: estimatedValue || undefined,
-    artist_maker: artistMaker || undefined,
-    origin: origin || undefined,
-    date_era: dateEra || undefined,
-    height_cm: heightCm || undefined,
-    width_cm: widthCm || undefined,
-    depth_cm: depthCm || undefined,
-    weight_kg: weightKg || undefined,
-    materials: materials || undefined,
-    collection_id: collectionId ?? defaultValues?.collection_id ?? undefined,
-    tag_ids: selectedTagIds,
-  })
+  const buildData = () => {
+    // Only include type_fields if there are any non-empty values
+    const nonEmptyTypeFields = Object.fromEntries(
+      Object.entries(typeFields).filter(([, v]) => v !== "")
+    )
+    const hasTypeFields = Object.keys(nonEmptyTypeFields).length > 0
+
+    return {
+      name,
+      description: description || undefined,
+      condition: (condition as Condition) || undefined,
+      location: location || undefined,
+      acquisition_date: acquisitionDate || undefined,
+      acquisition_price: acquisitionPrice || undefined,
+      acquisition_source: acquisitionSource || undefined,
+      estimated_value: estimatedValue || undefined,
+      artist_maker: artistMaker || undefined,
+      origin: origin || undefined,
+      date_era: dateEra || undefined,
+      height_cm: heightCm || undefined,
+      width_cm: widthCm || undefined,
+      depth_cm: depthCm || undefined,
+      weight_kg: weightKg || undefined,
+      materials: materials || undefined,
+      collection_id: collectionId ?? defaultValues?.collection_id ?? undefined,
+      tag_ids: selectedTagIds,
+      type_fields: hasTypeFields ? nonEmptyTypeFields : undefined,
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -290,6 +315,53 @@ export function ItemForm({
           </div>
         </div>
       </CollapsibleSection>
+
+      {/* Type-specific fields */}
+      {typeDef && typeDef.fields.length > 0 && (
+        <CollapsibleSection title={`${typeDef.label} Details`}>
+          <div className="grid gap-3">
+            {typeDef.fields.map((field) =>
+              field.type === "enum" ? (
+                <div key={field.name} className="grid gap-1.5">
+                  <Label>{field.label}</Label>
+                  <Select
+                    value={typeFields[field.name] ?? ""}
+                    onValueChange={(v) =>
+                      setTypeFields((prev) => ({ ...prev, [field.name]: v }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {field.options?.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div key={field.name} className="grid gap-1.5">
+                  <Label htmlFor={`tf-${field.name}`}>{field.label}</Label>
+                  <Input
+                    id={`tf-${field.name}`}
+                    maxLength={field.max_length}
+                    value={typeFields[field.name] ?? ""}
+                    onChange={(e) =>
+                      setTypeFields((prev) => ({
+                        ...prev,
+                        [field.name]: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              )
+            )}
+          </div>
+        </CollapsibleSection>
+      )}
 
       {/* Dimensions section */}
       <CollapsibleSection title="Dimensions">

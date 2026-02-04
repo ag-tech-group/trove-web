@@ -55,6 +55,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ItemForm } from "@/components/item-form"
+import { useCollectionTypes } from "@/lib/collection-types"
 
 type SortKey = "name" | "date" | "value"
 
@@ -211,6 +212,7 @@ export function CollectionDetailPage() {
               defaultValues={{
                 name: collection.name,
                 description: collection.description ?? "",
+                type: collection.type ?? "general",
               }}
             />
             <DeleteCollectionDialog
@@ -223,6 +225,7 @@ export function CollectionDetailPage() {
               open={addItemOpen}
               onOpenChange={setAddItemOpen}
               collectionId={collectionId}
+              collectionType={collection.type}
             />
           </>
         ) : (
@@ -314,17 +317,20 @@ function EditCollectionDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
   collectionId: string
-  defaultValues: { name: string; description: string }
+  defaultValues: { name: string; description: string; type: string }
 }) {
   const queryClient = useQueryClient()
   const [name, setName] = useState(defaultValues.name)
   const [description, setDescription] = useState(defaultValues.description)
+  const [type, setType] = useState(defaultValues.type)
+  const { types } = useCollectionTypes()
 
   // Sync when dialog opens with new defaults
   const handleOpenChange = (v: boolean) => {
     if (v) {
       setName(defaultValues.name)
       setDescription(defaultValues.description)
+      setType(defaultValues.type)
     }
     onOpenChange(v)
   }
@@ -352,7 +358,7 @@ function EditCollectionDialog({
     e.preventDefault()
     mutation.mutate({
       collectionId,
-      data: { name, description: description || undefined },
+      data: { name, description: description || undefined, type },
     })
   }
 
@@ -372,6 +378,21 @@ function EditCollectionDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>Type</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {types.map((t) => (
+                  <SelectItem key={t.name} value={t.name}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="edit-col-desc">Description</Label>
@@ -461,10 +482,12 @@ function AddItemDialog({
   open,
   onOpenChange,
   collectionId,
+  collectionType,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   collectionId: string
+  collectionType?: string
 }) {
   const queryClient = useQueryClient()
   return (
@@ -475,6 +498,7 @@ function AddItemDialog({
         </DialogHeader>
         <ItemForm
           collectionId={collectionId}
+          collectionType={collectionType}
           onSuccess={() => {
             queryClient.invalidateQueries({
               queryKey: getListItemsItemsGetQueryKey({

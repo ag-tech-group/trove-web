@@ -24,6 +24,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useCollectionTypes } from "@/lib/collection-types"
 
 export function CollectionsDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -56,10 +64,17 @@ export function CollectionsDashboard() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-lg">{c.name}</CardTitle>
-                      <Badge variant="secondary">
-                        {c.item_count ?? 0}{" "}
-                        {(c.item_count ?? 0) === 1 ? "item" : "items"}
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        {c.type && c.type !== "general" && (
+                          <Badge variant="outline" className="capitalize">
+                            {c.type}
+                          </Badge>
+                        )}
+                        <Badge variant="secondary">
+                          {c.item_count ?? 0}{" "}
+                          {(c.item_count ?? 0) === 1 ? "item" : "items"}
+                        </Badge>
+                      </div>
                     </div>
                   </CardHeader>
                   {c.description && (
@@ -128,6 +143,8 @@ function CreateCollectionDialog({
   const queryClient = useQueryClient()
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [type, setType] = useState("general")
+  const { types } = useCollectionTypes()
 
   const mutation = useCreateCollectionCollectionsPost({
     mutation: {
@@ -148,12 +165,13 @@ function CreateCollectionDialog({
   const reset = () => {
     setName("")
     setDescription("")
+    setType("general")
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     mutation.mutate({
-      data: { name, description: description || undefined },
+      data: { name, description: description || undefined, type },
     })
   }
 
@@ -179,6 +197,21 @@ function CreateCollectionDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>Type</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {types.map((t) => (
+                  <SelectItem key={t.name} value={t.name}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="col-desc">Description (optional)</Label>

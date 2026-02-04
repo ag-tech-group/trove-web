@@ -13,6 +13,8 @@ export interface CollectionRead {
   /** @maxLength 200 */
   name: string;
   description?: string | null;
+  /** @maxLength 50 */
+  type?: string;
   id: string;
   user_id: string;
   created_at: string;
