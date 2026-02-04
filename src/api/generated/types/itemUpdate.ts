@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import type { Condition } from './condition';
 
@@ -13,10 +13,10 @@ import type { Condition } from './condition';
 export interface ItemUpdate {
   name?: string | null;
   description?: string | null;
-  category?: string | null;
   condition?: Condition | null;
   location?: string | null;
   collection_id?: string | null;
+  tag_ids?: string[] | null;
   acquisition_date?: string | null;
   acquisition_price?: number | string | null;
   estimated_value?: number | string | null;

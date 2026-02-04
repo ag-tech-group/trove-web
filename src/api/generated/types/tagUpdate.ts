@@ -3,10 +3,13 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
-export interface BearerResponse {
-  access_token: string;
-  token_type: string;
+/**
+ * Schema for updating a Tag.
+ */
+export interface TagUpdate {
+  /** @maxLength 100 */
+  name: string;
 }

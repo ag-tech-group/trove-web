@@ -7,12 +7,10 @@
  */
 
 /**
- * Schema for creating a new user.
+ * Schema for reading a Tag.
  */
-export interface UserCreate {
-  email: string;
-  password: string;
-  is_active?: boolean | null;
-  is_superuser?: boolean | null;
-  is_verified?: boolean | null;
+export interface TagRead {
+  id: string;
+  name: string;
+  created_at: string;
 }

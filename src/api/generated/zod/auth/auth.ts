@@ -3,23 +3,20 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from 'zod';
 
 
 /**
- * @summary Auth:Jwt.Login
- */
-export const AuthJwtLoginAuthJwtLoginPostResponse = zod.object({
-  "access_token": zod.string(),
-  "token_type": zod.string()
-})
-
-/**
  * @summary Auth:Jwt.Logout
  */
 export const AuthJwtLogoutAuthJwtLogoutPostResponse = zod.unknown()
+
+/**
+ * @summary Auth:Jwt.Login
+ */
+export const AuthJwtLoginAuthJwtLoginPostResponse = zod.unknown()
 
 /**
  * @summary Register:Register
@@ -33,4 +30,29 @@ export const RegisterRegisterAuthRegisterPostBody = zod.object({
   "is_superuser": zod.union([zod.boolean(),zod.null()]).default(registerRegisterAuthRegisterPostBodyIsSuperuserDefault),
   "is_verified": zod.union([zod.boolean(),zod.null()]).default(registerRegisterAuthRegisterPostBodyIsVerifiedDefault)
 }).describe('Schema for creating a new user.')
+
+/**
+ * Redirect user to Google's OAuth consent screen.
+ * @summary Google Authorize
+ */
+export const GoogleAuthorizeAuthGoogleAuthorizeGetResponse = zod.unknown()
+
+/**
+ * Handle Google's OAuth callback — exchange code, create/link user, set cookies.
+ * @summary Google Callback
+ */
+export const GoogleCallbackAuthGoogleCallbackGetResponse = zod.unknown()
+
+/**
+ * @summary Get Current User
+ */
+export const getCurrentUserAuthMeGetResponseIsActiveDefault = true;export const getCurrentUserAuthMeGetResponseIsSuperuserDefault = false;export const getCurrentUserAuthMeGetResponseIsVerifiedDefault = false;
+
+export const GetCurrentUserAuthMeGetResponse = zod.object({
+  "id": zod.uuid(),
+  "email": zod.email(),
+  "is_active": zod.boolean().default(getCurrentUserAuthMeGetResponseIsActiveDefault),
+  "is_superuser": zod.boolean().default(getCurrentUserAuthMeGetResponseIsSuperuserDefault),
+  "is_verified": zod.boolean().default(getCurrentUserAuthMeGetResponseIsVerifiedDefault)
+}).describe('Schema for reading user data.')
 

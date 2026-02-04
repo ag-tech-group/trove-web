@@ -33,7 +33,7 @@ const features = [
     icon: Search,
     title: "Search",
     description:
-      "Find any item instantly with full-text search and category filters.",
+      "Find any item instantly with full-text search and tag filters.",
   },
 ]
 
