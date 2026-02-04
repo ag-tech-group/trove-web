@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
 export type ListItemsItemsGetParams = {
@@ -12,9 +12,9 @@ export type ListItemsItemsGetParams = {
  */
 collection_id?: string | null;
 /**
- * Filter by category
+ * Filter by tag name
  */
-category?: string | null;
+tag?: string | null;
 /**
  * Search in name and description
  */

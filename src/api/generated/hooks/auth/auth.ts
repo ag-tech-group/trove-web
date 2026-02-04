@@ -3,20 +3,28 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import {
-  useMutation
+  useMutation,
+  useQuery
 } from '@tanstack/react-query';
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
-  BearerResponse,
   BodyAuthJwtLoginAuthJwtLoginPost,
   ErrorModel,
   HTTPValidationError,
@@ -32,11 +40,197 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
+ * @summary Refresh Access Token
+ */
+export type refreshAccessTokenAuthRefreshPostResponse204 = {
+  data: void
+  status: 204
+}
+
+export type refreshAccessTokenAuthRefreshPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type refreshAccessTokenAuthRefreshPostResponseSuccess = (refreshAccessTokenAuthRefreshPostResponse204) & {
+  headers: Headers;
+};
+export type refreshAccessTokenAuthRefreshPostResponseError = (refreshAccessTokenAuthRefreshPostResponse422) & {
+  headers: Headers;
+};
+
+export type refreshAccessTokenAuthRefreshPostResponse = (refreshAccessTokenAuthRefreshPostResponseSuccess | refreshAccessTokenAuthRefreshPostResponseError)
+
+export const getRefreshAccessTokenAuthRefreshPostUrl = () => {
+
+
+  
+
+  return `/auth/refresh`
+}
+
+export const refreshAccessTokenAuthRefreshPost = async ( options?: RequestInit): Promise<refreshAccessTokenAuthRefreshPostResponse> => {
+  
+  return orvalClient<refreshAccessTokenAuthRefreshPostResponse>(getRefreshAccessTokenAuthRefreshPostUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+
+export const getRefreshAccessTokenAuthRefreshPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshAccessTokenAuthRefreshPost>>, TError,void, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof refreshAccessTokenAuthRefreshPost>>, TError,void, TContext> => {
+
+const mutationKey = ['refreshAccessTokenAuthRefreshPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof refreshAccessTokenAuthRefreshPost>>, void> = () => {
+          
+
+          return  refreshAccessTokenAuthRefreshPost(requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RefreshAccessTokenAuthRefreshPostMutationResult = NonNullable<Awaited<ReturnType<typeof refreshAccessTokenAuthRefreshPost>>>
+    
+    export type RefreshAccessTokenAuthRefreshPostMutationError = HTTPValidationError
+
+    /**
+ * @summary Refresh Access Token
+ */
+export const useRefreshAccessTokenAuthRefreshPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshAccessTokenAuthRefreshPost>>, TError,void, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof refreshAccessTokenAuthRefreshPost>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRefreshAccessTokenAuthRefreshPostMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary Auth:Jwt.Logout
+ */
+export type authJwtLogoutAuthJwtLogoutPostResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type authJwtLogoutAuthJwtLogoutPostResponse204 = {
+  data: void
+  status: 204
+}
+
+export type authJwtLogoutAuthJwtLogoutPostResponse401 = {
+  data: void
+  status: 401
+}
+    
+export type authJwtLogoutAuthJwtLogoutPostResponseSuccess = (authJwtLogoutAuthJwtLogoutPostResponse200 | authJwtLogoutAuthJwtLogoutPostResponse204) & {
+  headers: Headers;
+};
+export type authJwtLogoutAuthJwtLogoutPostResponseError = (authJwtLogoutAuthJwtLogoutPostResponse401) & {
+  headers: Headers;
+};
+
+export type authJwtLogoutAuthJwtLogoutPostResponse = (authJwtLogoutAuthJwtLogoutPostResponseSuccess | authJwtLogoutAuthJwtLogoutPostResponseError)
+
+export const getAuthJwtLogoutAuthJwtLogoutPostUrl = () => {
+
+
+  
+
+  return `/auth/jwt/logout`
+}
+
+export const authJwtLogoutAuthJwtLogoutPost = async ( options?: RequestInit): Promise<authJwtLogoutAuthJwtLogoutPostResponse> => {
+  
+  return orvalClient<authJwtLogoutAuthJwtLogoutPostResponse>(getAuthJwtLogoutAuthJwtLogoutPostUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+
+export const getAuthJwtLogoutAuthJwtLogoutPostMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, TError,void, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, TError,void, TContext> => {
+
+const mutationKey = ['authJwtLogoutAuthJwtLogoutPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, void> = () => {
+          
+
+          return  authJwtLogoutAuthJwtLogoutPost(requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthJwtLogoutAuthJwtLogoutPostMutationResult = NonNullable<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>>
+    
+    export type AuthJwtLogoutAuthJwtLogoutPostMutationError = void
+
+    /**
+ * @summary Auth:Jwt.Logout
+ */
+export const useAuthJwtLogoutAuthJwtLogoutPost = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, TError,void, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getAuthJwtLogoutAuthJwtLogoutPostMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Auth:Jwt.Login
  */
 export type authJwtLoginAuthJwtLoginPostResponse200 = {
-  data: BearerResponse
+  data: unknown
   status: 200
+}
+
+export type authJwtLoginAuthJwtLoginPostResponse204 = {
+  data: void
+  status: 204
 }
 
 export type authJwtLoginAuthJwtLoginPostResponse400 = {
@@ -49,7 +243,7 @@ export type authJwtLoginAuthJwtLoginPostResponse422 = {
   status: 422
 }
     
-export type authJwtLoginAuthJwtLoginPostResponseSuccess = (authJwtLoginAuthJwtLoginPostResponse200) & {
+export type authJwtLoginAuthJwtLoginPostResponseSuccess = (authJwtLoginAuthJwtLoginPostResponse200 | authJwtLoginAuthJwtLoginPostResponse204) & {
   headers: Headers;
 };
 export type authJwtLoginAuthJwtLoginPostResponseError = (authJwtLoginAuthJwtLoginPostResponse400 | authJwtLoginAuthJwtLoginPostResponse422) & {
@@ -139,94 +333,6 @@ export const useAuthJwtLoginAuthJwtLoginPost = <TError = ErrorModel | HTTPValida
         TContext
       > => {
       return useMutation(getAuthJwtLoginAuthJwtLoginPostMutationOptions(options), queryClient);
-    }
-    /**
- * @summary Auth:Jwt.Logout
- */
-export type authJwtLogoutAuthJwtLogoutPostResponse200 = {
-  data: unknown
-  status: 200
-}
-
-export type authJwtLogoutAuthJwtLogoutPostResponse401 = {
-  data: void
-  status: 401
-}
-    
-export type authJwtLogoutAuthJwtLogoutPostResponseSuccess = (authJwtLogoutAuthJwtLogoutPostResponse200) & {
-  headers: Headers;
-};
-export type authJwtLogoutAuthJwtLogoutPostResponseError = (authJwtLogoutAuthJwtLogoutPostResponse401) & {
-  headers: Headers;
-};
-
-export type authJwtLogoutAuthJwtLogoutPostResponse = (authJwtLogoutAuthJwtLogoutPostResponseSuccess | authJwtLogoutAuthJwtLogoutPostResponseError)
-
-export const getAuthJwtLogoutAuthJwtLogoutPostUrl = () => {
-
-
-  
-
-  return `/auth/jwt/logout`
-}
-
-export const authJwtLogoutAuthJwtLogoutPost = async ( options?: RequestInit): Promise<authJwtLogoutAuthJwtLogoutPostResponse> => {
-  
-  return orvalClient<authJwtLogoutAuthJwtLogoutPostResponse>(getAuthJwtLogoutAuthJwtLogoutPostUrl(),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-
-
-
-
-export const getAuthJwtLogoutAuthJwtLogoutPostMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, TError,void, TContext>, request?: SecondParameter<typeof orvalClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, TError,void, TContext> => {
-
-const mutationKey = ['authJwtLogoutAuthJwtLogoutPost'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, void> = () => {
-          
-
-          return  authJwtLogoutAuthJwtLogoutPost(requestOptions)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type AuthJwtLogoutAuthJwtLogoutPostMutationResult = NonNullable<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>>
-    
-    export type AuthJwtLogoutAuthJwtLogoutPostMutationError = void
-
-    /**
- * @summary Auth:Jwt.Logout
- */
-export const useAuthJwtLogoutAuthJwtLogoutPost = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>, TError,void, TContext>, request?: SecondParameter<typeof orvalClient>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getAuthJwtLogoutAuthJwtLogoutPostMutationOptions(options), queryClient);
     }
     /**
  * @summary Register:Register
@@ -322,4 +428,335 @@ export const useRegisterRegisterAuthRegisterPost = <TError = ErrorModel | HTTPVa
       > => {
       return useMutation(getRegisterRegisterAuthRegisterPostMutationOptions(options), queryClient);
     }
+    /**
+ * Redirect user to Google's OAuth consent screen.
+ * @summary Google Authorize
+ */
+export type googleAuthorizeAuthGoogleAuthorizeGetResponse200 = {
+  data: unknown
+  status: 200
+}
     
+export type googleAuthorizeAuthGoogleAuthorizeGetResponseSuccess = (googleAuthorizeAuthGoogleAuthorizeGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type googleAuthorizeAuthGoogleAuthorizeGetResponse = (googleAuthorizeAuthGoogleAuthorizeGetResponseSuccess)
+
+export const getGoogleAuthorizeAuthGoogleAuthorizeGetUrl = () => {
+
+
+  
+
+  return `/auth/google/authorize`
+}
+
+export const googleAuthorizeAuthGoogleAuthorizeGet = async ( options?: RequestInit): Promise<googleAuthorizeAuthGoogleAuthorizeGetResponse> => {
+  
+  return orvalClient<googleAuthorizeAuthGoogleAuthorizeGetResponse>(getGoogleAuthorizeAuthGoogleAuthorizeGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGoogleAuthorizeAuthGoogleAuthorizeGetQueryKey = () => {
+    return [
+    `/auth/google/authorize`
+    ] as const;
+    }
+
+    
+export const getGoogleAuthorizeAuthGoogleAuthorizeGetQueryOptions = <TData = Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGoogleAuthorizeAuthGoogleAuthorizeGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>> = ({ signal }) => googleAuthorizeAuthGoogleAuthorizeGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GoogleAuthorizeAuthGoogleAuthorizeGetQueryResult = NonNullable<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>>
+export type GoogleAuthorizeAuthGoogleAuthorizeGetQueryError = unknown
+
+
+export function useGoogleAuthorizeAuthGoogleAuthorizeGet<TData = Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>,
+          TError,
+          Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGoogleAuthorizeAuthGoogleAuthorizeGet<TData = Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>,
+          TError,
+          Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGoogleAuthorizeAuthGoogleAuthorizeGet<TData = Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Google Authorize
+ */
+
+export function useGoogleAuthorizeAuthGoogleAuthorizeGet<TData = Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleAuthorizeAuthGoogleAuthorizeGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGoogleAuthorizeAuthGoogleAuthorizeGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * Handle Google's OAuth callback — exchange code, create/link user, set cookies.
+ * @summary Google Callback
+ */
+export type googleCallbackAuthGoogleCallbackGetResponse200 = {
+  data: unknown
+  status: 200
+}
+    
+export type googleCallbackAuthGoogleCallbackGetResponseSuccess = (googleCallbackAuthGoogleCallbackGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type googleCallbackAuthGoogleCallbackGetResponse = (googleCallbackAuthGoogleCallbackGetResponseSuccess)
+
+export const getGoogleCallbackAuthGoogleCallbackGetUrl = () => {
+
+
+  
+
+  return `/auth/google/callback`
+}
+
+export const googleCallbackAuthGoogleCallbackGet = async ( options?: RequestInit): Promise<googleCallbackAuthGoogleCallbackGetResponse> => {
+  
+  return orvalClient<googleCallbackAuthGoogleCallbackGetResponse>(getGoogleCallbackAuthGoogleCallbackGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGoogleCallbackAuthGoogleCallbackGetQueryKey = () => {
+    return [
+    `/auth/google/callback`
+    ] as const;
+    }
+
+    
+export const getGoogleCallbackAuthGoogleCallbackGetQueryOptions = <TData = Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGoogleCallbackAuthGoogleCallbackGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>> = ({ signal }) => googleCallbackAuthGoogleCallbackGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GoogleCallbackAuthGoogleCallbackGetQueryResult = NonNullable<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>>
+export type GoogleCallbackAuthGoogleCallbackGetQueryError = unknown
+
+
+export function useGoogleCallbackAuthGoogleCallbackGet<TData = Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>,
+          TError,
+          Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGoogleCallbackAuthGoogleCallbackGet<TData = Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>,
+          TError,
+          Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGoogleCallbackAuthGoogleCallbackGet<TData = Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Google Callback
+ */
+
+export function useGoogleCallbackAuthGoogleCallbackGet<TData = Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof googleCallbackAuthGoogleCallbackGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGoogleCallbackAuthGoogleCallbackGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * @summary Get Current User
+ */
+export type getCurrentUserAuthMeGetResponse200 = {
+  data: UserRead
+  status: 200
+}
+    
+export type getCurrentUserAuthMeGetResponseSuccess = (getCurrentUserAuthMeGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getCurrentUserAuthMeGetResponse = (getCurrentUserAuthMeGetResponseSuccess)
+
+export const getGetCurrentUserAuthMeGetUrl = () => {
+
+
+  
+
+  return `/auth/me`
+}
+
+export const getCurrentUserAuthMeGet = async ( options?: RequestInit): Promise<getCurrentUserAuthMeGetResponse> => {
+  
+  return orvalClient<getCurrentUserAuthMeGetResponse>(getGetCurrentUserAuthMeGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetCurrentUserAuthMeGetQueryKey = () => {
+    return [
+    `/auth/me`
+    ] as const;
+    }
+
+    
+export const getGetCurrentUserAuthMeGetQueryOptions = <TData = Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCurrentUserAuthMeGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>> = ({ signal }) => getCurrentUserAuthMeGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCurrentUserAuthMeGetQueryResult = NonNullable<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>>
+export type GetCurrentUserAuthMeGetQueryError = unknown
+
+
+export function useGetCurrentUserAuthMeGet<TData = Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>,
+          TError,
+          Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCurrentUserAuthMeGet<TData = Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>,
+          TError,
+          Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCurrentUserAuthMeGet<TData = Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Current User
+ */
+
+export function useGetCurrentUserAuthMeGet<TData = Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserAuthMeGet>>, TError, TData>>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCurrentUserAuthMeGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+

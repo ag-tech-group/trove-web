@@ -3,9 +3,10 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import type { Condition } from './condition';
+import type { TagRead } from './tagRead';
 
 /**
  * Schema for reading an Item.
@@ -14,7 +15,6 @@ export interface ItemRead {
   /** @maxLength 200 */
   name: string;
   description?: string | null;
-  category?: string | null;
   condition?: Condition | null;
   location?: string | null;
   acquisition_date?: string | null;
@@ -33,6 +33,7 @@ export interface ItemRead {
   id: string;
   user_id: string;
   collection_id: string | null;
+  tags?: TagRead[];
   created_at: string;
   updated_at: string;
 }

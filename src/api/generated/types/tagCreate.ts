@@ -7,12 +7,9 @@
  */
 
 /**
- * Schema for creating a new user.
+ * Schema for creating a Tag.
  */
-export interface UserCreate {
-  email: string;
-  password: string;
-  is_active?: boolean | null;
-  is_superuser?: boolean | null;
-  is_verified?: boolean | null;
+export interface TagCreate {
+  /** @maxLength 100 */
+  name: string;
 }

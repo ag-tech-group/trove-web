@@ -22,7 +22,7 @@ import {
   useListItemsItemsGet,
   getListItemsItemsGetQueryKey,
 } from "@/api/generated/hooks/items/items"
-import { useListCategoriesCategoriesGet } from "@/api/generated/hooks/categories/categories"
+import { useListTagsTagsGet } from "@/api/generated/hooks/tags/tags"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
@@ -63,7 +63,7 @@ export function CollectionDetailPage() {
     from: "/collections/$collectionId",
   })
   const [search, setSearch] = useState("")
-  const [category, setCategory] = useState<string>("")
+  const [tag, setTag] = useState<string>("")
   const [sort, setSort] = useState<SortKey>("name")
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -76,12 +76,12 @@ export function CollectionDetailPage() {
 
   const { data: itemsRes, isLoading: itemsLoading } = useListItemsItemsGet({
     collection_id: collectionId,
-    category: category || undefined,
+    tag: tag || undefined,
     search: search || undefined,
   })
 
-  const { data: categoriesRes } = useListCategoriesCategoriesGet()
-  const categories = categoriesRes?.data ?? []
+  const { data: tagsRes } = useListTagsTagsGet()
+  const tags = tagsRes?.data ?? []
 
   const sortedItems = useMemo(() => {
     const items = itemsRes?.status === 200 ? itemsRes.data : []
@@ -166,15 +166,15 @@ export function CollectionDetailPage() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={tag} onValueChange={setTag}>
                 <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="All categories" />
+                  <SelectValue placeholder="All tags" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
+                  <SelectItem value="all">All tags</SelectItem>
+                  {tags.map((t) => (
+                    <SelectItem key={t.id} value={t.name}>
+                      {t.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -243,11 +243,11 @@ function ItemCard({ item }: { item: ItemRead }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="truncate font-medium">{item.name}</span>
-              {item.category && (
-                <Badge variant="secondary" className="shrink-0">
-                  {item.category}
+              {item.tags?.map((t) => (
+                <Badge key={t.id} variant="secondary" className="shrink-0">
+                  {t.name}
                 </Badge>
-              )}
+              ))}
               {item.condition && item.condition !== "unknown" && (
                 <Badge variant="outline" className="shrink-0 capitalize">
                   {item.condition}

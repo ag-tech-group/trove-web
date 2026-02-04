@@ -3,10 +3,9 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
-export * from './bearerResponse';
 export * from './bodyAuthJwtLoginAuthJwtLoginPost';
 export * from './collectionCreate';
 export * from './collectionRead';
@@ -20,6 +19,9 @@ export * from './itemCreate';
 export * from './itemRead';
 export * from './itemUpdate';
 export * from './listItemsItemsGetParams';
+export * from './tagCreate';
+export * from './tagRead';
+export * from './tagUpdate';
 export * from './userCreate';
 export * from './userRead';
 export * from './validationError';

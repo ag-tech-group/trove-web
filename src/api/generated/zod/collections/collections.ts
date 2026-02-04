@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from 'zod';
 
@@ -14,11 +14,13 @@ import * as zod from 'zod';
  */
 export const listCollectionsCollectionsGetResponseNameMax = 200;
 
+export const listCollectionsCollectionsGetResponseDescriptionOneMax = 2000;
+
 export const listCollectionsCollectionsGetResponseItemCountDefault = 0;
 
 export const ListCollectionsCollectionsGetResponseItem = zod.object({
   "name": zod.string().max(listCollectionsCollectionsGetResponseNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(listCollectionsCollectionsGetResponseDescriptionOneMax),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
@@ -33,11 +35,13 @@ export const ListCollectionsCollectionsGetResponse = zod.array(ListCollectionsCo
  */
 export const createCollectionCollectionsPostBodyNameMax = 200;
 
+export const createCollectionCollectionsPostBodyDescriptionOneMax = 2000;
+
 
 
 export const CreateCollectionCollectionsPostBody = zod.object({
   "name": zod.string().max(createCollectionCollectionsPostBodyNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional()
+  "description": zod.union([zod.string().max(createCollectionCollectionsPostBodyDescriptionOneMax),zod.null()]).optional()
 }).describe('Schema for creating a Collection.')
 
 /**
@@ -50,11 +54,13 @@ export const GetCollectionCollectionsCollectionIdGetParams = zod.object({
 
 export const getCollectionCollectionsCollectionIdGetResponseNameMax = 200;
 
+export const getCollectionCollectionsCollectionIdGetResponseDescriptionOneMax = 2000;
+
 export const getCollectionCollectionsCollectionIdGetResponseItemCountDefault = 0;
 
 export const GetCollectionCollectionsCollectionIdGetResponse = zod.object({
   "name": zod.string().max(getCollectionCollectionsCollectionIdGetResponseNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(getCollectionCollectionsCollectionIdGetResponseDescriptionOneMax),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
@@ -72,20 +78,24 @@ export const UpdateCollectionCollectionsCollectionIdPatchParams = zod.object({
 
 export const updateCollectionCollectionsCollectionIdPatchBodyNameOneMax = 200;
 
+export const updateCollectionCollectionsCollectionIdPatchBodyDescriptionOneMax = 2000;
+
 
 
 export const UpdateCollectionCollectionsCollectionIdPatchBody = zod.object({
   "name": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchBodyNameOneMax),zod.null()]).optional(),
-  "description": zod.union([zod.string(),zod.null()]).optional()
+  "description": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchBodyDescriptionOneMax),zod.null()]).optional()
 }).describe('Schema for updating a Collection.')
 
 export const updateCollectionCollectionsCollectionIdPatchResponseNameMax = 200;
+
+export const updateCollectionCollectionsCollectionIdPatchResponseDescriptionOneMax = 2000;
 
 
 
 export const UpdateCollectionCollectionsCollectionIdPatchResponse = zod.object({
   "name": zod.string().max(updateCollectionCollectionsCollectionIdPatchResponseNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateCollectionCollectionsCollectionIdPatchResponseDescriptionOneMax),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),

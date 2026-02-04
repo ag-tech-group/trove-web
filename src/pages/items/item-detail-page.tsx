@@ -69,9 +69,11 @@ export function ItemDetailPage() {
                   {item.name}
                 </h1>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {item.category && (
-                    <Badge variant="secondary">{item.category}</Badge>
-                  )}
+                  {item.tags?.map((t) => (
+                    <Badge key={t.id} variant="secondary">
+                      {t.name}
+                    </Badge>
+                  ))}
                   {item.condition && item.condition !== "unknown" && (
                     <Badge variant="outline" className="capitalize">
                       {item.condition}

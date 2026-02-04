@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import {
   faker
@@ -18,30 +18,37 @@ import type {
 } from 'msw';
 
 import type {
-  BearerResponse,
   UserRead
 } from '../../types';
 
 
-export const getAuthJwtLoginAuthJwtLoginPostResponseMock = (overrideResponse: Partial< BearerResponse > = {}): BearerResponse => ({access_token: faker.string.alpha({length: {min: 10, max: 20}}), token_type: faker.string.alpha({length: {min: 10, max: 20}}), ...overrideResponse})
-
 export const getRegisterRegisterAuthRegisterPostResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 
+export const getGetCurrentUserAuthMeGetResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 
-export const getAuthJwtLoginAuthJwtLoginPostMockHandler = (overrideResponse?: BearerResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<BearerResponse> | BearerResponse), options?: RequestHandlerOptions) => {
-  return http.post('*/auth/jwt/login', async (info) => {
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
-    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
-    : getAuthJwtLoginAuthJwtLoginPostResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
+
+export const getRefreshAccessTokenAuthRefreshPostMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
+  return http.post('*/auth/refresh', async (info) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 204,
+        
       })
   }, options)
 }
 
-export const getAuthJwtLogoutAuthJwtLogoutPostMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
+export const getAuthJwtLogoutAuthJwtLogoutPostMockHandler = (overrideResponse?: unknown | void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<unknown | void> | unknown | void), options?: RequestHandlerOptions) => {
   return http.post('*/auth/jwt/logout', async (info) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  }, options)
+}
+
+export const getAuthJwtLoginAuthJwtLoginPostMockHandler = (overrideResponse?: unknown | void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<unknown | void> | unknown | void), options?: RequestHandlerOptions) => {
+  return http.post('*/auth/jwt/login', async (info) => {
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
       { status: 200,
@@ -61,8 +68,44 @@ export const getRegisterRegisterAuthRegisterPostMockHandler = (overrideResponse?
       })
   }, options)
 }
+
+export const getGoogleAuthorizeAuthGoogleAuthorizeGetMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
+  return http.get('*/auth/google/authorize', async (info) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  }, options)
+}
+
+export const getGoogleCallbackAuthGoogleCallbackGetMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
+  return http.get('*/auth/google/callback', async (info) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  }, options)
+}
+
+export const getGetCurrentUserAuthMeGetMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserRead> | UserRead), options?: RequestHandlerOptions) => {
+  return http.get('*/auth/me', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetCurrentUserAuthMeGetResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 export const getAuthMock = () => [
-  getAuthJwtLoginAuthJwtLoginPostMockHandler(),
+  getRefreshAccessTokenAuthRefreshPostMockHandler(),
   getAuthJwtLogoutAuthJwtLogoutPostMockHandler(),
-  getRegisterRegisterAuthRegisterPostMockHandler()
+  getAuthJwtLoginAuthJwtLoginPostMockHandler(),
+  getRegisterRegisterAuthRegisterPostMockHandler(),
+  getGoogleAuthorizeAuthGoogleAuthorizeGetMockHandler(),
+  getGoogleCallbackAuthGoogleCallbackGetMockHandler(),
+  getGetCurrentUserAuthMeGetMockHandler()
 ]

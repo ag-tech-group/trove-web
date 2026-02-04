@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Trove API
  * Personal collection management API for tracking antiques, art, and valuables
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from 'zod';
 
@@ -12,15 +12,19 @@ import * as zod from 'zod';
  * List all items for the current user with optional filters.
  * @summary List Items
  */
+export const listItemsItemsGetQuerySearchOneMax = 200;
+
+
+
 export const ListItemsItemsGetQueryParams = zod.object({
   "collection_id": zod.union([zod.uuid(),zod.null()]).optional().describe('Filter by collection'),
-  "category": zod.union([zod.string(),zod.null()]).optional().describe('Filter by category'),
-  "search": zod.union([zod.string(),zod.null()]).optional().describe('Search in name and description')
+  "tag": zod.union([zod.string(),zod.null()]).optional().describe('Filter by tag name'),
+  "search": zod.union([zod.string().max(listItemsItemsGetQuerySearchOneMax),zod.null()]).optional().describe('Search in name and description')
 })
 
 export const listItemsItemsGetResponseNameMax = 200;
 
-export const listItemsItemsGetResponseCategoryOneMax = 100;
+export const listItemsItemsGetResponseDescriptionOneMax = 5000;
 
 export const listItemsItemsGetResponseLocationOneMax = 200;
 
@@ -32,18 +36,21 @@ export const listItemsItemsGetResponseOriginOneMax = 200;
 
 export const listItemsItemsGetResponseDateEraOneMax = 100;
 
+export const listItemsItemsGetResponseProvenanceNotesOneMax = 5000;
+
 export const listItemsItemsGetResponseHeightCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const listItemsItemsGetResponseWidthCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const listItemsItemsGetResponseDepthCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const listItemsItemsGetResponseWeightKgOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$');
 export const listItemsItemsGetResponseMaterialsOneMax = 500;
 
+export const listItemsItemsGetResponseNotesOneMax = 5000;
+
 
 
 export const ListItemsItemsGetResponseItem = zod.object({
   "name": zod.string().max(listItemsItemsGetResponseNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
-  "category": zod.union([zod.string().max(listItemsItemsGetResponseCategoryOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(listItemsItemsGetResponseDescriptionOneMax),zod.null()]).optional(),
   "condition": zod.union([zod.enum(['excellent', 'good', 'fair', 'poor', 'unknown']).describe('Condition of an item.'),zod.null()]).optional(),
   "location": zod.union([zod.string().max(listItemsItemsGetResponseLocationOneMax),zod.null()]).optional(),
   "acquisition_date": zod.union([zod.iso.date(),zod.null()]).optional(),
@@ -52,16 +59,21 @@ export const ListItemsItemsGetResponseItem = zod.object({
   "artist_maker": zod.union([zod.string().max(listItemsItemsGetResponseArtistMakerOneMax),zod.null()]).optional(),
   "origin": zod.union([zod.string().max(listItemsItemsGetResponseOriginOneMax),zod.null()]).optional(),
   "date_era": zod.union([zod.string().max(listItemsItemsGetResponseDateEraOneMax),zod.null()]).optional(),
-  "provenance_notes": zod.union([zod.string(),zod.null()]).optional(),
+  "provenance_notes": zod.union([zod.string().max(listItemsItemsGetResponseProvenanceNotesOneMax),zod.null()]).optional(),
   "height_cm": zod.union([zod.string().regex(listItemsItemsGetResponseHeightCmOneRegExp),zod.null()]).optional(),
   "width_cm": zod.union([zod.string().regex(listItemsItemsGetResponseWidthCmOneRegExp),zod.null()]).optional(),
   "depth_cm": zod.union([zod.string().regex(listItemsItemsGetResponseDepthCmOneRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.string().regex(listItemsItemsGetResponseWeightKgOneRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(listItemsItemsGetResponseMaterialsOneMax),zod.null()]).optional(),
-  "notes": zod.union([zod.string(),zod.null()]).optional(),
+  "notes": zod.union([zod.string().max(listItemsItemsGetResponseNotesOneMax),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
+  "tags": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading a Tag.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an Item.')
@@ -73,7 +85,7 @@ export const ListItemsItemsGetResponse = zod.array(ListItemsItemsGetResponseItem
  */
 export const createItemItemsPostBodyNameMax = 200;
 
-export const createItemItemsPostBodyCategoryOneMax = 100;
+export const createItemItemsPostBodyDescriptionOneMax = 5000;
 
 export const createItemItemsPostBodyLocationOneMax = 200;
 
@@ -89,6 +101,8 @@ export const createItemItemsPostBodyOriginOneMax = 200;
 
 export const createItemItemsPostBodyDateEraOneMax = 100;
 
+export const createItemItemsPostBodyProvenanceNotesOneMax = 5000;
+
 export const createItemItemsPostBodyHeightCmOneMin = 0;
 
 export const createItemItemsPostBodyHeightCmTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
@@ -103,12 +117,13 @@ export const createItemItemsPostBodyWeightKgOneMin = 0;
 export const createItemItemsPostBodyWeightKgTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$');
 export const createItemItemsPostBodyMaterialsOneMax = 500;
 
+export const createItemItemsPostBodyNotesOneMax = 5000;
+
 
 
 export const CreateItemItemsPostBody = zod.object({
   "name": zod.string().max(createItemItemsPostBodyNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
-  "category": zod.union([zod.string().max(createItemItemsPostBodyCategoryOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(createItemItemsPostBodyDescriptionOneMax),zod.null()]).optional(),
   "condition": zod.union([zod.enum(['excellent', 'good', 'fair', 'poor', 'unknown']).describe('Condition of an item.'),zod.null()]).optional(),
   "location": zod.union([zod.string().max(createItemItemsPostBodyLocationOneMax),zod.null()]).optional(),
   "acquisition_date": zod.union([zod.iso.date(),zod.null()]).optional(),
@@ -117,14 +132,15 @@ export const CreateItemItemsPostBody = zod.object({
   "artist_maker": zod.union([zod.string().max(createItemItemsPostBodyArtistMakerOneMax),zod.null()]).optional(),
   "origin": zod.union([zod.string().max(createItemItemsPostBodyOriginOneMax),zod.null()]).optional(),
   "date_era": zod.union([zod.string().max(createItemItemsPostBodyDateEraOneMax),zod.null()]).optional(),
-  "provenance_notes": zod.union([zod.string(),zod.null()]).optional(),
+  "provenance_notes": zod.union([zod.string().max(createItemItemsPostBodyProvenanceNotesOneMax),zod.null()]).optional(),
   "height_cm": zod.union([zod.number().min(createItemItemsPostBodyHeightCmOneMin),zod.string().regex(createItemItemsPostBodyHeightCmTwoRegExp),zod.null()]).optional(),
   "width_cm": zod.union([zod.number().min(createItemItemsPostBodyWidthCmOneMin),zod.string().regex(createItemItemsPostBodyWidthCmTwoRegExp),zod.null()]).optional(),
   "depth_cm": zod.union([zod.number().min(createItemItemsPostBodyDepthCmOneMin),zod.string().regex(createItemItemsPostBodyDepthCmTwoRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.number().min(createItemItemsPostBodyWeightKgOneMin),zod.string().regex(createItemItemsPostBodyWeightKgTwoRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(createItemItemsPostBodyMaterialsOneMax),zod.null()]).optional(),
-  "notes": zod.union([zod.string(),zod.null()]).optional(),
-  "collection_id": zod.union([zod.uuid(),zod.null()]).optional()
+  "notes": zod.union([zod.string().max(createItemItemsPostBodyNotesOneMax),zod.null()]).optional(),
+  "collection_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "tag_ids": zod.array(zod.uuid()).optional()
 }).describe('Schema for creating an Item.')
 
 /**
@@ -137,7 +153,7 @@ export const GetItemItemsItemIdGetParams = zod.object({
 
 export const getItemItemsItemIdGetResponseNameMax = 200;
 
-export const getItemItemsItemIdGetResponseCategoryOneMax = 100;
+export const getItemItemsItemIdGetResponseDescriptionOneMax = 5000;
 
 export const getItemItemsItemIdGetResponseLocationOneMax = 200;
 
@@ -149,18 +165,21 @@ export const getItemItemsItemIdGetResponseOriginOneMax = 200;
 
 export const getItemItemsItemIdGetResponseDateEraOneMax = 100;
 
+export const getItemItemsItemIdGetResponseProvenanceNotesOneMax = 5000;
+
 export const getItemItemsItemIdGetResponseHeightCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const getItemItemsItemIdGetResponseWidthCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const getItemItemsItemIdGetResponseDepthCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const getItemItemsItemIdGetResponseWeightKgOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$');
 export const getItemItemsItemIdGetResponseMaterialsOneMax = 500;
 
+export const getItemItemsItemIdGetResponseNotesOneMax = 5000;
+
 
 
 export const GetItemItemsItemIdGetResponse = zod.object({
   "name": zod.string().max(getItemItemsItemIdGetResponseNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
-  "category": zod.union([zod.string().max(getItemItemsItemIdGetResponseCategoryOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(getItemItemsItemIdGetResponseDescriptionOneMax),zod.null()]).optional(),
   "condition": zod.union([zod.enum(['excellent', 'good', 'fair', 'poor', 'unknown']).describe('Condition of an item.'),zod.null()]).optional(),
   "location": zod.union([zod.string().max(getItemItemsItemIdGetResponseLocationOneMax),zod.null()]).optional(),
   "acquisition_date": zod.union([zod.iso.date(),zod.null()]).optional(),
@@ -169,16 +188,21 @@ export const GetItemItemsItemIdGetResponse = zod.object({
   "artist_maker": zod.union([zod.string().max(getItemItemsItemIdGetResponseArtistMakerOneMax),zod.null()]).optional(),
   "origin": zod.union([zod.string().max(getItemItemsItemIdGetResponseOriginOneMax),zod.null()]).optional(),
   "date_era": zod.union([zod.string().max(getItemItemsItemIdGetResponseDateEraOneMax),zod.null()]).optional(),
-  "provenance_notes": zod.union([zod.string(),zod.null()]).optional(),
+  "provenance_notes": zod.union([zod.string().max(getItemItemsItemIdGetResponseProvenanceNotesOneMax),zod.null()]).optional(),
   "height_cm": zod.union([zod.string().regex(getItemItemsItemIdGetResponseHeightCmOneRegExp),zod.null()]).optional(),
   "width_cm": zod.union([zod.string().regex(getItemItemsItemIdGetResponseWidthCmOneRegExp),zod.null()]).optional(),
   "depth_cm": zod.union([zod.string().regex(getItemItemsItemIdGetResponseDepthCmOneRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.string().regex(getItemItemsItemIdGetResponseWeightKgOneRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(getItemItemsItemIdGetResponseMaterialsOneMax),zod.null()]).optional(),
-  "notes": zod.union([zod.string(),zod.null()]).optional(),
+  "notes": zod.union([zod.string().max(getItemItemsItemIdGetResponseNotesOneMax),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
+  "tags": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading a Tag.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an Item.')
@@ -193,7 +217,7 @@ export const UpdateItemItemsItemIdPatchParams = zod.object({
 
 export const updateItemItemsItemIdPatchBodyNameOneMax = 200;
 
-export const updateItemItemsItemIdPatchBodyCategoryOneMax = 100;
+export const updateItemItemsItemIdPatchBodyDescriptionOneMax = 5000;
 
 export const updateItemItemsItemIdPatchBodyLocationOneMax = 200;
 
@@ -209,6 +233,8 @@ export const updateItemItemsItemIdPatchBodyOriginOneMax = 200;
 
 export const updateItemItemsItemIdPatchBodyDateEraOneMax = 100;
 
+export const updateItemItemsItemIdPatchBodyProvenanceNotesOneMax = 5000;
+
 export const updateItemItemsItemIdPatchBodyHeightCmOneMin = 0;
 
 export const updateItemItemsItemIdPatchBodyHeightCmTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
@@ -223,33 +249,35 @@ export const updateItemItemsItemIdPatchBodyWeightKgOneMin = 0;
 export const updateItemItemsItemIdPatchBodyWeightKgTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$');
 export const updateItemItemsItemIdPatchBodyMaterialsOneMax = 500;
 
+export const updateItemItemsItemIdPatchBodyNotesOneMax = 5000;
+
 
 
 export const UpdateItemItemsItemIdPatchBody = zod.object({
   "name": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyNameOneMax),zod.null()]).optional(),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
-  "category": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyCategoryOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyDescriptionOneMax),zod.null()]).optional(),
   "condition": zod.union([zod.enum(['excellent', 'good', 'fair', 'poor', 'unknown']).describe('Condition of an item.'),zod.null()]).optional(),
   "location": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyLocationOneMax),zod.null()]).optional(),
   "collection_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "tag_ids": zod.union([zod.array(zod.uuid()),zod.null()]).optional(),
   "acquisition_date": zod.union([zod.iso.date(),zod.null()]).optional(),
   "acquisition_price": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyAcquisitionPriceOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyAcquisitionPriceTwoRegExp),zod.null()]).optional(),
   "estimated_value": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyEstimatedValueOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyEstimatedValueTwoRegExp),zod.null()]).optional(),
   "artist_maker": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyArtistMakerOneMax),zod.null()]).optional(),
   "origin": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyOriginOneMax),zod.null()]).optional(),
   "date_era": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyDateEraOneMax),zod.null()]).optional(),
-  "provenance_notes": zod.union([zod.string(),zod.null()]).optional(),
+  "provenance_notes": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyProvenanceNotesOneMax),zod.null()]).optional(),
   "height_cm": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyHeightCmOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyHeightCmTwoRegExp),zod.null()]).optional(),
   "width_cm": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyWidthCmOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyWidthCmTwoRegExp),zod.null()]).optional(),
   "depth_cm": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyDepthCmOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyDepthCmTwoRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.number().min(updateItemItemsItemIdPatchBodyWeightKgOneMin),zod.string().regex(updateItemItemsItemIdPatchBodyWeightKgTwoRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyMaterialsOneMax),zod.null()]).optional(),
-  "notes": zod.union([zod.string(),zod.null()]).optional()
+  "notes": zod.union([zod.string().max(updateItemItemsItemIdPatchBodyNotesOneMax),zod.null()]).optional()
 }).describe('Schema for updating an Item.')
 
 export const updateItemItemsItemIdPatchResponseNameMax = 200;
 
-export const updateItemItemsItemIdPatchResponseCategoryOneMax = 100;
+export const updateItemItemsItemIdPatchResponseDescriptionOneMax = 5000;
 
 export const updateItemItemsItemIdPatchResponseLocationOneMax = 200;
 
@@ -261,18 +289,21 @@ export const updateItemItemsItemIdPatchResponseOriginOneMax = 200;
 
 export const updateItemItemsItemIdPatchResponseDateEraOneMax = 100;
 
+export const updateItemItemsItemIdPatchResponseProvenanceNotesOneMax = 5000;
+
 export const updateItemItemsItemIdPatchResponseHeightCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const updateItemItemsItemIdPatchResponseWidthCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const updateItemItemsItemIdPatchResponseDepthCmOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$');
 export const updateItemItemsItemIdPatchResponseWeightKgOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$');
 export const updateItemItemsItemIdPatchResponseMaterialsOneMax = 500;
 
+export const updateItemItemsItemIdPatchResponseNotesOneMax = 5000;
+
 
 
 export const UpdateItemItemsItemIdPatchResponse = zod.object({
   "name": zod.string().max(updateItemItemsItemIdPatchResponseNameMax),
-  "description": zod.union([zod.string(),zod.null()]).optional(),
-  "category": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseCategoryOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseDescriptionOneMax),zod.null()]).optional(),
   "condition": zod.union([zod.enum(['excellent', 'good', 'fair', 'poor', 'unknown']).describe('Condition of an item.'),zod.null()]).optional(),
   "location": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseLocationOneMax),zod.null()]).optional(),
   "acquisition_date": zod.union([zod.iso.date(),zod.null()]).optional(),
@@ -281,16 +312,21 @@ export const UpdateItemItemsItemIdPatchResponse = zod.object({
   "artist_maker": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseArtistMakerOneMax),zod.null()]).optional(),
   "origin": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseOriginOneMax),zod.null()]).optional(),
   "date_era": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseDateEraOneMax),zod.null()]).optional(),
-  "provenance_notes": zod.union([zod.string(),zod.null()]).optional(),
+  "provenance_notes": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseProvenanceNotesOneMax),zod.null()]).optional(),
   "height_cm": zod.union([zod.string().regex(updateItemItemsItemIdPatchResponseHeightCmOneRegExp),zod.null()]).optional(),
   "width_cm": zod.union([zod.string().regex(updateItemItemsItemIdPatchResponseWidthCmOneRegExp),zod.null()]).optional(),
   "depth_cm": zod.union([zod.string().regex(updateItemItemsItemIdPatchResponseDepthCmOneRegExp),zod.null()]).optional(),
   "weight_kg": zod.union([zod.string().regex(updateItemItemsItemIdPatchResponseWeightKgOneRegExp),zod.null()]).optional(),
   "materials": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseMaterialsOneMax),zod.null()]).optional(),
-  "notes": zod.union([zod.string(),zod.null()]).optional(),
+  "notes": zod.union([zod.string().max(updateItemItemsItemIdPatchResponseNotesOneMax),zod.null()]).optional(),
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
+  "tags": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading a Tag.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an Item.')
