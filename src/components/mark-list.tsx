@@ -8,12 +8,18 @@ import {
   useDeleteMarkItemsItemIdMarksMarkIdDelete,
   getListMarksItemsItemIdMarksGetQueryKey,
 } from "@/api/generated/hooks/marks/marks"
+import {
+  useUploadMarkImageItemsItemIdMarksMarkIdImagesPost,
+  useDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDelete,
+} from "@/api/generated/hooks/mark-images/mark-images"
 import { getGetItemItemsItemIdGetQueryKey } from "@/api/generated/hooks/items/items"
 import type { MarkRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
+import { ImageUpload } from "@/components/image-upload"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
@@ -75,6 +81,18 @@ export function MarkList({ itemId, marks }: MarkListProps) {
                   <p className="text-muted-foreground text-sm italic">
                     No details
                   </p>
+                )}
+                {mark.images && mark.images.length > 0 && (
+                  <div className="mt-2 flex gap-1.5">
+                    {mark.images.map((img) => (
+                      <img
+                        key={img.id}
+                        src={img.url}
+                        alt={img.filename}
+                        className="h-12 w-12 rounded border object-cover"
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
               <div className="flex shrink-0 gap-1">
@@ -225,6 +243,12 @@ function MarkFormDialog({
             </Button>
           </DialogFooter>
         </form>
+        {isEdit && mark && (
+          <>
+            <Separator />
+            <MarkImages itemId={itemId} mark={mark} />
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
@@ -287,5 +311,64 @@ function DeleteMarkDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function MarkImages({ itemId, mark }: { itemId: string; mark: MarkRead }) {
+  const queryClient = useQueryClient()
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({
+      queryKey: getListMarksItemsItemIdMarksGetQueryKey(itemId),
+    })
+    queryClient.invalidateQueries({
+      queryKey: getGetItemItemsItemIdGetQueryKey(itemId),
+    })
+  }
+
+  const uploadMutation = useUploadMarkImageItemsItemIdMarksMarkIdImagesPost({
+    mutation: {
+      onSuccess: () => {
+        toast.success("Image uploaded")
+        invalidate()
+      },
+      onError: async (err) => {
+        toast.error(await getErrorMessage(err, "Failed to upload image"))
+      },
+    },
+  })
+
+  const deleteMutation =
+    useDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDelete({
+      mutation: {
+        onSuccess: () => {
+          toast.success("Image deleted")
+          invalidate()
+        },
+        onError: async (err) => {
+          toast.error(await getErrorMessage(err, "Failed to delete image"))
+        },
+      },
+    })
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium">Images</p>
+      <ImageUpload
+        images={mark.images ?? []}
+        maxImages={3}
+        uploading={uploadMutation.isPending}
+        onUpload={async (file) => {
+          uploadMutation.mutate({
+            itemId,
+            markId: mark.id,
+            data: { file },
+          })
+        }}
+        onDelete={async (imageId) => {
+          deleteMutation.mutate({ itemId, markId: mark.id, imageId })
+        }}
+      />
+    </div>
   )
 }

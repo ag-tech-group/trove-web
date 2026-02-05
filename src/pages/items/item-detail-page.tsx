@@ -10,6 +10,10 @@ import {
   getListItemsItemsGetQueryKey,
 } from "@/api/generated/hooks/items/items"
 import {
+  useUploadItemImageItemsItemIdImagesPost,
+  useDeleteItemImageItemsItemIdImagesImageIdDelete,
+} from "@/api/generated/hooks/item-images/item-images"
+import {
   getGetCollectionCollectionsCollectionIdGetQueryKey,
   useGetCollectionCollectionsCollectionIdGet,
 } from "@/api/generated/hooks/collections/collections"
@@ -17,6 +21,7 @@ import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
+import { ImageUpload } from "@/components/image-upload"
 import { ItemForm } from "@/components/item-form"
 import { MarkList } from "@/components/mark-list"
 import { ProvenanceList } from "@/components/provenance-list"
@@ -125,6 +130,7 @@ export function ItemDetailPage() {
             <Tabs defaultValue="details">
               <TabsList>
                 <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="images">Images</TabsTrigger>
                 <TabsTrigger value="provenance">Provenance</TabsTrigger>
                 <TabsTrigger value="dimensions">Dimensions</TabsTrigger>
                 <TabsTrigger value="marks">Marks</TabsTrigger>
@@ -191,6 +197,10 @@ export function ItemDetailPage() {
                   !item.type_fields && (
                     <EmptyTab message="No details recorded yet." />
                   )}
+              </TabsContent>
+
+              <TabsContent value="images" className="mt-4">
+                <ItemImages itemId={item.id} images={item.images ?? []} />
               </TabsContent>
 
               <TabsContent value="provenance" className="mt-4 space-y-3">
@@ -407,5 +417,57 @@ function DeleteItemDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function ItemImages({
+  itemId,
+  images,
+}: {
+  itemId: string
+  images: NonNullable<ItemRead["images"]>
+}) {
+  const queryClient = useQueryClient()
+
+  const uploadMutation = useUploadItemImageItemsItemIdImagesPost({
+    mutation: {
+      onSuccess: () => {
+        toast.success("Image uploaded")
+        queryClient.invalidateQueries({
+          queryKey: getGetItemItemsItemIdGetQueryKey(itemId),
+        })
+      },
+      onError: async (err) => {
+        toast.error(await getErrorMessage(err, "Failed to upload image"))
+      },
+    },
+  })
+
+  const deleteMutation = useDeleteItemImageItemsItemIdImagesImageIdDelete({
+    mutation: {
+      onSuccess: () => {
+        toast.success("Image deleted")
+        queryClient.invalidateQueries({
+          queryKey: getGetItemItemsItemIdGetQueryKey(itemId),
+        })
+      },
+      onError: async (err) => {
+        toast.error(await getErrorMessage(err, "Failed to delete image"))
+      },
+    },
+  })
+
+  return (
+    <ImageUpload
+      images={images}
+      maxImages={10}
+      uploading={uploadMutation.isPending}
+      onUpload={async (file) => {
+        uploadMutation.mutate({ itemId, data: { file } })
+      }}
+      onDelete={async (imageId) => {
+        deleteMutation.mutate({ itemId, imageId })
+      }}
+    />
   )
 }

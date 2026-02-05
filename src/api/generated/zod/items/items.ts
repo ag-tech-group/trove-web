@@ -77,6 +77,17 @@ export const ListItemsItemsGetResponseItem = zod.object({
   "item_id": zod.uuid(),
   "title": zod.union([zod.string(),zod.null()]),
   "description": zod.union([zod.string(),zod.null()]),
+  "images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.number(),
+  "position": zod.number(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading a Mark.')).optional(),
@@ -98,6 +109,17 @@ export const ListItemsItemsGetResponseItem = zod.object({
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an ItemNote.')).optional(),
+  "images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.number(),
+  "position": zod.number(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an Item.')
@@ -228,6 +250,17 @@ export const GetItemItemsItemIdGetResponse = zod.object({
   "item_id": zod.uuid(),
   "title": zod.union([zod.string(),zod.null()]),
   "description": zod.union([zod.string(),zod.null()]),
+  "images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.number(),
+  "position": zod.number(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading a Mark.')).optional(),
@@ -249,6 +282,17 @@ export const GetItemItemsItemIdGetResponse = zod.object({
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an ItemNote.')).optional(),
+  "images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.number(),
+  "position": zod.number(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an Item.')
@@ -374,6 +418,17 @@ export const UpdateItemItemsItemIdPatchResponse = zod.object({
   "item_id": zod.uuid(),
   "title": zod.union([zod.string(),zod.null()]),
   "description": zod.union([zod.string(),zod.null()]),
+  "images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.number(),
+  "position": zod.number(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading a Mark.')).optional(),
@@ -395,6 +450,17 @@ export const UpdateItemItemsItemIdPatchResponse = zod.object({
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an ItemNote.')).optional(),
+  "images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.number(),
+  "position": zod.number(),
+  "created_at": zod.iso.datetime({})
+}).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
 }).describe('Schema for reading an Item.')
