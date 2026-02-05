@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.2.0
  */
 import type { Condition } from './condition';
+import type { ImageRead } from './imageRead';
 import type { ItemNoteRead } from './itemNoteRead';
 import type { ItemReadTypeFields } from './itemReadTypeFields';
 import type { MarkRead } from './markRead';
@@ -41,6 +42,7 @@ export interface ItemRead {
   marks?: MarkRead[];
   provenance_entries?: ProvenanceEntryRead[];
   item_notes?: ItemNoteRead[];
+  images?: ImageRead[];
   created_at: string;
   updated_at: string;
 }

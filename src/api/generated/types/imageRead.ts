@@ -5,17 +5,18 @@
  * Personal collection management API for tracking antiques, art, and valuables
  * OpenAPI spec version: 0.2.0
  */
-import type { ImageRead } from './imageRead';
 
 /**
- * Schema for reading a Mark.
+ * Schema for reading an Image.
  */
-export interface MarkRead {
+export interface ImageRead {
   id: string;
-  item_id: string;
-  title: string | null;
-  description: string | null;
-  images?: ImageRead[];
+  item_id: string | null;
+  mark_id: string | null;
+  filename: string;
+  url: string;
+  content_type: string;
+  size_bytes: number;
+  position: number;
   created_at: string;
-  updated_at: string;
 }
