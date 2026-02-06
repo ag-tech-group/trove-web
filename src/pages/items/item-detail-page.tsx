@@ -12,7 +12,6 @@ import {
 import {
   useUploadItemImageItemsItemIdImagesPost,
   useDeleteItemImageItemsItemIdImagesImageIdDelete,
-  uploadItemImageItemsItemIdImagesPost,
 } from "@/api/generated/hooks/item-images/item-images"
 import {
   getGetCollectionCollectionsCollectionIdGetQueryKey,
@@ -347,6 +346,7 @@ function EditItemDialog({
 }) {
   const queryClient = useQueryClient()
   const [uploading, setUploading] = useState(false)
+  const imageUpload = useUploadItemImageItemsItemIdImagesPost()
 
   const handleSuccess = useCallback(
     async (_updatedItem: ItemRead, stagedFiles: File[]) => {
@@ -355,7 +355,10 @@ function EditItemDialog({
         const failed: string[] = []
         for (const file of stagedFiles) {
           try {
-            await uploadItemImageItemsItemIdImagesPost(item.id, { file })
+            await imageUpload.mutateAsync({
+              itemId: item.id,
+              data: { file },
+            })
           } catch {
             failed.push(file.name)
           }
@@ -383,7 +386,7 @@ function EditItemDialog({
       }
       onOpenChange(false)
     },
-    [item.id, item.collection_id, onOpenChange, queryClient]
+    [item.id, item.collection_id, onOpenChange, queryClient, imageUpload]
   )
 
   return (

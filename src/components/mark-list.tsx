@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Plus, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
@@ -16,6 +16,8 @@ import { getGetItemItemsItemIdGetQueryKey } from "@/api/generated/hooks/items/it
 import type { MarkRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { ImageUpload } from "@/components/image-upload"
+import { ImagePicker } from "@/components/image-picker"
+import { ImageLightbox } from "@/components/image-lightbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -39,6 +41,9 @@ export function MarkList({ itemId, marks }: MarkListProps) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<MarkRead | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<MarkRead | null>(null)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxMark, setLightboxMark] = useState<MarkRead | null>(null)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   return (
     <div className="space-y-3">
@@ -83,14 +88,24 @@ export function MarkList({ itemId, marks }: MarkListProps) {
                   </p>
                 )}
                 {mark.images && mark.images.length > 0 && (
-                  <div className="mt-2 flex gap-1.5">
-                    {mark.images.map((img) => (
-                      <img
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {mark.images.map((img, idx) => (
+                      <button
                         key={img.id}
-                        src={img.url}
-                        alt={img.filename}
-                        className="h-12 w-12 rounded border object-cover"
-                      />
+                        type="button"
+                        className="overflow-hidden rounded border"
+                        onClick={() => {
+                          setLightboxMark(mark)
+                          setLightboxIndex(idx)
+                          setLightboxOpen(true)
+                        }}
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.filename}
+                          className="h-20 w-20 object-cover"
+                        />
+                      </button>
                     ))}
                   </div>
                 )}
@@ -119,6 +134,15 @@ export function MarkList({ itemId, marks }: MarkListProps) {
             </div>
           ))}
         </div>
+      )}
+
+      {lightboxMark?.images && lightboxMark.images.length > 0 && (
+        <ImageLightbox
+          images={lightboxMark.images}
+          open={lightboxOpen}
+          index={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
       )}
 
       <MarkFormDialog
@@ -151,6 +175,10 @@ function MarkFormDialog({
   const isEdit = !!mark
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [stagedFiles, setStagedFiles] = useState<File[]>([])
+  const [uploading, setUploading] = useState(false)
+  const stagedFilesRef = useRef<File[]>([])
+  stagedFilesRef.current = stagedFiles
   const queryClient = useQueryClient()
 
   const invalidate = () => {
@@ -162,9 +190,34 @@ function MarkFormDialog({
     })
   }
 
+  const imageUploadMutation =
+    useUploadMarkImageItemsItemIdMarksMarkIdImagesPost()
+
   const createMutation = useCreateMarkItemsItemIdMarksPost({
     mutation: {
-      onSuccess: () => {
+      onSuccess: async (res) => {
+        if (res.status !== 201) return
+        const newMark = res.data
+        const files = stagedFilesRef.current
+        if (files.length > 0) {
+          setUploading(true)
+          const failed: string[] = []
+          for (const file of files) {
+            try {
+              await imageUploadMutation.mutateAsync({
+                itemId,
+                markId: newMark.id,
+                data: { file },
+              })
+            } catch {
+              failed.push(file.name)
+            }
+          }
+          setUploading(false)
+          if (failed.length > 0) {
+            toast.error(`Failed to upload: ${failed.join(", ")}`)
+          }
+        }
         toast.success("Mark added")
         invalidate()
         onOpenChange(false)
@@ -188,7 +241,8 @@ function MarkFormDialog({
     },
   })
 
-  const isPending = createMutation.isPending || updateMutation.isPending
+  const isPending =
+    createMutation.isPending || updateMutation.isPending || uploading
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -207,9 +261,11 @@ function MarkFormDialog({
     <Dialog
       open={open}
       onOpenChange={(v) => {
+        if (isPending) return
         if (v) {
           setTitle(mark?.title ?? "")
           setDescription(mark?.description ?? "")
+          setStagedFiles([])
         }
         onOpenChange(v)
       }}
@@ -237,6 +293,13 @@ function MarkFormDialog({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
+          {!isEdit && (
+            <ImagePicker
+              files={stagedFiles}
+              onChange={setStagedFiles}
+              maxImages={3}
+            />
+          )}
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
               {isPending ? "Saving..." : isEdit ? "Save" : "Add"}
