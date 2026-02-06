@@ -5,6 +5,7 @@
  * Personal collection management API for tracking antiques, art, and valuables
  * OpenAPI spec version: 0.2.0
  */
+import type { ImagePreview } from './imagePreview';
 
 /**
  * Schema for reading a Collection with item count.
@@ -20,4 +21,5 @@ export interface CollectionReadWithCount {
   created_at: string;
   updated_at: string;
   item_count?: number;
+  preview_images?: ImagePreview[];
 }

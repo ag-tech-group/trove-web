@@ -8,6 +8,7 @@ import {
   useCreateCollectionCollectionsPost,
   getListCollectionsCollectionsGetQueryKey,
 } from "@/api/generated/hooks/collections/collections"
+import type { ImagePreview } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
 import { Button } from "@/components/ui/button"
@@ -60,7 +61,10 @@ export function CollectionsDashboard() {
                 params={{ collectionId: c.id }}
                 className="block"
               >
-                <Card className="hover:border-primary/40 h-full transition-colors">
+                <Card className="hover:border-primary/40 h-full overflow-hidden transition-colors">
+                  {c.preview_images && c.preview_images.length > 0 && (
+                    <ImageMosaic images={c.preview_images} />
+                  )}
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-lg">{c.name}</CardTitle>
@@ -129,6 +133,49 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         <Plus className="mr-2 h-4 w-4" />
         New Collection
       </Button>
+    </div>
+  )
+}
+
+function ImageMosaic({ images }: { images: ImagePreview[] }) {
+  if (images.length === 1) {
+    return (
+      <div className="aspect-video">
+        <img
+          src={images[0].url}
+          alt=""
+          className="h-full w-full object-cover"
+        />
+      </div>
+    )
+  }
+
+  if (images.length === 2) {
+    return (
+      <div className="grid aspect-video grid-cols-2">
+        {images.map((img) => (
+          <img
+            key={img.id}
+            src={img.url}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        ))}
+      </div>
+    )
+  }
+
+  // 3 or 4 images: 2x2 grid
+  return (
+    <div className="grid aspect-video grid-cols-2 grid-rows-2">
+      {images.slice(0, 4).map((img) => (
+        <img
+          key={img.id}
+          src={img.url}
+          alt=""
+          className="h-full w-full object-cover"
+        />
+      ))}
     </div>
   )
 }
