@@ -21,6 +21,8 @@ import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
+import { ImageCarousel } from "@/components/image-carousel"
+import { ImageLightbox } from "@/components/image-lightbox"
 import { ImageUpload } from "@/components/image-upload"
 import { ItemForm } from "@/components/item-form"
 import { MarkList } from "@/components/mark-list"
@@ -50,6 +52,8 @@ export function ItemDetailPage() {
   const { itemId } = useParams({ from: "/items/$itemId" })
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   const { data: itemRes, isLoading } = useGetItemItemsItemIdGet(itemId)
   const item = itemRes?.status === 200 ? itemRes.data : undefined
@@ -125,6 +129,27 @@ export function ItemDetailPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            {/* Hero image carousel */}
+            {item.images && item.images.length > 0 && (
+              <div className="mb-6">
+                <ImageCarousel
+                  images={item.images}
+                  aspectRatio="aspect-[4/3]"
+                  showDots
+                  onImageClick={(index) => {
+                    setLightboxIndex(index)
+                    setLightboxOpen(true)
+                  }}
+                />
+                <ImageLightbox
+                  images={item.images}
+                  open={lightboxOpen}
+                  index={lightboxIndex}
+                  onClose={() => setLightboxOpen(false)}
+                />
+              </div>
+            )}
 
             {/* Tabs */}
             <Tabs defaultValue="details">
