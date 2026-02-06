@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { render } from "@testing-library/react"
 import type { ImageRead } from "@/api/generated/types"
-import { ImageLightbox } from "../image-lightbox"
+import { ImageLightbox } from "./image-lightbox"
 
 function makeImage(overrides: Partial<ImageRead> = {}): ImageRead {
   return {
