@@ -26,6 +26,7 @@ import { useListTagsTagsGet } from "@/api/generated/hooks/tags/tags"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
+import { ImageCarousel } from "@/components/image-carousel"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -239,30 +240,47 @@ export function CollectionDetailPage() {
 }
 
 function ItemCard({ item }: { item: ItemRead }) {
+  const images = item.images ?? []
   return (
     <Link to="/items/$itemId" params={{ itemId: item.id }} className="block">
-      <Card className="hover:border-primary/40 transition-colors">
-        <CardContent className="flex items-center justify-between gap-4 py-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="truncate font-medium">{item.name}</span>
-              {item.tags?.map((t) => (
-                <Badge key={t.id} variant="secondary" className="shrink-0">
-                  {t.name}
-                </Badge>
-              ))}
-              {item.condition && item.condition !== "unknown" && (
-                <Badge variant="outline" className="shrink-0 capitalize">
-                  {item.condition}
-                </Badge>
-              )}
+      <Card className="hover:border-primary/40 overflow-hidden transition-colors">
+        <div className="flex flex-col sm:flex-row">
+          {images.length > 0 ? (
+            <div className="sm:w-40 sm:shrink-0">
+              <ImageCarousel
+                images={images}
+                aspectRatio="aspect-[4/3]"
+                showDots
+                className="rounded-none"
+              />
             </div>
-            <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
-              {item.estimated_value && <span>~${item.estimated_value}</span>}
-              {item.location && <span>{item.location}</span>}
+          ) : (
+            <div className="bg-muted hidden items-center justify-center sm:flex sm:w-40 sm:shrink-0">
+              <Package className="text-muted-foreground h-6 w-6" />
             </div>
-          </div>
-        </CardContent>
+          )}
+          <CardContent className="flex min-w-0 flex-1 items-center gap-4 py-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="truncate font-medium">{item.name}</span>
+                {item.tags?.map((t) => (
+                  <Badge key={t.id} variant="secondary" className="shrink-0">
+                    {t.name}
+                  </Badge>
+                ))}
+                {item.condition && item.condition !== "unknown" && (
+                  <Badge variant="outline" className="shrink-0 capitalize">
+                    {item.condition}
+                  </Badge>
+                )}
+              </div>
+              <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
+                {item.estimated_value && <span>~${item.estimated_value}</span>}
+                {item.location && <span>{item.location}</span>}
+              </div>
+            </div>
+          </CardContent>
+        </div>
       </Card>
     </Link>
   )
