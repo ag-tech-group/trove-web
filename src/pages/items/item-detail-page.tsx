@@ -131,13 +131,14 @@ export function ItemDetailPage() {
               </DropdownMenu>
             </div>
 
-            {/* Hero image carousel */}
+            {/* Hero image carousel — full width */}
             {item.images && item.images.length > 0 && (
               <div className="mb-6">
                 <ImageCarousel
                   images={item.images}
-                  aspectRatio="aspect-[4/3]"
+                  aspectRatio="aspect-video"
                   showDots
+                  showArrows
                   onImageClick={(index) => {
                     setLightboxIndex(index)
                     setLightboxOpen(true)

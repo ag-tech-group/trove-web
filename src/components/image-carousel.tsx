@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
-import { ImageOff } from "lucide-react"
+import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react"
 import type { ImageRead } from "@/api/generated/types"
 import { cn } from "@/lib/utils"
 
@@ -8,6 +8,7 @@ interface ImageCarouselProps {
   images: ImageRead[]
   aspectRatio?: string
   showDots?: boolean
+  showArrows?: boolean
   onImageClick?: (index: number) => void
   className?: string
 }
@@ -16,6 +17,7 @@ export function ImageCarousel({
   images,
   aspectRatio = "aspect-video",
   showDots = false,
+  showArrows = false,
   onImageClick,
   className,
 }: ImageCarouselProps) {
@@ -69,7 +71,7 @@ export function ImageCarousel({
   }
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("group relative", className)}>
       <div ref={emblaRef} className="overflow-hidden rounded-lg">
         <div className="flex">
           {images.map((image, index) => (
@@ -89,6 +91,34 @@ export function ImageCarousel({
           ))}
         </div>
       </div>
+      {showArrows && images.length > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label="Previous image"
+            className="absolute top-1/2 left-1.5 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              emblaApi?.scrollPrev()
+            }}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next image"
+            className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              emblaApi?.scrollNext()
+            }}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </>
+      )}
       {showDots && images.length > 1 && (
         <div className="mt-2 flex justify-center gap-1.5">
           {images.map((_, index) => (

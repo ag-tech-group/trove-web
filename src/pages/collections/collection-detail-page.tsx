@@ -198,7 +198,7 @@ export function CollectionDetailPage() {
             {itemsLoading ? (
               <ItemsSkeleton />
             ) : sortedItems.length > 0 ? (
-              <div className="grid gap-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sortedItems.map((item) => (
                   <ItemCard key={item.id} item={item} />
                 ))}
@@ -244,44 +244,43 @@ function ItemCard({ item }: { item: ItemRead }) {
   const images = item.images ?? []
   return (
     <Link to="/items/$itemId" params={{ itemId: item.id }} className="block">
-      <Card className="hover:border-primary/40 overflow-hidden transition-colors">
-        <div className="flex flex-col sm:flex-row">
-          {images.length > 0 ? (
-            <div className="sm:w-40 sm:shrink-0">
-              <ImageCarousel
-                images={images}
-                aspectRatio="aspect-[4/3]"
-                showDots
-                className="rounded-none"
-              />
-            </div>
-          ) : (
-            <div className="bg-muted hidden items-center justify-center sm:flex sm:w-40 sm:shrink-0">
-              <Package className="text-muted-foreground h-6 w-6" />
+      <Card className="hover:border-primary/40 h-full overflow-hidden transition-colors">
+        {images.length > 0 ? (
+          <ImageCarousel
+            images={images}
+            aspectRatio="aspect-[4/3]"
+            showDots
+            showArrows
+            className="rounded-none"
+          />
+        ) : (
+          <div className="bg-muted flex aspect-[4/3] items-center justify-center">
+            <Package className="text-muted-foreground h-8 w-8" />
+          </div>
+        )}
+        <CardContent className="p-3">
+          <p className="truncate font-medium">{item.name}</p>
+          {item.description && (
+            <p className="text-muted-foreground mt-0.5 line-clamp-2 text-sm">
+              {item.description}
+            </p>
+          )}
+          {((item.tags && item.tags.length > 0) ||
+            (item.condition && item.condition !== "unknown")) && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {item.tags?.map((t) => (
+                <Badge key={t.id} variant="secondary" className="text-xs">
+                  {t.name}
+                </Badge>
+              ))}
+              {item.condition && item.condition !== "unknown" && (
+                <Badge variant="outline" className="text-xs capitalize">
+                  {item.condition}
+                </Badge>
+              )}
             </div>
           )}
-          <CardContent className="flex min-w-0 flex-1 items-center gap-4 py-4">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="truncate font-medium">{item.name}</span>
-                {item.tags?.map((t) => (
-                  <Badge key={t.id} variant="secondary" className="shrink-0">
-                    {t.name}
-                  </Badge>
-                ))}
-                {item.condition && item.condition !== "unknown" && (
-                  <Badge variant="outline" className="shrink-0 capitalize">
-                    {item.condition}
-                  </Badge>
-                )}
-              </div>
-              <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
-                {item.estimated_value && <span>~${item.estimated_value}</span>}
-                {item.location && <span>{item.location}</span>}
-              </div>
-            </div>
-          </CardContent>
-        </div>
+        </CardContent>
       </Card>
     </Link>
   )
@@ -298,12 +297,13 @@ function CollectionHeaderSkeleton() {
 
 function ItemsSkeleton() {
   return (
-    <div className="grid gap-3">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i}>
-          <CardContent className="py-4">
-            <Skeleton className="h-5 w-40" />
-            <Skeleton className="mt-2 h-4 w-24" />
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="overflow-hidden">
+          <Skeleton className="aspect-[4/3] w-full rounded-none" />
+          <CardContent className="p-3">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="mt-2 h-4 w-20" />
           </CardContent>
         </Card>
       ))}
