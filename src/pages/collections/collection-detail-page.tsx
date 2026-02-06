@@ -23,7 +23,10 @@ import {
   getListItemsItemsGetQueryKey,
 } from "@/api/generated/hooks/items/items"
 import { useListTagsTagsGet } from "@/api/generated/hooks/tags/tags"
-import { uploadItemImageItemsItemIdImagesPost } from "@/api/generated/hooks/item-images/item-images"
+import { useUploadItemImageItemsItemIdImagesPost } from "@/api/generated/hooks/item-images/item-images"
+import { useCreateMarkItemsItemIdMarksPost } from "@/api/generated/hooks/marks/marks"
+import { useUploadMarkImageItemsItemIdMarksMarkIdImagesPost } from "@/api/generated/hooks/mark-images/mark-images"
+import { useCreateItemNoteItemsItemIdNotesPost } from "@/api/generated/hooks/notes/notes"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
@@ -56,7 +59,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ItemForm } from "@/components/item-form"
+import {
+  ItemForm,
+  type StagedMark,
+  type StagedNote,
+} from "@/components/item-form"
 import { useCollectionTypes } from "@/lib/collection-types"
 
 type SortKey = "name" | "date" | "value"
@@ -523,23 +530,82 @@ function AddItemDialog({
   const queryClient = useQueryClient()
   const [uploading, setUploading] = useState(false)
 
+  const imageUpload = useUploadItemImageItemsItemIdImagesPost()
+  const createMark = useCreateMarkItemsItemIdMarksPost()
+  const markImageUpload = useUploadMarkImageItemsItemIdMarksMarkIdImagesPost()
+  const createNote = useCreateItemNoteItemsItemIdNotesPost()
+
   const handleSuccess = useCallback(
-    async (item: ItemRead, stagedFiles: File[]) => {
+    async (
+      item: ItemRead,
+      stagedFiles: File[],
+      stagedMarks: StagedMark[],
+      stagedNotes: StagedNote[]
+    ) => {
+      setUploading(true)
+
+      // 1. Upload item images
       if (stagedFiles.length > 0) {
-        setUploading(true)
         const failed: string[] = []
         for (const file of stagedFiles) {
           try {
-            await uploadItemImageItemsItemIdImagesPost(item.id, { file })
+            await imageUpload.mutateAsync({
+              itemId: item.id,
+              data: { file },
+            })
           } catch {
             failed.push(file.name)
           }
         }
-        setUploading(false)
         if (failed.length > 0) {
           toast.error(`Failed to upload: ${failed.join(", ")}`)
         }
       }
+
+      // 2. Create marks + upload mark images
+      for (const sm of stagedMarks) {
+        try {
+          const markRes = await createMark.mutateAsync({
+            itemId: item.id,
+            data: {
+              title: sm.title || undefined,
+              description: sm.description || undefined,
+            },
+          })
+          if (markRes.status === 201 && sm.files.length > 0) {
+            for (const file of sm.files) {
+              try {
+                await markImageUpload.mutateAsync({
+                  itemId: item.id,
+                  markId: markRes.data.id,
+                  data: { file },
+                })
+              } catch {
+                toast.error(`Failed to upload mark image: ${file.name}`)
+              }
+            }
+          }
+        } catch {
+          toast.error(`Failed to create mark: ${sm.title || "Untitled"}`)
+        }
+      }
+
+      // 3. Create notes
+      for (const sn of stagedNotes) {
+        try {
+          await createNote.mutateAsync({
+            itemId: item.id,
+            data: {
+              title: sn.title || undefined,
+              body: sn.body,
+            },
+          })
+        } catch {
+          toast.error(`Failed to create note: ${sn.title || "Untitled"}`)
+        }
+      }
+
+      setUploading(false)
 
       queryClient.invalidateQueries({
         queryKey: getListItemsItemsGetQueryKey({
@@ -552,7 +618,15 @@ function AddItemDialog({
       })
       onOpenChange(false)
     },
-    [collectionId, onOpenChange, queryClient]
+    [
+      collectionId,
+      onOpenChange,
+      queryClient,
+      imageUpload,
+      createMark,
+      markImageUpload,
+      createNote,
+    ]
   )
 
   return (

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react"
-import { ChevronDown, X, Plus } from "lucide-react"
+import { ChevronDown, ChevronsUpDown, X, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import {
@@ -42,11 +42,27 @@ const CONDITIONS: { value: Condition; label: string }[] = [
   { value: "unknown", label: "Unknown" },
 ]
 
+export interface StagedMark {
+  title: string
+  description: string
+  files: File[]
+}
+
+export interface StagedNote {
+  title: string
+  body: string
+}
+
 interface ItemFormProps {
   defaultValues?: ItemRead
   collectionId?: string
   collectionType?: string
-  onSuccess: (item: ItemRead, stagedFiles: File[]) => void
+  onSuccess: (
+    item: ItemRead,
+    stagedFiles: File[],
+    stagedMarks: StagedMark[],
+    stagedNotes: StagedNote[]
+  ) => void
 }
 
 export function ItemForm({
@@ -111,19 +127,52 @@ export function ItemForm({
   })
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
 
+  // Staged marks & notes (create mode only)
+  const [stagedMarks, setStagedMarks] = useState<StagedMark[]>([])
+  const [stagedNotes, setStagedNotes] = useState<StagedNote[]>([])
+
+  // Section open states (for expand/collapse all)
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
+  const toggleSection = (key: string, value: boolean) =>
+    setOpenSections((prev) => ({ ...prev, [key]: value }))
+
   const { types } = useCollectionTypes()
   const typeDef = findCollectionType(types, collectionType)
 
-  // Keep a ref to stagedFiles so mutation callbacks always see the latest value
+  const sectionKeys = [
+    "acquisition",
+    "provenance",
+    ...(typeDef && typeDef.fields.length > 0 ? ["typeFields"] : []),
+    "dimensions",
+    ...(!isEdit ? ["marks", "notes"] : []),
+  ]
+  const allExpanded = sectionKeys.every((k) => openSections[k])
+  const toggleAll = () => {
+    const next = !allExpanded
+    const updated: Record<string, boolean> = {}
+    for (const k of sectionKeys) updated[k] = next
+    setOpenSections((prev) => ({ ...prev, ...updated }))
+  }
+
+  // Keep refs so mutation callbacks always see the latest value
   const stagedFilesRef = useRef<File[]>([])
   stagedFilesRef.current = stagedFiles
+  const stagedMarksRef = useRef<StagedMark[]>([])
+  stagedMarksRef.current = stagedMarks
+  const stagedNotesRef = useRef<StagedNote[]>([])
+  stagedNotesRef.current = stagedNotes
 
   const createMutation = useCreateItemItemsPost({
     mutation: {
       onSuccess: (res) => {
         if (res.status !== 201) return
         toast.success("Item created")
-        onSuccess(res.data, stagedFilesRef.current)
+        onSuccess(
+          res.data,
+          stagedFilesRef.current,
+          stagedMarksRef.current,
+          stagedNotesRef.current
+        )
       },
       onError: async (err) => {
         toast.error(await getErrorMessage(err, "Failed to create item"))
@@ -136,7 +185,12 @@ export function ItemForm({
       onSuccess: (res) => {
         if (res.status !== 200) return
         toast.success("Item updated")
-        onSuccess(res.data, stagedFilesRef.current)
+        onSuccess(
+          res.data,
+          stagedFilesRef.current,
+          stagedMarksRef.current,
+          stagedNotesRef.current
+        )
       },
       onError: async (err) => {
         toast.error(await getErrorMessage(err, "Failed to update item"))
@@ -235,8 +289,22 @@ export function ItemForm({
       {/* Images */}
       <ImagePicker files={stagedFiles} onChange={setStagedFiles} />
 
+      {/* Expand / Collapse all */}
+      <button
+        type="button"
+        className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs transition-colors"
+        onClick={toggleAll}
+      >
+        <ChevronsUpDown className="h-3.5 w-3.5" />
+        {allExpanded ? "Collapse all" : "Expand all"}
+      </button>
+
       {/* Acquisition section */}
-      <CollapsibleSection title="Acquisition">
+      <CollapsibleSection
+        title="Acquisition"
+        open={!!openSections.acquisition}
+        onOpenChange={(v) => toggleSection("acquisition", v)}
+      >
         <div className="grid gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
@@ -297,7 +365,11 @@ export function ItemForm({
       </CollapsibleSection>
 
       {/* Provenance section */}
-      <CollapsibleSection title="Provenance">
+      <CollapsibleSection
+        title="Provenance"
+        open={!!openSections.provenance}
+        onOpenChange={(v) => toggleSection("provenance", v)}
+      >
         <div className="grid gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
@@ -330,7 +402,11 @@ export function ItemForm({
 
       {/* Type-specific fields */}
       {typeDef && typeDef.fields.length > 0 && (
-        <CollapsibleSection title={`${typeDef.label} Details`}>
+        <CollapsibleSection
+          title={`${typeDef.label} Details`}
+          open={!!openSections.typeFields}
+          onOpenChange={(v) => toggleSection("typeFields", v)}
+        >
           <div className="grid gap-3">
             {typeDef.fields.map((field) =>
               field.type === "enum" ? (
@@ -376,7 +452,11 @@ export function ItemForm({
       )}
 
       {/* Dimensions section */}
-      <CollapsibleSection title="Dimensions">
+      <CollapsibleSection
+        title="Dimensions"
+        open={!!openSections.dimensions}
+        onOpenChange={(v) => toggleSection("dimensions", v)}
+      >
         <div className="grid gap-3">
           <div className="grid grid-cols-3 gap-3">
             <div className="grid gap-1.5">
@@ -437,6 +517,28 @@ export function ItemForm({
         </div>
       </CollapsibleSection>
 
+      {/* Marks section (create only) */}
+      {!isEdit && (
+        <CollapsibleSection
+          title="Marks"
+          open={!!openSections.marks}
+          onOpenChange={(v) => toggleSection("marks", v)}
+        >
+          <StagedMarkList marks={stagedMarks} onChange={setStagedMarks} />
+        </CollapsibleSection>
+      )}
+
+      {/* Notes section (create only) */}
+      {!isEdit && (
+        <CollapsibleSection
+          title="Notes"
+          open={!!openSections.notes}
+          onOpenChange={(v) => toggleSection("notes", v)}
+        >
+          <StagedNoteList notes={stagedNotes} onChange={setStagedNotes} />
+        </CollapsibleSection>
+      )}
+
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isPending}>
           {isPending
@@ -449,6 +551,178 @@ export function ItemForm({
         </Button>
       </div>
     </form>
+  )
+}
+
+function StagedMarkList({
+  marks,
+  onChange,
+}: {
+  marks: StagedMark[]
+  onChange: (marks: StagedMark[]) => void
+}) {
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [files, setFiles] = useState<File[]>([])
+
+  const handleAdd = () => {
+    onChange([...marks, { title, description, files }])
+    setTitle("")
+    setDescription("")
+    setFiles([])
+  }
+
+  return (
+    <div className="grid gap-3">
+      {marks.length > 0 && (
+        <div className="space-y-2">
+          {marks.map((mark, i) => (
+            <div
+              key={i}
+              className="border-border flex items-start justify-between gap-3 rounded-md border p-2"
+            >
+              <div className="min-w-0 flex-1 text-sm">
+                {mark.title && <p className="font-medium">{mark.title}</p>}
+                {mark.description && (
+                  <p className="text-muted-foreground truncate">
+                    {mark.description}
+                  </p>
+                )}
+                {!mark.title && !mark.description && (
+                  <p className="text-muted-foreground italic">No details</p>
+                )}
+                {mark.files.length > 0 && (
+                  <p className="text-muted-foreground text-xs">
+                    {mark.files.length}{" "}
+                    {mark.files.length === 1 ? "image" : "images"}
+                  </p>
+                )}
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                onClick={() => onChange(marks.filter((_, idx) => idx !== i))}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="grid gap-3">
+        <div className="grid gap-1.5">
+          <Label htmlFor="staged-mark-title">Title *</Label>
+          <Input
+            id="staged-mark-title"
+            maxLength={200}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="staged-mark-desc">Description</Label>
+          <Textarea
+            id="staged-mark-desc"
+            rows={2}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+        <ImagePicker files={files} onChange={setFiles} maxImages={3} />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            size="sm"
+            disabled={!title.trim()}
+            onClick={handleAdd}
+          >
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            {marks.length > 0 ? "Add another" : "Add"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StagedNoteList({
+  notes,
+  onChange,
+}: {
+  notes: StagedNote[]
+  onChange: (notes: StagedNote[]) => void
+}) {
+  const [title, setTitle] = useState("")
+  const [body, setBody] = useState("")
+
+  const handleAdd = () => {
+    onChange([...notes, { title, body }])
+    setTitle("")
+    setBody("")
+  }
+
+  return (
+    <div className="grid gap-3">
+      {notes.length > 0 && (
+        <div className="space-y-2">
+          {notes.map((note, i) => (
+            <div
+              key={i}
+              className="border-border flex items-start justify-between gap-3 rounded-md border p-2"
+            >
+              <div className="min-w-0 flex-1 text-sm">
+                {note.title && <p className="font-medium">{note.title}</p>}
+                <p className="text-muted-foreground truncate">{note.body}</p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                onClick={() => onChange(notes.filter((_, idx) => idx !== i))}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="grid gap-3">
+        <div className="grid gap-1.5">
+          <Label htmlFor="staged-note-title">Title</Label>
+          <Input
+            id="staged-note-title"
+            maxLength={200}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="staged-note-body">Body *</Label>
+          <Textarea
+            id="staged-note-body"
+            rows={3}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            size="sm"
+            disabled={!body.trim()}
+            onClick={handleAdd}
+          >
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            {notes.length > 0 ? "Add another" : "Add"}
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -606,14 +880,17 @@ function TagInput({
 
 function CollapsibleSection({
   title,
+  open,
+  onOpenChange,
   children,
 }: {
   title: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
   children: React.ReactNode
 }) {
-  const [open, setOpen] = useState(false)
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
+    <Collapsible open={open} onOpenChange={onOpenChange}>
       <CollapsibleTrigger asChild>
         <button
           type="button"
