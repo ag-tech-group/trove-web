@@ -19,7 +19,7 @@ export const listCollectionsCollectionsGetResponseDescriptionOneMax = 2000;
 export const listCollectionsCollectionsGetResponseTypeDefault = `general`;
 export const listCollectionsCollectionsGetResponseTypeMax = 50;
 
-export const listCollectionsCollectionsGetResponseItemCountDefault = 0;
+export const listCollectionsCollectionsGetResponseItemCountDefault = 0;export const listCollectionsCollectionsGetResponsePreviewImagesDefault = [];
 
 export const ListCollectionsCollectionsGetResponseItem = zod.object({
   "name": zod.string().max(listCollectionsCollectionsGetResponseNameMax),
@@ -29,7 +29,11 @@ export const ListCollectionsCollectionsGetResponseItem = zod.object({
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({}),
-  "item_count": zod.number().default(listCollectionsCollectionsGetResponseItemCountDefault)
+  "item_count": zod.number().default(listCollectionsCollectionsGetResponseItemCountDefault),
+  "preview_images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "url": zod.string()
+}).describe('Lightweight image preview for collection cards.')).default(listCollectionsCollectionsGetResponsePreviewImagesDefault)
 }).describe('Schema for reading a Collection with item count.')
 export const ListCollectionsCollectionsGetResponse = zod.array(ListCollectionsCollectionsGetResponseItem)
 
@@ -67,7 +71,7 @@ export const getCollectionCollectionsCollectionIdGetResponseDescriptionOneMax = 
 export const getCollectionCollectionsCollectionIdGetResponseTypeDefault = `general`;
 export const getCollectionCollectionsCollectionIdGetResponseTypeMax = 50;
 
-export const getCollectionCollectionsCollectionIdGetResponseItemCountDefault = 0;
+export const getCollectionCollectionsCollectionIdGetResponseItemCountDefault = 0;export const getCollectionCollectionsCollectionIdGetResponsePreviewImagesDefault = [];
 
 export const GetCollectionCollectionsCollectionIdGetResponse = zod.object({
   "name": zod.string().max(getCollectionCollectionsCollectionIdGetResponseNameMax),
@@ -77,7 +81,11 @@ export const GetCollectionCollectionsCollectionIdGetResponse = zod.object({
   "user_id": zod.uuid(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({}),
-  "item_count": zod.number().default(getCollectionCollectionsCollectionIdGetResponseItemCountDefault)
+  "item_count": zod.number().default(getCollectionCollectionsCollectionIdGetResponseItemCountDefault),
+  "preview_images": zod.array(zod.object({
+  "id": zod.uuid(),
+  "url": zod.string()
+}).describe('Lightweight image preview for collection cards.')).default(getCollectionCollectionsCollectionIdGetResponsePreviewImagesDefault)
 }).describe('Schema for reading a Collection with item count.')
 
 /**

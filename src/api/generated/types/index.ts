@@ -17,6 +17,7 @@ export * from './condition';
 export * from './errorModel';
 export * from './errorModelDetail';
 export * from './hTTPValidationError';
+export * from './imagePreview';
 export * from './imageRead';
 export * from './itemCreate';
 export * from './itemCreateTypeFields';
