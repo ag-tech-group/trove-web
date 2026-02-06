@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Link, useNavigate, useParams } from "@tanstack/react-router"
 import { ArrowLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -12,6 +12,7 @@ import {
 import {
   useUploadItemImageItemsItemIdImagesPost,
   useDeleteItemImageItemsItemIdImagesImageIdDelete,
+  uploadItemImageItemsItemIdImagesPost,
 } from "@/api/generated/hooks/item-images/item-images"
 import {
   getGetCollectionCollectionsCollectionIdGetQueryKey,
@@ -344,34 +345,63 @@ function EditItemDialog({
   collectionType?: string
 }) {
   const queryClient = useQueryClient()
+  const [uploading, setUploading] = useState(false)
+
+  const handleSuccess = useCallback(
+    async (_updatedItem: ItemRead, stagedFiles: File[]) => {
+      if (stagedFiles.length > 0) {
+        setUploading(true)
+        const failed: string[] = []
+        for (const file of stagedFiles) {
+          try {
+            await uploadItemImageItemsItemIdImagesPost(item.id, { file })
+          } catch {
+            failed.push(file.name)
+          }
+        }
+        setUploading(false)
+        if (failed.length > 0) {
+          toast.error(`Failed to upload: ${failed.join(", ")}`)
+        }
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: getGetItemItemsItemIdGetQueryKey(item.id),
+      })
+      if (item.collection_id) {
+        queryClient.invalidateQueries({
+          queryKey: getListItemsItemsGetQueryKey({
+            collection_id: item.collection_id,
+          }),
+        })
+        queryClient.invalidateQueries({
+          queryKey: getGetCollectionCollectionsCollectionIdGetQueryKey(
+            item.collection_id
+          ),
+        })
+      }
+      onOpenChange(false)
+    },
+    [item.id, item.collection_id, onOpenChange, queryClient]
+  )
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={uploading ? undefined : onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
         </DialogHeader>
-        <ItemForm
-          defaultValues={item}
-          collectionType={collectionType}
-          onSuccess={() => {
-            queryClient.invalidateQueries({
-              queryKey: getGetItemItemsItemIdGetQueryKey(item.id),
-            })
-            if (item.collection_id) {
-              queryClient.invalidateQueries({
-                queryKey: getListItemsItemsGetQueryKey({
-                  collection_id: item.collection_id,
-                }),
-              })
-              queryClient.invalidateQueries({
-                queryKey: getGetCollectionCollectionsCollectionIdGetQueryKey(
-                  item.collection_id
-                ),
-              })
-            }
-            onOpenChange(false)
-          }}
-        />
+        {uploading ? (
+          <p className="text-muted-foreground py-4 text-center text-sm">
+            Uploading images&hellip;
+          </p>
+        ) : (
+          <ItemForm
+            defaultValues={item}
+            collectionType={collectionType}
+            onSuccess={handleSuccess}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
