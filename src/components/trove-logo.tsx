@@ -88,14 +88,14 @@ function TroveLogo({
       )}
     >
       <TroveFrameIcon
-        className={cn("text-primary", layout === "horizontal" ? "h-8" : "h-12")}
+        className={cn("text-primary", layout === "horizontal" ? "h-8" : "h-14")}
       />
       <div className="flex flex-col items-center gap-1">
-        <span className="text-primary font-serif text-2xl font-light tracking-[0.35em] uppercase">
+        <span className="text-primary font-serif text-4xl font-light tracking-[0.35em] uppercase">
           Trove
         </span>
         {showTagline && (
-          <span className="text-primary/85 font-serif text-xs font-light tracking-[0.4em] uppercase">
+          <span className="text-primary/85 font-serif text-sm font-light tracking-[0.4em] uppercase">
             Collection Management
           </span>
         )}
