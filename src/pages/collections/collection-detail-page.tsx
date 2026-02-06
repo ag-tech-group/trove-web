@@ -169,29 +169,41 @@ export function CollectionDetailPage() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <Select value={tag} onValueChange={setTag}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="All tags" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All tags</SelectItem>
-                  {tags.map((t) => (
-                    <SelectItem key={t.id} value={t.name}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="date">Date Added</SelectItem>
-                  <SelectItem value="value">Value</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="grid gap-1">
+                <span className="text-muted-foreground text-xs">Tag</span>
+                <Select
+                  value={tag || "all"}
+                  onValueChange={(v) => setTag(v === "all" ? "" : v)}
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All tags</SelectItem>
+                    {tags.map((t) => (
+                      <SelectItem key={t.id} value={t.name}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-1">
+                <span className="text-muted-foreground text-xs">Sort</span>
+                <Select
+                  value={sort}
+                  onValueChange={(v) => setSort(v as SortKey)}
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="date">Date Added</SelectItem>
+                    <SelectItem value="value">Value</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Items */}
