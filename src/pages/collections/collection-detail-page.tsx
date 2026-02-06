@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { Link, useNavigate, useParams } from "@tanstack/react-router"
 import {
   ArrowLeft,
@@ -23,6 +23,7 @@ import {
   getListItemsItemsGetQueryKey,
 } from "@/api/generated/hooks/items/items"
 import { useListTagsTagsGet } from "@/api/generated/hooks/tags/tags"
+import { uploadItemImageItemsItemIdImagesPost } from "@/api/generated/hooks/item-images/item-images"
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
@@ -508,30 +509,57 @@ function AddItemDialog({
   collectionType?: string
 }) {
   const queryClient = useQueryClient()
+  const [uploading, setUploading] = useState(false)
+
+  const handleSuccess = useCallback(
+    async (item: ItemRead, stagedFiles: File[]) => {
+      if (stagedFiles.length > 0) {
+        setUploading(true)
+        const failed: string[] = []
+        for (const file of stagedFiles) {
+          try {
+            await uploadItemImageItemsItemIdImagesPost(item.id, { file })
+          } catch {
+            failed.push(file.name)
+          }
+        }
+        setUploading(false)
+        if (failed.length > 0) {
+          toast.error(`Failed to upload: ${failed.join(", ")}`)
+        }
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: getListItemsItemsGetQueryKey({
+          collection_id: collectionId,
+        }),
+      })
+      queryClient.invalidateQueries({
+        queryKey:
+          getGetCollectionCollectionsCollectionIdGetQueryKey(collectionId),
+      })
+      onOpenChange(false)
+    },
+    [collectionId, onOpenChange, queryClient]
+  )
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={uploading ? undefined : onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Add Item</DialogTitle>
         </DialogHeader>
-        <ItemForm
-          collectionId={collectionId}
-          collectionType={collectionType}
-          onSuccess={() => {
-            queryClient.invalidateQueries({
-              queryKey: getListItemsItemsGetQueryKey({
-                collection_id: collectionId,
-              }),
-            })
-            queryClient.invalidateQueries({
-              queryKey:
-                getGetCollectionCollectionsCollectionIdGetQueryKey(
-                  collectionId
-                ),
-            })
-            onOpenChange(false)
-          }}
-        />
+        {uploading ? (
+          <p className="text-muted-foreground py-4 text-center text-sm">
+            Uploading images&hellip;
+          </p>
+        ) : (
+          <ItemForm
+            collectionId={collectionId}
+            collectionType={collectionType}
+            onSuccess={handleSuccess}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )

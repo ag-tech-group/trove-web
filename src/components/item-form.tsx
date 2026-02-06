@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/collapsible"
 import { cn } from "@/lib/utils"
 import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
+import { ImagePicker } from "@/components/image-picker"
 
 const CONDITIONS: { value: Condition; label: string }[] = [
   { value: "excellent", label: "Excellent" },
@@ -45,7 +46,7 @@ interface ItemFormProps {
   defaultValues?: ItemRead
   collectionId?: string
   collectionType?: string
-  onSuccess: () => void
+  onSuccess: (item: ItemRead, stagedFiles: File[]) => void
 }
 
 export function ItemForm({
@@ -108,14 +109,21 @@ export function ItemForm({
     }
     return result
   })
+  const [stagedFiles, setStagedFiles] = useState<File[]>([])
+
   const { types } = useCollectionTypes()
   const typeDef = findCollectionType(types, collectionType)
 
+  // Keep a ref to stagedFiles so mutation callbacks always see the latest value
+  const stagedFilesRef = useRef<File[]>([])
+  stagedFilesRef.current = stagedFiles
+
   const createMutation = useCreateItemItemsPost({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        if (res.status !== 201) return
         toast.success("Item created")
-        onSuccess()
+        onSuccess(res.data, stagedFilesRef.current)
       },
       onError: async (err) => {
         toast.error(await getErrorMessage(err, "Failed to create item"))
@@ -125,9 +133,10 @@ export function ItemForm({
 
   const updateMutation = useUpdateItemItemsItemIdPatch({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        if (res.status !== 200) return
         toast.success("Item updated")
-        onSuccess()
+        onSuccess(res.data, stagedFilesRef.current)
       },
       onError: async (err) => {
         toast.error(await getErrorMessage(err, "Failed to update item"))
@@ -222,6 +231,9 @@ export function ItemForm({
           </Select>
         </div>
       </div>
+
+      {/* Images */}
+      <ImagePicker files={stagedFiles} onChange={setStagedFiles} />
 
       {/* Acquisition section */}
       <CollapsibleSection title="Acquisition">
