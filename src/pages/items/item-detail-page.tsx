@@ -1,6 +1,13 @@
 import { useState, useCallback } from "react"
 import { Link, useNavigate, useParams } from "@tanstack/react-router"
-import { ArrowLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronsUpDown,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
@@ -39,7 +46,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { cn } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -61,6 +73,27 @@ export function ItemDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  const sectionKeys = [
+    "details",
+    "images",
+    "provenance",
+    "dimensions",
+    "marks",
+    "notes",
+  ]
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(sectionKeys.map((k) => [k, true]))
+  )
+  const toggleSection = (key: string, value: boolean) =>
+    setOpenSections((prev) => ({ ...prev, [key]: value }))
+  const allExpanded = sectionKeys.every((k) => openSections[k])
+  const toggleAll = () => {
+    const next = !allExpanded
+    const updated: Record<string, boolean> = {}
+    for (const k of sectionKeys) updated[k] = next
+    setOpenSections((prev) => ({ ...prev, ...updated }))
+  }
 
   const { data: itemRes, isLoading } = useGetItemItemsItemIdGet(itemId)
   const item = itemRes?.status === 200 ? itemRes.data : undefined
@@ -159,131 +192,164 @@ export function ItemDetailPage() {
               </div>
             )}
 
-            {/* Tabs */}
-            <Tabs defaultValue="details">
-              <TabsList>
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="images">Images</TabsTrigger>
-                <TabsTrigger value="provenance">Provenance</TabsTrigger>
-                <TabsTrigger value="dimensions">Dimensions</TabsTrigger>
-                <TabsTrigger value="marks">Marks</TabsTrigger>
-                <TabsTrigger value="notes">Notes</TabsTrigger>
-              </TabsList>
+            {/* Expand / Collapse all */}
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1 text-xs transition-colors"
+              onClick={toggleAll}
+            >
+              <ChevronsUpDown className="h-3.5 w-3.5" />
+              {allExpanded ? "Collapse all" : "Expand all"}
+            </button>
 
-              <TabsContent value="details" className="mt-4 space-y-3">
-                {item.description && (
-                  <DetailRow label="Description" value={item.description} />
-                )}
-                <DetailRow label="Location" value={item.location} />
-                <DetailRow
-                  label="Acquisition Date"
-                  value={item.acquisition_date}
-                />
-                <DetailRow
-                  label="Purchase Price"
-                  value={
-                    item.acquisition_price ? `$${item.acquisition_price}` : null
-                  }
-                />
-                <DetailRow
-                  label="Estimated Value"
-                  value={
-                    item.estimated_value ? `$${item.estimated_value}` : null
-                  }
-                />
-                <DetailRow
-                  label="Acquisition Source"
-                  value={item.acquisition_source}
-                />
-                {item.type_fields && typeDef && typeDef.fields.length > 0 && (
-                  <>
-                    <Separator className="my-3" />
-                    <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                      {typeDef.label} Details
-                    </p>
-                    {typeDef.fields.map((field) => {
-                      const raw = (
-                        item.type_fields as Record<string, unknown>
-                      )?.[field.name]
-                      if (!raw) return null
-                      let display = String(raw)
-                      if (field.type === "enum" && field.options) {
-                        const opt = field.options.find((o) => o.value === raw)
-                        if (opt) display = opt.label
-                      }
-                      return (
-                        <DetailRow
-                          key={field.name}
-                          label={field.label}
-                          value={display}
-                        />
-                      )
-                    })}
-                  </>
-                )}
-                {!item.description &&
-                  !item.location &&
-                  !item.acquisition_date &&
-                  !item.acquisition_price &&
-                  !item.estimated_value &&
-                  !item.acquisition_source &&
-                  !item.type_fields && (
-                    <EmptyTab message="No details recorded yet." />
+            {/* Sections */}
+            <div className="space-y-2">
+              <DetailSection
+                title="Details"
+                open={!!openSections.details}
+                onOpenChange={(v) => toggleSection("details", v)}
+              >
+                <div className="space-y-3">
+                  {item.description && (
+                    <DetailRow label="Description" value={item.description} />
                   )}
-              </TabsContent>
+                  <DetailRow label="Location" value={item.location} />
+                  <DetailRow
+                    label="Acquisition Date"
+                    value={item.acquisition_date}
+                  />
+                  <DetailRow
+                    label="Purchase Price"
+                    value={
+                      item.acquisition_price
+                        ? `$${item.acquisition_price}`
+                        : null
+                    }
+                  />
+                  <DetailRow
+                    label="Estimated Value"
+                    value={
+                      item.estimated_value ? `$${item.estimated_value}` : null
+                    }
+                  />
+                  <DetailRow
+                    label="Acquisition Source"
+                    value={item.acquisition_source}
+                  />
+                  {item.type_fields && typeDef && typeDef.fields.length > 0 && (
+                    <>
+                      <Separator className="my-3" />
+                      <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                        {typeDef.label} Details
+                      </p>
+                      {typeDef.fields.map((field) => {
+                        const raw = (
+                          item.type_fields as Record<string, unknown>
+                        )?.[field.name]
+                        if (!raw) return null
+                        let display = String(raw)
+                        if (field.type === "enum" && field.options) {
+                          const opt = field.options.find((o) => o.value === raw)
+                          if (opt) display = opt.label
+                        }
+                        return (
+                          <DetailRow
+                            key={field.name}
+                            label={field.label}
+                            value={display}
+                          />
+                        )
+                      })}
+                    </>
+                  )}
+                  {!item.description &&
+                    !item.location &&
+                    !item.acquisition_date &&
+                    !item.acquisition_price &&
+                    !item.estimated_value &&
+                    !item.acquisition_source &&
+                    !item.type_fields && (
+                      <EmptySection message="No details recorded yet." />
+                    )}
+                </div>
+              </DetailSection>
 
-              <TabsContent value="images" className="mt-4">
+              <DetailSection
+                title="Images"
+                open={!!openSections.images}
+                onOpenChange={(v) => toggleSection("images", v)}
+              >
                 <ItemImages itemId={item.id} images={item.images ?? []} />
-              </TabsContent>
+              </DetailSection>
 
-              <TabsContent value="provenance" className="mt-4 space-y-3">
-                <DetailRow label="Artist / Maker" value={item.artist_maker} />
-                <DetailRow label="Origin" value={item.origin} />
-                <DetailRow label="Date / Era" value={item.date_era} />
-                {(item.artist_maker || item.origin || item.date_era) && (
-                  <Separator className="my-3" />
-                )}
-                <ProvenanceList
-                  itemId={item.id}
-                  entries={item.provenance_entries ?? []}
-                />
-              </TabsContent>
-
-              <TabsContent value="dimensions" className="mt-4 space-y-3">
-                <DetailRow
-                  label="Height"
-                  value={item.height_cm ? `${item.height_cm} cm` : null}
-                />
-                <DetailRow
-                  label="Width"
-                  value={item.width_cm ? `${item.width_cm} cm` : null}
-                />
-                <DetailRow
-                  label="Depth"
-                  value={item.depth_cm ? `${item.depth_cm} cm` : null}
-                />
-                <DetailRow
-                  label="Weight"
-                  value={item.weight_kg ? `${item.weight_kg} kg` : null}
-                />
-                <DetailRow label="Materials" value={item.materials} />
-                {!item.height_cm &&
-                  !item.width_cm &&
-                  !item.depth_cm &&
-                  !item.weight_kg &&
-                  !item.materials && (
-                    <EmptyTab message="No dimensions recorded." />
+              <DetailSection
+                title="Provenance"
+                open={!!openSections.provenance}
+                onOpenChange={(v) => toggleSection("provenance", v)}
+              >
+                <div className="space-y-3">
+                  <DetailRow label="Artist / Maker" value={item.artist_maker} />
+                  <DetailRow label="Origin" value={item.origin} />
+                  <DetailRow label="Date / Era" value={item.date_era} />
+                  {(item.artist_maker || item.origin || item.date_era) && (
+                    <Separator className="my-3" />
                   )}
-              </TabsContent>
+                  <ProvenanceList
+                    itemId={item.id}
+                    entries={item.provenance_entries ?? []}
+                  />
+                </div>
+              </DetailSection>
 
-              <TabsContent value="marks" className="mt-4">
+              <DetailSection
+                title="Dimensions"
+                open={!!openSections.dimensions}
+                onOpenChange={(v) => toggleSection("dimensions", v)}
+              >
+                <div className="space-y-3">
+                  <DetailRow
+                    label="Height"
+                    value={item.height_cm ? `${item.height_cm} cm` : null}
+                  />
+                  <DetailRow
+                    label="Width"
+                    value={item.width_cm ? `${item.width_cm} cm` : null}
+                  />
+                  <DetailRow
+                    label="Depth"
+                    value={item.depth_cm ? `${item.depth_cm} cm` : null}
+                  />
+                  <DetailRow
+                    label="Weight"
+                    value={item.weight_kg ? `${item.weight_kg} kg` : null}
+                  />
+                  <DetailRow label="Materials" value={item.materials} />
+                  {!item.height_cm &&
+                    !item.width_cm &&
+                    !item.depth_cm &&
+                    !item.weight_kg &&
+                    !item.materials && (
+                      <EmptySection message="No dimensions recorded." />
+                    )}
+                </div>
+              </DetailSection>
+
+              <DetailSection
+                title="Marks"
+                open={!!openSections.marks}
+                onOpenChange={(v) => toggleSection("marks", v)}
+              >
                 <MarkList itemId={item.id} marks={item.marks ?? []} />
-              </TabsContent>
+              </DetailSection>
 
-              <TabsContent value="notes" className="mt-4">
+              <DetailSection
+                title="Notes"
+                open={!!openSections.notes}
+                onOpenChange={(v) => toggleSection("notes", v)}
+              >
                 <ItemNoteList itemId={item.id} notes={item.item_notes ?? []} />
-              </TabsContent>
-            </Tabs>
+              </DetailSection>
+            </div>
 
             <EditItemDialog
               open={editOpen}
@@ -325,9 +391,40 @@ function DetailRow({
   )
 }
 
-function EmptyTab({ message }: { message: string }) {
+function EmptySection({ message }: { message: string }) {
   return (
     <p className="text-muted-foreground py-6 text-center text-sm">{message}</p>
+  )
+}
+
+function DetailSection({
+  title,
+  open,
+  onOpenChange,
+  children,
+}: {
+  title: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  children: React.ReactNode
+}) {
+  return (
+    <Collapsible open={open} onOpenChange={onOpenChange}>
+      <CollapsibleTrigger asChild>
+        <button
+          type="button"
+          className="hover:bg-muted/50 flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors"
+        >
+          <ChevronDown
+            className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+          />
+          {title}
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-2 pt-2 pb-4">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 
