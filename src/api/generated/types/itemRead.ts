@@ -38,6 +38,7 @@ export interface ItemRead {
   id: string;
   user_id: string;
   collection_id: string | null;
+  collection_name?: string | null;
   tags?: TagRead[];
   marks?: MarkRead[];
   provenance_entries?: ProvenanceEntryRead[];

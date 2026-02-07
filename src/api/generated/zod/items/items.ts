@@ -67,6 +67,7 @@ export const ListItemsItemsGetResponseItem = zod.object({
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
+  "collection_name": zod.union([zod.string(),zod.null()]).optional(),
   "tags": zod.array(zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -240,6 +241,7 @@ export const GetItemItemsItemIdGetResponse = zod.object({
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
+  "collection_name": zod.union([zod.string(),zod.null()]).optional(),
   "tags": zod.array(zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -408,6 +410,7 @@ export const UpdateItemItemsItemIdPatchResponse = zod.object({
   "id": zod.uuid(),
   "user_id": zod.uuid(),
   "collection_id": zod.union([zod.uuid(),zod.null()]),
+  "collection_name": zod.union([zod.string(),zod.null()]).optional(),
   "tags": zod.array(zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
