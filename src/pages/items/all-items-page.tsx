@@ -254,6 +254,25 @@ function ItemCard({ item }: { item: ItemRead }) {
               {item.description}
             </p>
           )}
+          <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+            {item.estimated_value && (
+              <span>
+                $
+                {parseFloat(item.estimated_value).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+            )}
+            {item.estimated_value && item.created_at && <span>&middot;</span>}
+            <span>
+              {new Date(item.created_at).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
           <div className="mt-2 flex flex-wrap gap-1">
             {item.collection_name && (
               <Badge variant="default" className="text-xs">
