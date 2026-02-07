@@ -30,9 +30,8 @@ import { useCreateItemNoteItemsItemIdNotesPost } from "@/api/generated/hooks/not
 import type { ItemRead } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { AppLayout } from "@/components/app-layout"
-import { ImageCarousel } from "@/components/image-carousel"
+import { ItemCard } from "@/components/item-card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -256,52 +255,6 @@ export function CollectionDetailPage() {
         )}
       </div>
     </AppLayout>
-  )
-}
-
-function ItemCard({ item }: { item: ItemRead }) {
-  const images = item.images ?? []
-  return (
-    <Link to="/items/$itemId" params={{ itemId: item.id }} className="block">
-      <Card className="hover:border-primary/40 h-full overflow-hidden transition-colors">
-        {images.length > 0 ? (
-          <ImageCarousel
-            images={images}
-            aspectRatio="aspect-[4/3]"
-            showDots
-            showArrows
-            className="rounded-none"
-          />
-        ) : (
-          <div className="bg-muted flex aspect-[4/3] items-center justify-center">
-            <Package className="text-muted-foreground h-8 w-8" />
-          </div>
-        )}
-        <CardContent className="p-3">
-          <p className="truncate font-medium">{item.name}</p>
-          {item.description && (
-            <p className="text-muted-foreground mt-0.5 line-clamp-2 text-sm">
-              {item.description}
-            </p>
-          )}
-          {((item.tags && item.tags.length > 0) ||
-            (item.condition && item.condition !== "unknown")) && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {item.tags?.map((t) => (
-                <Badge key={t.id} variant="secondary" className="text-xs">
-                  {t.name}
-                </Badge>
-              ))}
-              {item.condition && item.condition !== "unknown" && (
-                <Badge variant="outline" className="text-xs capitalize">
-                  {item.condition}
-                </Badge>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </Link>
   )
 }
 
