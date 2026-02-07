@@ -83,6 +83,18 @@ export function CollectionsDashboard() {
                           {c.item_count ?? 0}{" "}
                           {(c.item_count ?? 0) === 1 ? "item" : "items"}
                         </Badge>
+                        {c.total_value && (
+                          <Badge variant="secondary">
+                            $
+                            {parseFloat(c.total_value).toLocaleString(
+                              undefined,
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </CardHeader>

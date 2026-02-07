@@ -19,7 +19,8 @@ export const listCollectionsCollectionsGetResponseDescriptionOneMax = 2000;
 export const listCollectionsCollectionsGetResponseTypeDefault = `general`;
 export const listCollectionsCollectionsGetResponseTypeMax = 50;
 
-export const listCollectionsCollectionsGetResponseItemCountDefault = 0;export const listCollectionsCollectionsGetResponsePreviewImagesDefault = [];
+export const listCollectionsCollectionsGetResponseItemCountDefault = 0;export const listCollectionsCollectionsGetResponseTotalValueOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listCollectionsCollectionsGetResponsePreviewImagesDefault = [];
 
 export const ListCollectionsCollectionsGetResponseItem = zod.object({
   "name": zod.string().max(listCollectionsCollectionsGetResponseNameMax),
@@ -30,6 +31,7 @@ export const ListCollectionsCollectionsGetResponseItem = zod.object({
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({}),
   "item_count": zod.number().default(listCollectionsCollectionsGetResponseItemCountDefault),
+  "total_value": zod.union([zod.string().regex(listCollectionsCollectionsGetResponseTotalValueOneRegExp),zod.null()]).optional(),
   "preview_images": zod.array(zod.object({
   "id": zod.uuid(),
   "url": zod.string()
@@ -71,7 +73,8 @@ export const getCollectionCollectionsCollectionIdGetResponseDescriptionOneMax = 
 export const getCollectionCollectionsCollectionIdGetResponseTypeDefault = `general`;
 export const getCollectionCollectionsCollectionIdGetResponseTypeMax = 50;
 
-export const getCollectionCollectionsCollectionIdGetResponseItemCountDefault = 0;export const getCollectionCollectionsCollectionIdGetResponsePreviewImagesDefault = [];
+export const getCollectionCollectionsCollectionIdGetResponseItemCountDefault = 0;export const getCollectionCollectionsCollectionIdGetResponseTotalValueOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getCollectionCollectionsCollectionIdGetResponsePreviewImagesDefault = [];
 
 export const GetCollectionCollectionsCollectionIdGetResponse = zod.object({
   "name": zod.string().max(getCollectionCollectionsCollectionIdGetResponseNameMax),
@@ -82,6 +85,7 @@ export const GetCollectionCollectionsCollectionIdGetResponse = zod.object({
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({}),
   "item_count": zod.number().default(getCollectionCollectionsCollectionIdGetResponseItemCountDefault),
+  "total_value": zod.union([zod.string().regex(getCollectionCollectionsCollectionIdGetResponseTotalValueOneRegExp),zod.null()]).optional(),
   "preview_images": zod.array(zod.object({
   "id": zod.uuid(),
   "url": zod.string()
