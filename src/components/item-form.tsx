@@ -127,7 +127,7 @@ export function ItemForm({
   })
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
 
-  // Staged marks & notes (create mode only)
+  // Staged marks & notes
   const [stagedMarks, setStagedMarks] = useState<StagedMark[]>([])
   const [stagedNotes, setStagedNotes] = useState<StagedNote[]>([])
 
@@ -144,7 +144,8 @@ export function ItemForm({
     "provenance",
     ...(typeDef && typeDef.fields.length > 0 ? ["typeFields"] : []),
     "dimensions",
-    ...(!isEdit ? ["marks", "notes"] : []),
+    "marks",
+    "notes",
   ]
   const allExpanded = sectionKeys.every((k) => openSections[k])
   const toggleAll = () => {
@@ -517,27 +518,23 @@ export function ItemForm({
         </div>
       </CollapsibleSection>
 
-      {/* Marks section (create only) */}
-      {!isEdit && (
-        <CollapsibleSection
-          title="Marks"
-          open={!!openSections.marks}
-          onOpenChange={(v) => toggleSection("marks", v)}
-        >
-          <StagedMarkList marks={stagedMarks} onChange={setStagedMarks} />
-        </CollapsibleSection>
-      )}
+      {/* Marks section */}
+      <CollapsibleSection
+        title="Marks"
+        open={!!openSections.marks}
+        onOpenChange={(v) => toggleSection("marks", v)}
+      >
+        <StagedMarkList marks={stagedMarks} onChange={setStagedMarks} />
+      </CollapsibleSection>
 
-      {/* Notes section (create only) */}
-      {!isEdit && (
-        <CollapsibleSection
-          title="Notes"
-          open={!!openSections.notes}
-          onOpenChange={(v) => toggleSection("notes", v)}
-        >
-          <StagedNoteList notes={stagedNotes} onChange={setStagedNotes} />
-        </CollapsibleSection>
-      )}
+      {/* Notes section */}
+      <CollapsibleSection
+        title="Notes"
+        open={!!openSections.notes}
+        onOpenChange={(v) => toggleSection("notes", v)}
+      >
+        <StagedNoteList notes={stagedNotes} onChange={setStagedNotes} />
+      </CollapsibleSection>
 
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isPending}>

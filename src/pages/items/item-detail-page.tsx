@@ -13,6 +13,9 @@ import {
   useUploadItemImageItemsItemIdImagesPost,
   useDeleteItemImageItemsItemIdImagesImageIdDelete,
 } from "@/api/generated/hooks/item-images/item-images"
+import { useCreateMarkItemsItemIdMarksPost } from "@/api/generated/hooks/marks/marks"
+import { useUploadMarkImageItemsItemIdMarksMarkIdImagesPost } from "@/api/generated/hooks/mark-images/mark-images"
+import { useCreateItemNoteItemsItemIdNotesPost } from "@/api/generated/hooks/notes/notes"
 import {
   getGetCollectionCollectionsCollectionIdGetQueryKey,
   useGetCollectionCollectionsCollectionIdGet,
@@ -24,7 +27,11 @@ import { AppLayout } from "@/components/app-layout"
 import { ImageCarousel } from "@/components/image-carousel"
 import { ImageLightbox } from "@/components/image-lightbox"
 import { ImageUpload } from "@/components/image-upload"
-import { ItemForm } from "@/components/item-form"
+import {
+  ItemForm,
+  type StagedMark,
+  type StagedNote,
+} from "@/components/item-form"
 import { MarkList } from "@/components/mark-list"
 import { ProvenanceList } from "@/components/provenance-list"
 import { ItemNoteList } from "@/components/item-note-list"
@@ -347,11 +354,25 @@ function EditItemDialog({
   const queryClient = useQueryClient()
   const [uploading, setUploading] = useState(false)
   const imageUpload = useUploadItemImageItemsItemIdImagesPost()
+  const createMark = useCreateMarkItemsItemIdMarksPost()
+  const markImageUpload = useUploadMarkImageItemsItemIdMarksMarkIdImagesPost()
+  const createNote = useCreateItemNoteItemsItemIdNotesPost()
 
   const handleSuccess = useCallback(
-    async (_updatedItem: ItemRead, stagedFiles: File[]) => {
+    async (
+      _updatedItem: ItemRead,
+      stagedFiles: File[],
+      stagedMarks: StagedMark[],
+      stagedNotes: StagedNote[]
+    ) => {
+      const hasUploads =
+        stagedFiles.length > 0 ||
+        stagedMarks.length > 0 ||
+        stagedNotes.length > 0
+      if (hasUploads) setUploading(true)
+
+      // 1. Upload item images
       if (stagedFiles.length > 0) {
-        setUploading(true)
         const failed: string[] = []
         for (const file of stagedFiles) {
           try {
@@ -363,11 +384,55 @@ function EditItemDialog({
             failed.push(file.name)
           }
         }
-        setUploading(false)
         if (failed.length > 0) {
           toast.error(`Failed to upload: ${failed.join(", ")}`)
         }
       }
+
+      // 2. Create marks + upload mark images
+      for (const sm of stagedMarks) {
+        try {
+          const markRes = await createMark.mutateAsync({
+            itemId: item.id,
+            data: {
+              title: sm.title || undefined,
+              description: sm.description || undefined,
+            },
+          })
+          if (markRes.status === 201 && sm.files.length > 0) {
+            for (const file of sm.files) {
+              try {
+                await markImageUpload.mutateAsync({
+                  itemId: item.id,
+                  markId: markRes.data.id,
+                  data: { file },
+                })
+              } catch {
+                toast.error(`Failed to upload mark image: ${file.name}`)
+              }
+            }
+          }
+        } catch {
+          toast.error(`Failed to create mark: ${sm.title || "Untitled"}`)
+        }
+      }
+
+      // 3. Create notes
+      for (const sn of stagedNotes) {
+        try {
+          await createNote.mutateAsync({
+            itemId: item.id,
+            data: {
+              title: sn.title || undefined,
+              body: sn.body,
+            },
+          })
+        } catch {
+          toast.error(`Failed to create note: ${sn.title || "Untitled"}`)
+        }
+      }
+
+      if (hasUploads) setUploading(false)
 
       queryClient.invalidateQueries({
         queryKey: getGetItemItemsItemIdGetQueryKey(item.id),
@@ -386,7 +451,16 @@ function EditItemDialog({
       }
       onOpenChange(false)
     },
-    [item.id, item.collection_id, onOpenChange, queryClient, imageUpload]
+    [
+      item.id,
+      item.collection_id,
+      onOpenChange,
+      queryClient,
+      imageUpload,
+      createMark,
+      markImageUpload,
+      createNote,
+    ]
   )
 
   return (
@@ -397,7 +471,7 @@ function EditItemDialog({
         </DialogHeader>
         {uploading ? (
           <p className="text-muted-foreground py-4 text-center text-sm">
-            Uploading images&hellip;
+            Saving&hellip;
           </p>
         ) : (
           <ItemForm
