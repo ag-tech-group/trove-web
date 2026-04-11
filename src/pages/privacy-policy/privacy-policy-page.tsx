@@ -110,7 +110,8 @@ export function PrivacyPolicyPage() {
               <strong>Google OAuth:</strong> For optional sign-in authentication
             </li>
             <li>
-              <strong>Railway:</strong> For hosting our backend and database
+              <strong>Google Cloud:</strong> For hosting our backend and
+              database
             </li>
             <li>
               <strong>Netlify:</strong> For hosting our frontend application
