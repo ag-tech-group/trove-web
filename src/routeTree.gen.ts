@@ -9,16 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as CollectionsCollectionIdRouteImport } from './routes/collections.$collectionId'
 import { Route as ItemsIndexRouteImport } from './routes/items.index'
 import { Route as ItemsItemIdRouteImport } from './routes/items.$itemId'
-import { Route as CollectionsCollectionIdRouteImport } from './routes/collections.$collectionId'
 
-const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
-  id: '/privacy-policy',
-  path: '/privacy-policy',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -26,9 +26,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
+  id: '/collections/$collectionId',
+  path: '/collections/$collectionId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ItemsIndexRoute = ItemsIndexRouteImport.update({
@@ -39,11 +44,6 @@ const ItemsIndexRoute = ItemsIndexRouteImport.update({
 const ItemsItemIdRoute = ItemsItemIdRouteImport.update({
   id: '/items/$itemId',
   path: '/items/$itemId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
-  id: '/collections/$collectionId',
-  path: '/collections/$collectionId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -110,11 +110,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/privacy-policy': {
-      id: '/privacy-policy'
-      path: '/privacy-policy'
-      fullPath: '/privacy-policy'
-      preLoaderRoute: typeof PrivacyPolicyRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -124,11 +124,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$collectionId': {
+      id: '/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/collections/$collectionId'
+      preLoaderRoute: typeof CollectionsCollectionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/items/': {
@@ -143,13 +150,6 @@ declare module '@tanstack/react-router' {
       path: '/items/$itemId'
       fullPath: '/items/$itemId'
       preLoaderRoute: typeof ItemsItemIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/collections/$collectionId': {
-      id: '/collections/$collectionId'
-      path: '/collections/$collectionId'
-      fullPath: '/collections/$collectionId'
-      preLoaderRoute: typeof CollectionsCollectionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
