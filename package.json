@@ -57,7 +57,7 @@
     "@tanstack/router-cli": "^1.167.21",
     "@tanstack/router-plugin": "^1.168.23",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.0",
     "@types/node": "^22.14.0",
