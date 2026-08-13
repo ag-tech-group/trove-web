@@ -1,11 +1,17 @@
-import { useState, useCallback } from "react"
-import { Link, useNavigate, useParams } from "@tanstack/react-router"
+import { useState } from "react"
 import {
+  Link,
+  useBlocker,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router"
+import {
+  AlertCircle,
   ArrowLeft,
+  Check,
   ChevronDown,
   ChevronsUpDown,
-  MoreHorizontal,
-  Pencil,
+  Loader2,
   Trash2,
 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -20,30 +26,31 @@ import {
   useUploadItemImageItemsItemIdImagesPost,
   useDeleteItemImageItemsItemIdImagesImageIdDelete,
 } from "@/api/generated/hooks/item-images/item-images"
-import { useCreateMarkItemsItemIdMarksPost } from "@/api/generated/hooks/marks/marks"
-import { useUploadMarkImageItemsItemIdMarksMarkIdImagesPost } from "@/api/generated/hooks/mark-images/mark-images"
-import { useCreateItemNoteItemsItemIdNotesPost } from "@/api/generated/hooks/notes/notes"
 import {
   getGetCollectionCollectionsCollectionIdGetQueryKey,
   useGetCollectionCollectionsCollectionIdGet,
 } from "@/api/generated/hooks/collections/collections"
 import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
-import type { ItemRead } from "@/api/generated/types"
+import type { ItemRead, Condition } from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
+import { useItemAutosave, type AutosaveStatus } from "@/lib/use-item-autosave"
 import { AppLayout } from "@/components/app-layout"
 import { ImageCarousel } from "@/components/image-carousel"
 import { ImageLightbox } from "@/components/image-lightbox"
 import { ImageUpload } from "@/components/image-upload"
+import { CONDITIONS } from "@/lib/conditions"
 import {
-  ItemForm,
-  type StagedMark,
-  type StagedNote,
-} from "@/components/item-form"
+  InlineText,
+  InlineRow,
+  InlineSelectBadge,
+  InlineTagsBadges,
+  InlineEditFlushScope,
+  useFlushPendingEdits,
+} from "@/components/inline-edit"
 import { MarkList } from "@/components/mark-list"
 import { ProvenanceList } from "@/components/provenance-list"
 import { ItemNoteList } from "@/components/item-note-list"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -60,16 +67,9 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export function ItemDetailPage() {
   const { itemId } = useParams({ from: "/items/$itemId" })
-  const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
@@ -114,6 +114,13 @@ export function ItemDetailPage() {
     : "/"
   const backLabel = item?.collection_id ? "Back to collection" : "Collections"
 
+  const {
+    save: saveField,
+    saveTypeField,
+    flush: flushAutosave,
+    status: autosaveStatus,
+  } = useItemAutosave(itemId, item)
+
   return (
     <AppLayout>
       <div className="mx-auto max-w-3xl">
@@ -128,46 +135,48 @@ export function ItemDetailPage() {
         {isLoading ? (
           <ItemHeaderSkeleton />
         ) : item ? (
-          <>
+          <InlineEditFlushScope>
+            <FlushOnNavigate flushAutosave={flushAutosave} />
             {/* Header */}
             <div className="mb-6 flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0 flex-1">
                 <h1 className="text-3xl font-bold tracking-tight">
-                  {item.name}
+                  <InlineText
+                    value={item.name}
+                    onSave={(v) => saveField({ name: v })}
+                    required
+                    maxLength={200}
+                    ariaLabel="Edit name"
+                  />
                 </h1>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {item.tags?.map((t) => (
-                    <Badge key={t.id} variant="secondary">
-                      {t.name}
-                    </Badge>
-                  ))}
-                  {item.condition && item.condition !== "unknown" && (
-                    <Badge variant="outline" className="capitalize">
-                      {item.condition}
-                    </Badge>
-                  )}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <InlineTagsBadges
+                    tags={item.tags ?? []}
+                    onSave={(tagIds) => saveField({ tag_ids: tagIds })}
+                  />
+                  <InlineSelectBadge<Condition>
+                    value={
+                      item.condition && item.condition !== "unknown"
+                        ? item.condition
+                        : ""
+                    }
+                    onSave={(v) => saveField({ condition: v || null })}
+                    options={CONDITIONS}
+                    placeholder="+ Condition"
+                  />
                 </div>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setDeleteOpen(true)}
-                    className="text-destructive-foreground"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-3">
+                <AutosaveIndicator status={autosaveStatus} />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="Delete item"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Hero image carousel — full width */}
@@ -209,68 +218,111 @@ export function ItemDetailPage() {
                 open={!!openSections.details}
                 onOpenChange={(v) => toggleSection("details", v)}
               >
-                <div className="space-y-3">
-                  {item.description && (
-                    <DetailRow label="Description" value={item.description} />
-                  )}
-                  <DetailRow label="Location" value={item.location} />
-                  <DetailRow
-                    label="Acquisition Date"
-                    value={item.acquisition_date}
+                <div className="space-y-4">
+                  <InlineRow
+                    label="Description"
+                    value={item.description ?? ""}
+                    onSave={(v) => saveField({ description: v || null })}
+                    type="textarea"
+                    layout="stacked"
+                    rows={4}
+                    placeholder="Add a description..."
                   />
-                  <DetailRow
-                    label="Purchase Price"
-                    value={
-                      item.acquisition_price
-                        ? `$${item.acquisition_price}`
-                        : null
-                    }
-                  />
-                  <DetailRow
-                    label="Estimated Value"
-                    value={
-                      item.estimated_value ? `$${item.estimated_value}` : null
-                    }
-                  />
-                  <DetailRow
-                    label="Acquisition Source"
-                    value={item.acquisition_source}
-                  />
-                  {item.type_fields && typeDef && typeDef.fields.length > 0 && (
-                    <>
-                      <Separator className="my-3" />
-                      <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <InlineRow
+                      layout="stacked"
+                      label="Location"
+                      value={item.location ?? ""}
+                      onSave={(v) => saveField({ location: v || null })}
+                      placeholder="Add location..."
+                    />
+                    <InlineRow
+                      layout="stacked"
+                      label="Acquisition Date"
+                      value={item.acquisition_date ?? ""}
+                      onSave={(v) => saveField({ acquisition_date: v || null })}
+                      type="date"
+                      placeholder="Add date..."
+                    />
+                    <InlineRow
+                      layout="stacked"
+                      label="Purchase Price"
+                      value={item.acquisition_price ?? ""}
+                      onSave={(v) =>
+                        saveField({ acquisition_price: v || null })
+                      }
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Add price..."
+                      formatDisplay={(v) => `$${v}`}
+                    />
+                    <InlineRow
+                      layout="stacked"
+                      label="Estimated Value"
+                      value={item.estimated_value ?? ""}
+                      onSave={(v) => saveField({ estimated_value: v || null })}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Add value..."
+                      formatDisplay={(v) => `$${v}`}
+                    />
+                    <InlineRow
+                      layout="stacked"
+                      label="Acquisition Source"
+                      value={item.acquisition_source ?? ""}
+                      onSave={(v) =>
+                        saveField({ acquisition_source: v || null })
+                      }
+                      placeholder="e.g. Auction house, Estate sale"
+                      className="col-span-2"
+                    />
+                  </div>
+                  {typeDef && typeDef.fields.length > 0 && (
+                    <div>
+                      <Separator className="mb-3" />
+                      <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
                         {typeDef.label} Details
                       </p>
-                      {typeDef.fields.map((field) => {
-                        const raw = (
-                          item.type_fields as Record<string, unknown>
-                        )?.[field.name]
-                        if (!raw) return null
-                        let display = String(raw)
-                        if (field.type === "enum" && field.options) {
-                          const opt = field.options.find((o) => o.value === raw)
-                          if (opt) display = opt.label
-                        }
-                        return (
-                          <DetailRow
-                            key={field.name}
-                            label={field.label}
-                            value={display}
-                          />
-                        )
-                      })}
-                    </>
+                      <div className="space-y-1">
+                        {typeDef.fields.map((field) => {
+                          const raw = (
+                            item.type_fields as Record<string, unknown> | null
+                          )?.[field.name]
+                          const currentValue =
+                            typeof raw === "string" ? raw : ""
+                          if (field.type === "enum") {
+                            return (
+                              <div
+                                key={field.name}
+                                className="flex items-center gap-4 py-1 text-sm"
+                              >
+                                <span className="text-muted-foreground w-36 shrink-0 font-medium">
+                                  {field.label}
+                                </span>
+                                <InlineSelectBadge
+                                  value={currentValue}
+                                  onSave={(v) => saveTypeField(field.name, v)}
+                                  options={field.options ?? []}
+                                  placeholder={`+ ${field.label}`}
+                                />
+                              </div>
+                            )
+                          }
+                          return (
+                            <InlineRow
+                              key={field.name}
+                              label={field.label}
+                              value={currentValue}
+                              onSave={(v) => saveTypeField(field.name, v)}
+                              placeholder={`Add ${field.label.toLowerCase()}...`}
+                            />
+                          )
+                        })}
+                      </div>
+                    </div>
                   )}
-                  {!item.description &&
-                    !item.location &&
-                    !item.acquisition_date &&
-                    !item.acquisition_price &&
-                    !item.estimated_value &&
-                    !item.acquisition_source &&
-                    !item.type_fields && (
-                      <EmptySection message="No details recorded yet." />
-                    )}
                 </div>
               </DetailSection>
 
@@ -287,13 +339,26 @@ export function ItemDetailPage() {
                 open={!!openSections.provenance}
                 onOpenChange={(v) => toggleSection("provenance", v)}
               >
-                <div className="space-y-3">
-                  <DetailRow label="Artist / Maker" value={item.artist_maker} />
-                  <DetailRow label="Origin" value={item.origin} />
-                  <DetailRow label="Date / Era" value={item.date_era} />
-                  {(item.artist_maker || item.origin || item.date_era) && (
-                    <Separator className="my-3" />
-                  )}
+                <div className="space-y-1">
+                  <InlineRow
+                    label="Artist / Maker"
+                    value={item.artist_maker ?? ""}
+                    onSave={(v) => saveField({ artist_maker: v || null })}
+                    placeholder="Add artist or maker..."
+                  />
+                  <InlineRow
+                    label="Origin"
+                    value={item.origin ?? ""}
+                    onSave={(v) => saveField({ origin: v || null })}
+                    placeholder="Add origin..."
+                  />
+                  <InlineRow
+                    label="Date / Era"
+                    value={item.date_era ?? ""}
+                    onSave={(v) => saveField({ date_era: v || null })}
+                    placeholder="Add date or era..."
+                  />
+                  <Separator className="my-3" />
                   <ProvenanceList
                     itemId={item.id}
                     entries={item.provenance_entries ?? []}
@@ -306,31 +371,53 @@ export function ItemDetailPage() {
                 open={!!openSections.dimensions}
                 onOpenChange={(v) => toggleSection("dimensions", v)}
               >
-                <div className="space-y-3">
-                  <DetailRow
+                <div className="space-y-1">
+                  <InlineRow
                     label="Height"
-                    value={item.height_cm ? `${item.height_cm} cm` : null}
+                    value={item.height_cm ?? ""}
+                    onSave={(v) => saveField({ height_cm: v || null })}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="Add height..."
+                    formatDisplay={(v) => `${v} cm`}
                   />
-                  <DetailRow
+                  <InlineRow
                     label="Width"
-                    value={item.width_cm ? `${item.width_cm} cm` : null}
+                    value={item.width_cm ?? ""}
+                    onSave={(v) => saveField({ width_cm: v || null })}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="Add width..."
+                    formatDisplay={(v) => `${v} cm`}
                   />
-                  <DetailRow
+                  <InlineRow
                     label="Depth"
-                    value={item.depth_cm ? `${item.depth_cm} cm` : null}
+                    value={item.depth_cm ?? ""}
+                    onSave={(v) => saveField({ depth_cm: v || null })}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="Add depth..."
+                    formatDisplay={(v) => `${v} cm`}
                   />
-                  <DetailRow
+                  <InlineRow
                     label="Weight"
-                    value={item.weight_kg ? `${item.weight_kg} kg` : null}
+                    value={item.weight_kg ?? ""}
+                    onSave={(v) => saveField({ weight_kg: v || null })}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Add weight..."
+                    formatDisplay={(v) => `${v} kg`}
                   />
-                  <DetailRow label="Materials" value={item.materials} />
-                  {!item.height_cm &&
-                    !item.width_cm &&
-                    !item.depth_cm &&
-                    !item.weight_kg &&
-                    !item.materials && (
-                      <EmptySection message="No dimensions recorded." />
-                    )}
+                  <InlineRow
+                    label="Materials"
+                    value={item.materials ?? ""}
+                    onSave={(v) => saveField({ materials: v || null })}
+                    placeholder="Add materials..."
+                  />
                 </div>
               </DetailSection>
 
@@ -351,18 +438,12 @@ export function ItemDetailPage() {
               </DetailSection>
             </div>
 
-            <EditItemDialog
-              open={editOpen}
-              onOpenChange={setEditOpen}
-              item={item}
-              collectionType={collectionType}
-            />
             <DeleteItemDialog
               open={deleteOpen}
               onOpenChange={setDeleteOpen}
               item={item}
             />
-          </>
+          </InlineEditFlushScope>
         ) : (
           <p className="text-muted-foreground py-12 text-center">
             Item not found.
@@ -373,28 +454,62 @@ export function ItemDetailPage() {
   )
 }
 
-function DetailRow({
-  label,
-  value,
+/**
+ * Renders nothing — just commits any in-progress inline edit before a
+ * route change so browser back/forward or a programmatic `navigate()`
+ * (which unmount fields without ever firing `onBlur`) can't silently
+ * discard a draft. Must render inside the `InlineEditFlushScope` whose
+ * fields it's flushing.
+ */
+function FlushOnNavigate({
+  flushAutosave,
 }: {
-  label: string
-  value: string | null | undefined
+  flushAutosave: () => Promise<void>
 }) {
-  if (!value) return null
-  return (
-    <div className="flex gap-4 text-sm">
-      <span className="text-muted-foreground w-36 shrink-0 font-medium">
-        {label}
-      </span>
-      <span className="whitespace-pre-wrap">{value}</span>
-    </div>
-  )
+  const flushPendingEdits = useFlushPendingEdits()
+  useBlocker({
+    shouldBlockFn: async () => {
+      // Don't await this first — committing a field synchronously calls
+      // useItemAutosave's save(), which merges the draft into the pending
+      // patch before yielding. flushAutosave() then sees the full merged
+      // patch and can drain it immediately instead of waiting out the
+      // debounce window.
+      const fieldsFlushed = flushPendingEdits()
+      await flushAutosave()
+      await fieldsFlushed
+      return false
+    },
+    enableBeforeUnload: false,
+  })
+  return null
 }
 
-function EmptySection({ message }: { message: string }) {
-  return (
-    <p className="text-muted-foreground py-6 text-center text-sm">{message}</p>
-  )
+function AutosaveIndicator({ status }: { status: AutosaveStatus }) {
+  if (status === "saving") {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 text-xs">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        Saving…
+      </span>
+    )
+  }
+  if (status === "saved") {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 text-xs">
+        <Check className="h-3.5 w-3.5" />
+        Saved
+      </span>
+    )
+  }
+  if (status === "error") {
+    return (
+      <span className="text-destructive flex items-center gap-1 text-xs">
+        <AlertCircle className="h-3.5 w-3.5" />
+        Save failed
+      </span>
+    )
+  }
+  return null
 }
 
 function DetailSection({
@@ -434,151 +549,6 @@ function ItemHeaderSkeleton() {
       <Skeleton className="mb-2 h-9 w-48" />
       <Skeleton className="h-5 w-32" />
     </div>
-  )
-}
-
-function EditItemDialog({
-  open,
-  onOpenChange,
-  item,
-  collectionType,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  item: ItemRead
-  collectionType?: string
-}) {
-  const queryClient = useQueryClient()
-  const [uploading, setUploading] = useState(false)
-  const imageUpload = useUploadItemImageItemsItemIdImagesPost()
-  const createMark = useCreateMarkItemsItemIdMarksPost()
-  const markImageUpload = useUploadMarkImageItemsItemIdMarksMarkIdImagesPost()
-  const createNote = useCreateItemNoteItemsItemIdNotesPost()
-
-  const handleSuccess = useCallback(
-    async (
-      _updatedItem: ItemRead,
-      stagedFiles: File[],
-      stagedMarks: StagedMark[],
-      stagedNotes: StagedNote[]
-    ) => {
-      const hasUploads =
-        stagedFiles.length > 0 ||
-        stagedMarks.length > 0 ||
-        stagedNotes.length > 0
-      if (hasUploads) setUploading(true)
-
-      // 1. Upload item images
-      if (stagedFiles.length > 0) {
-        const failed: string[] = []
-        for (const file of stagedFiles) {
-          try {
-            await imageUpload.mutateAsync({
-              itemId: item.id,
-              data: { file },
-            })
-          } catch {
-            failed.push(file.name)
-          }
-        }
-        if (failed.length > 0) {
-          toast.error(`Failed to upload: ${failed.join(", ")}`)
-        }
-      }
-
-      // 2. Create marks + upload mark images
-      for (const sm of stagedMarks) {
-        try {
-          const markRes = await createMark.mutateAsync({
-            itemId: item.id,
-            data: {
-              title: sm.title || undefined,
-              description: sm.description || undefined,
-            },
-          })
-          if (markRes.status === 201 && sm.files.length > 0) {
-            for (const file of sm.files) {
-              try {
-                await markImageUpload.mutateAsync({
-                  itemId: item.id,
-                  markId: markRes.data.id,
-                  data: { file },
-                })
-              } catch {
-                toast.error(`Failed to upload mark image: ${file.name}`)
-              }
-            }
-          }
-        } catch {
-          toast.error(`Failed to create mark: ${sm.title || "Untitled"}`)
-        }
-      }
-
-      // 3. Create notes
-      for (const sn of stagedNotes) {
-        try {
-          await createNote.mutateAsync({
-            itemId: item.id,
-            data: {
-              title: sn.title || undefined,
-              body: sn.body,
-            },
-          })
-        } catch {
-          toast.error(`Failed to create note: ${sn.title || "Untitled"}`)
-        }
-      }
-
-      if (hasUploads) setUploading(false)
-
-      queryClient.invalidateQueries({
-        queryKey: getGetItemItemsItemIdGetQueryKey(item.id),
-      })
-      if (item.collection_id) {
-        queryClient.invalidateQueries({
-          queryKey: getListItemsItemsGetQueryKey({
-            collection_id: item.collection_id,
-          }),
-        })
-        queryClient.invalidateQueries({
-          queryKey: getGetCollectionCollectionsCollectionIdGetQueryKey(
-            item.collection_id
-          ),
-        })
-      }
-      onOpenChange(false)
-    },
-    [
-      item.id,
-      item.collection_id,
-      onOpenChange,
-      queryClient,
-      imageUpload,
-      createMark,
-      markImageUpload,
-      createNote,
-    ]
-  )
-
-  return (
-    <Dialog open={open} onOpenChange={uploading ? undefined : onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Edit Item</DialogTitle>
-        </DialogHeader>
-        {uploading ? (
-          <p className="text-muted-foreground py-4 text-center text-sm">
-            Saving&hellip;
-          </p>
-        ) : (
-          <ItemForm
-            defaultValues={item}
-            collectionType={collectionType}
-            onSuccess={handleSuccess}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
   )
 }
 
