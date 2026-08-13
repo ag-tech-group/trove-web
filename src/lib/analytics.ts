@@ -17,6 +17,7 @@ export async function initAnalytics(router: AnyRouter) {
 
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
+    defaults: "2026-05-30",
     person_profiles: "identified_only",
     // We send pageviews manually on route resolution instead, since
     // capture_pageview only fires once on initial load in an SPA.
