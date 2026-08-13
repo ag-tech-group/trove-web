@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router"
 import type { ErrorComponentProps } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
+import { captureException } from "@/lib/error-monitoring"
 
 export function ErrorBoundary({ error, reset }: ErrorComponentProps) {
   console.error("Uncaught error in route component", {
     message: error.message,
     stack: error.stack,
   })
+  captureException(error)
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-8">

@@ -4,7 +4,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query"
 import { RouterProvider, createRouter } from "@tanstack/react-router"
-import { StrictMode } from "react"
+import { StrictMode, useEffect } from "react"
 import { createRoot } from "react-dom/client"
 import { toast } from "sonner"
 import { ErrorBoundary } from "./components/error-boundary"
@@ -13,7 +13,13 @@ import { ThemeProvider } from "./components/theme-provider"
 import "./index.css"
 import { getErrorMessage } from "./lib/api-errors"
 import { AuthProvider, useAuth } from "./lib/auth"
+import {
+  initErrorMonitoring,
+  setErrorMonitoringUser,
+} from "./lib/error-monitoring"
 import { routeTree } from "./routeTree.gen"
+
+void initErrorMonitoring()
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +66,15 @@ declare module "@tanstack/react-query" {
 
 function App() {
   const auth = useAuth()
+
+  useEffect(() => {
+    if (auth.isAuthenticated && auth.userId && auth.email) {
+      setErrorMonitoringUser({ id: auth.userId, email: auth.email })
+    } else {
+      setErrorMonitoringUser(null)
+    }
+  }, [auth.isAuthenticated, auth.userId, auth.email])
+
   if (auth.isLoading) return null
   return <RouterProvider router={router} context={{ auth }} />
 }
