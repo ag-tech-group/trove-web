@@ -18,10 +18,11 @@ export default defineConfig({
           path: "./src/api/orval-client.ts",
           name: "orvalClient",
         },
-        query: {
-          useQuery: true,
-          useMutation: true,
-        },
+        // Deliberately no `query.useQuery` / `query.useMutation` override:
+        // orval defaults each verb correctly on its own (GET -> useQuery,
+        // everything else -> useMutation). Forcing both true globally makes
+        // orval treat every operation as a query, which suppresses mutation
+        // hook generation for non-GET verbs.
         zod: {
           strict: {
             response: true,
