@@ -11,6 +11,7 @@ import { ErrorBoundary } from "./components/error-boundary"
 import { NotFound } from "./components/not-found"
 import { ThemeProvider } from "./components/theme-provider"
 import "./index.css"
+import { initAnalytics } from "./lib/analytics"
 import { getErrorMessage } from "./lib/api-errors"
 import { AuthProvider, useAuth } from "./lib/auth"
 import {
@@ -63,6 +64,8 @@ declare module "@tanstack/react-query" {
     }
   }
 }
+
+void initAnalytics(router)
 
 function App() {
   const auth = useAuth()
