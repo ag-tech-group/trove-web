@@ -13,39 +13,6 @@ afterEach(() => {
   cleanup()
 })
 
-// Mock localStorage — jsdom doesn't reliably provide window.localStorage
-// under newer Node versions with the experimental native Web Storage API.
-class LocalStorageMock implements Storage {
-  private store = new Map<string, string>()
-  get length() {
-    return this.store.size
-  }
-  clear() {
-    this.store.clear()
-  }
-  getItem(key: string) {
-    return this.store.get(key) ?? null
-  }
-  key(index: number) {
-    return Array.from(this.store.keys())[index] ?? null
-  }
-  removeItem(key: string) {
-    this.store.delete(key)
-  }
-  setItem(key: string, value: string) {
-    this.store.set(key, String(value))
-  }
-}
-const localStorageMock = new LocalStorageMock()
-Object.defineProperty(window, "localStorage", {
-  writable: true,
-  value: localStorageMock,
-})
-Object.defineProperty(globalThis, "localStorage", {
-  writable: true,
-  value: localStorageMock,
-})
-
 // Mock window.scrollTo
 window.scrollTo = vi.fn()
 
