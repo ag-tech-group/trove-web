@@ -6,11 +6,3 @@
  * OpenAPI spec version: 0.2.0
  */
 
-/**
- * Schema for creating an ItemNote.
- */
-export interface ItemNoteCreate {
-  title?: string | null;
-  /** @maxLength 5000 */
-  body: string;
-}
