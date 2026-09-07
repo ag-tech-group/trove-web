@@ -4,7 +4,7 @@ import { cleanup } from "@testing-library/react"
 import { setupServer } from "msw/node"
 import { afterAll, afterEach, beforeAll, vi } from "vitest"
 
-const server = setupServer(...handlers)
+export const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
 afterAll(() => server.close())
