@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+  # Called by deploy.yml, so a deploy runs the same lint, tests and build a PR
+  # does rather than a second copy that can drift from it.
+  workflow_call:
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest

@@ -1,0 +1,98 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+  # THE BOOTSTRAP PATH. The infrastructure repo cannot create the Cloud Run
+  # service until an image exists to run, and this workflow cannot update a
+  # service that does not exist yet. Running it by hand once breaks that circle:
+  # it pushes an image, skips the update, and the service can then be declared.
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web-production
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT: trove-prod-485922
+  GCP_REGION: us-east1
+  SERVICE_NAME: trove-web
+  IMAGE: us-east1-docker.pkg.dev/trove-prod-485922/trove-web/trove-web
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Its own identity, not trove-api's. The binding is scoped to
+      # ag-tech-group/trove-web@refs/heads/main, so a token from any other branch
+      # or repository matches nothing.
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/505795335067/locations/global/workloadIdentityPools/github-actions/providers/github-provider
+          service_account: github-actions-web-deploy@trove-prod-485922.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - run: gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
+
+      # VITE_API_URL IS A BUILD ARG, NOT A SERVICE ENV VAR. Vite compiles it into
+      # the bundle, so it has to be present here; setting it on the Cloud Run
+      # service would have no effect whatsoever. Changing which API the frontend
+      # talks to therefore means changing this variable and rebuilding.
+      - name: Build and push
+        run: |
+          docker build \
+            --build-arg VITE_API_URL="$VITE_API_URL" \
+            -t $IMAGE:$GITHUB_SHA -t $IMAGE:latest .
+          docker push $IMAGE:$GITHUB_SHA
+          docker push $IMAGE:latest
+        env:
+          IMAGE: ${{ env.IMAGE }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      # THIS COMMAND MUST KEEP SETTING ONLY THE IMAGE. Do not add --set-env-vars,
+      # --memory, --cpu, --min-instances, --service-account or anything else.
+      #
+      # The service's shape — env vars, scaling, CPU and memory, probes, runtime
+      # identity — is declared as infrastructure as code and owned there. This
+      # workflow owns exactly one field, the image tag, and the two systems stay
+      # out of each other's way only because `gcloud run services update` MERGES
+      # rather than replaces.
+      #
+      # That boundary is enforced on the other side by an `ignore_changes` on the
+      # image. Widening this command does not cause a conflict or an error: it
+      # silently makes that ignore a lie, and drift detection for this service
+      # stops working with nothing anywhere reporting it. If the service needs a
+      # different shape, change it in the infrastructure repo, not here.
+      #
+      # The existence guard is the bootstrap case described at the top of this
+      # file, not a general tolerance for failure — once the service exists, a
+      # failure here is real and should stop the run.
+      - name: Deploy to Cloud Run
+        run: |
+          if ! gcloud run services describe $SERVICE_NAME \
+              --region $GCP_REGION --project $GCP_PROJECT >/dev/null 2>&1; then
+            echo "Service $SERVICE_NAME does not exist yet."
+            echo "Image pushed. Declare the service in the infrastructure repo, then re-run."
+            exit 0
+          fi
+          gcloud run services update $SERVICE_NAME \
+            --image $IMAGE:$GITHUB_SHA \
+            --region $GCP_REGION \
+            --project $GCP_PROJECT
+        env:
+          IMAGE: ${{ env.IMAGE }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          GCP_REGION: ${{ env.GCP_REGION }}
+          GCP_PROJECT: ${{ env.GCP_PROJECT }}

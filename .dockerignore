@@ -1,0 +1,16 @@
+# Rebuilt inside the image; copying the host's would ship whatever happened to be
+# on a developer's laptop.
+node_modules
+dist
+dist-ssr
+
+# .env FIRST AND FOREMOST: it holds real local credentials, and COPY . . would
+# otherwise bake them into a layer of a pushed image.
+.env
+.env*.local
+
+.git
+.github
+.husky
+coverage
+.tanstack
