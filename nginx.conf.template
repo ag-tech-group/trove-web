@@ -1,0 +1,125 @@
+# Cloud Run terminates TLS and forwards plain HTTP to $PORT. 8080 is its default
+# and is what the service declares as its container port; nginx's own default of
+# 80 would leave the container listening where nothing ever connects.
+server {
+    listen 8080;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Probed by the Cloud Run startup and liveness checks. A dedicated location
+    # rather than probing "/", so a health check does not depend on the SPA shell
+    # rendering correctly and does not appear in the logs as a page view.
+    location = /health {
+        access_log off;
+        add_header Content-Type text/plain;
+        return 200 "ok\n";
+    }
+
+    # HASHED FILENAMES, THEREFORE CACHEABLE FOREVER. Vite emits
+    # assets/<name>-<hash>.js and the hash changes whenever the content does, so
+    # a stale cached copy simply stops being referenced after a deploy.
+    #
+    # One directive, not `expires` plus `add_header`: those emit TWO
+    # Cache-Control headers, which is legal but handled inconsistently by
+    # intermediary caches. Verified against the running container.
+    #
+    # try_files ... =404 rather than falling through to the SPA rule below. A
+    # missing bundle must be a 404; serving index.html in its place returns HTML
+    # under a .js content type and surfaces in the browser as an opaque MIME
+    # error rather than as the missing file it is.
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # THE ONE FILE THAT MUST NEVER BE CACHED, and the reason the rule above is
+    # safe. index.html is what names the hashed assets, so a cached copy pins a
+    # browser to the previous deploy's bundle indefinitely — the deploy appears
+    # to do nothing at all for anyone holding one.
+    location = /index.html {
+        add_header Cache-Control "no-store, must-revalidate";
+    }
+
+    # POSTHOG REVERSE PROXY. posthog-js is pointed here by VITE_POSTHOG_HOST so
+    # events leave the browser as same-origin requests to this host rather than
+    # to *.i.posthog.com, which content and privacy blockers drop by hostname.
+    # It also keeps the CSP tight — `connect-src 'self'` already covers this
+    # path, so no PostHog origin has to be allowlisted.
+    #
+    # The trade is that analytics traffic now reaches this service instead of
+    # going straight to PostHog, so it counts against Cloud Run requests and
+    # egress. Clearing VITE_POSTHOG_HOST returns to direct ingestion and leaves
+    # these blocks simply unused; nothing here has to change.
+    #
+    # `^~` so the SPA fallback below cannot claim these paths and answer an
+    # ingest POST with index.html.
+    #
+    # The upstreams resolve per request through a resolver rather than once at
+    # config load. Two reasons, and the second is the important one: PostHog
+    # sits behind a CDN whose addresses rotate, so a startup-time address can
+    # go stale on a long-lived instance; and a literal upstream makes nginx
+    # resolve it at boot, which would couple this container STARTING AT ALL to
+    # PostHog's DNS. A blip there must not be able to take the site down for
+    # the sake of analytics.
+    #
+    # The resolver address is not hardcoded. It is substituted from the
+    # platform's own /etc/resolv.conf by the nginx image's entrypoint (hence
+    # this file being a template) — Docker's embedded resolver locally, Cloud
+    # Run's in production. Hardcoding is a guess that fails in a specific and
+    # nasty way: an unreachable resolver does not error, it HANGS for
+    # resolver_timeout on every relay request. Verified — pointing this at the
+    # Cloud Run metadata address stalled these locations for 30s a piece under
+    # `docker run`, and a public resolver 502s wherever egress DNS is filtered.
+    #
+    # proxy_ssl_server_name is required for SNI once an upstream is a variable;
+    # without it the TLS handshake goes out with no server name and the CDN
+    # answers with the wrong certificate.
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=300s ipv6=off;
+    resolver_timeout 5s;
+
+    # THE REWRITE IS LOAD-BEARING, and the reason proxy_pass carries no URI of
+    # its own. nginx normally swaps the matched location prefix for the URI on
+    # proxy_pass — but the moment proxy_pass contains a variable that stops,
+    # and the URI is sent verbatim instead. `proxy_pass https://$host/static/`
+    # therefore requests exactly /static/ for every path under this location.
+    # Verified: it answered 404 for every relay path while the same paths
+    # returned 200/401/400 directly. Rewriting first and leaving proxy_pass
+    # bare keeps the rest of the path. The query string is carried over
+    # automatically because the replacement contains no "?".
+    location ^~ /relay/static/ {
+        set $posthog_assets us-assets.i.posthog.com;
+        rewrite ^/relay/static/(.*)$ /static/$1 break;
+        proxy_pass https://$posthog_assets;
+        proxy_set_header Host us-assets.i.posthog.com;
+        proxy_ssl_server_name on;
+
+        # Analytics must fail fast and quietly. These are the app's own
+        # requests, so a slow relay would otherwise hold a browser connection
+        # open long past the point the data stopped being worth waiting for.
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 10s;
+    }
+
+    location ^~ /relay/ {
+        set $posthog_ingest us.i.posthog.com;
+        rewrite ^/relay/(.*)$ /$1 break;
+        proxy_pass https://$posthog_ingest;
+        proxy_set_header Host us.i.posthog.com;
+        proxy_ssl_server_name on;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 10s;
+    }
+
+    # CLIENT-SIDE ROUTING. TanStack Router owns every path, so anything that is
+    # not a real file gets the SPA shell and is resolved in the browser. Without
+    # this, a refresh on /items/123 is an nginx 404 rather than a page.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1024;
+}

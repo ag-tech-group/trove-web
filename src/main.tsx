@@ -20,7 +20,10 @@ import {
 } from "./lib/error-monitoring"
 import { routeTree } from "./routeTree.gen"
 
-void initErrorMonitoring()
+// Before anything else: init() installs Sentry's global error and
+// unhandledrejection handlers, so a crash during boot is only captured if this
+// has already run.
+initErrorMonitoring()
 
 const queryClient = new QueryClient({
   defaultOptions: {
