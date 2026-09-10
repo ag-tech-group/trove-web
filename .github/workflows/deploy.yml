@@ -55,6 +55,8 @@ jobs:
           docker build \
             --build-arg VITE_API_URL="$VITE_API_URL" \
             --build-arg VITE_SENTRY_DSN="$VITE_SENTRY_DSN" \
+            --build-arg VITE_POSTHOG_KEY="$VITE_POSTHOG_KEY" \
+            --build-arg VITE_POSTHOG_HOST="$VITE_POSTHOG_HOST" \
             -t $IMAGE:$GITHUB_SHA -t $IMAGE:latest .
           docker push $IMAGE:$GITHUB_SHA
           docker push $IMAGE:latest
@@ -62,6 +64,8 @@ jobs:
           IMAGE: ${{ env.IMAGE }}
           VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+          VITE_POSTHOG_KEY: ${{ vars.VITE_POSTHOG_KEY }}
+          VITE_POSTHOG_HOST: ${{ vars.VITE_POSTHOG_HOST }}
 
       # THIS COMMAND MUST KEEP SETTING ONLY THE IMAGE. Do not add --set-env-vars,
       # --memory, --cpu, --min-instances, --service-account or anything else.
