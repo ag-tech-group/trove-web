@@ -36,6 +36,11 @@ ENV SENTRY_ORG=$SENTRY_ORG
 ARG SENTRY_PROJECT
 ENV SENTRY_PROJECT=$SENTRY_PROJECT
 
+# Repository as named in Sentry, so releases can be tied to commits without a
+# git history to read — .dockerignore keeps .git out of this image on purpose.
+ARG SENTRY_RELEASE_REPO
+ENV SENTRY_RELEASE_REPO=$SENTRY_RELEASE_REPO
+
 WORKDIR /app
 
 # Pinned to the major CI uses. package.json declares no packageManager field, so

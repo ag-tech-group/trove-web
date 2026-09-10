@@ -21,6 +21,13 @@ const releaseSha = process.env.VITE_RELEASE_SHA || "dev"
  * as a BuildKit secret mount rather than a build arg so it never lands in a
  * committed image layer.
  */
+/**
+ * Repository as named in Sentry, e.g. "owner/name". Supplied by the deploy
+ * workflow from GITHUB_REPOSITORY rather than hardcoded, and absent locally —
+ * where commit association is neither possible nor wanted.
+ */
+const releaseRepo = process.env.SENTRY_RELEASE_REPO
+
 const sentryUpload =
   process.env.SENTRY_AUTH_TOKEN &&
   process.env.SENTRY_ORG &&
@@ -60,9 +67,28 @@ export default defineConfig({
               name: releaseSha,
               // Associates commits between this release and the previous one
               // so Sentry can point at a suspect commit for a new error.
-              // ignoreMissing keeps the build green when the repo is not yet
-              // linked to Sentry through the GitHub integration.
-              setCommits: { auto: true, ignoreMissing: true },
+              //
+              // NAMED REPO AND COMMIT, NOT `auto`. `auto` reads the local git
+              // history, and there is none to read: .dockerignore excludes
+              // .git deliberately, so the build container holds the source
+              // without the repository. It failed every deploy with "could not
+              // find repository at '.'" while source maps uploaded fine either
+              // side of it. Naming the repo and commit instead has Sentry
+              // resolve the range server-side from the linked GitHub
+              // integration, which needs no git in the image.
+              //
+              // previousCommit is left out on purpose: Sentry defaults it to
+              // the last commit of the previous release, which is more correct
+              // than anything this build could work out on its own.
+              ...(releaseRepo
+                ? {
+                    setCommits: {
+                      repo: releaseRepo,
+                      commit: releaseSha,
+                      ignoreMissing: true,
+                    },
+                  }
+                : {}),
             },
             sourcemaps: {
               // Upload, then remove. Without this the .map files ship inside

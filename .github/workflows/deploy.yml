@@ -60,6 +60,7 @@ jobs:
             --build-arg VITE_RELEASE_SHA="$GITHUB_SHA" \
             --build-arg SENTRY_ORG="$SENTRY_ORG" \
             --build-arg SENTRY_PROJECT="$SENTRY_PROJECT" \
+            --build-arg SENTRY_RELEASE_REPO="$GITHUB_REPOSITORY" \
             --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
             -t $IMAGE:$GITHUB_SHA -t $IMAGE:latest .
           docker push $IMAGE:$GITHUB_SHA
