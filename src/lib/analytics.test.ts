@@ -111,4 +111,28 @@ describe("initAnalytics", () => {
       expect.objectContaining({ api_host: "https://us.i.posthog.com" })
     )
   })
+
+  it("turns session recording off in the SDK config", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    expect(init).toHaveBeenCalledWith(
+      "phc_test",
+      expect.objectContaining({ disable_session_recording: true })
+    )
+  })
+
+  it("leaves autocapture on", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    expect(init).toHaveBeenCalledWith(
+      "phc_test",
+      expect.objectContaining({ autocapture: true })
+    )
+  })
 })

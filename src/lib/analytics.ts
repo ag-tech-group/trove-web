@@ -41,6 +41,20 @@ export async function initAnalytics(router: AnyRouter) {
     // fires on initial load, which in an SPA misses every later navigation.
     capture_pageview: false,
     capture_pageleave: true,
+    // SESSION REPLAY IS OFF IN CODE, NOT JUST IN THE DASHBOARD. The project had
+    // it recording every session with default masking, which hides form inputs
+    // but not text on the page — so item names, descriptions and valuations
+    // were eligible to be recorded. A dashboard toggle can be switched back on
+    // by anyone with access and nothing here would notice. This flag stops the
+    // SDK starting a recording on its own, whatever the dashboard says; the only
+    // other way in is posthog.startSessionRecording(), which nothing calls. So
+    // turning replay on becomes a reviewed change to this file — pair it with a
+    // privacy-policy update.
+    disable_session_recording: true,
+    // Autocapture is on by choice. It records clicks and form interactions,
+    // including the text of the element clicked. The project setting can still
+    // switch it off server-side; this states the intent rather than forcing it.
+    autocapture: true,
   })
 
   const capture = (path: string) => {
