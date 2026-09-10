@@ -13,6 +13,12 @@ FROM node:24-alpine AS build
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+# An unset DSN is not an error: error-monitoring.ts skips initialising Sentry
+# entirely when this is empty, so a build without the variable produces a
+# working image with monitoring switched off rather than a broken one.
+ARG VITE_SENTRY_DSN
+ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+
 WORKDIR /app
 
 # Pinned to the major CI uses. package.json declares no packageManager field, so
