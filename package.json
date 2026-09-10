@@ -41,6 +41,7 @@
     "embla-carousel-react": "^8.6.0",
     "ky": "^1.14.3",
     "lucide-react": "^0.511.0",
+    "posthog-js": "^1.416.0",
     "radix-ui": "^1.6.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

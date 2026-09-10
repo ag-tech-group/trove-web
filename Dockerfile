@@ -13,11 +13,16 @@ FROM node:24-alpine AS build
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-# An unset DSN is not an error: error-monitoring.ts skips initialising Sentry
-# entirely when this is empty, so a build without the variable produces a
-# working image with monitoring switched off rather than a broken one.
+# An unset value is not an error: analytics.ts and error-monitoring.ts each
+# skip initialising their SDK entirely when the matching variable is empty, so
+# a build without these produces a working image with that feature switched
+# off rather than a broken one. Vite also drops the SDK from the bundle.
 ARG VITE_SENTRY_DSN
 ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+ARG VITE_POSTHOG_KEY
+ENV VITE_POSTHOG_KEY=$VITE_POSTHOG_KEY
+ARG VITE_POSTHOG_HOST
+ENV VITE_POSTHOG_HOST=$VITE_POSTHOG_HOST
 
 WORKDIR /app
 
