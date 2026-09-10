@@ -57,6 +57,10 @@ jobs:
             --build-arg VITE_SENTRY_DSN="$VITE_SENTRY_DSN" \
             --build-arg VITE_POSTHOG_KEY="$VITE_POSTHOG_KEY" \
             --build-arg VITE_POSTHOG_HOST="$VITE_POSTHOG_HOST" \
+            --build-arg VITE_RELEASE_SHA="$GITHUB_SHA" \
+            --build-arg SENTRY_ORG="$SENTRY_ORG" \
+            --build-arg SENTRY_PROJECT="$SENTRY_PROJECT" \
+            --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
             -t $IMAGE:$GITHUB_SHA -t $IMAGE:latest .
           docker push $IMAGE:$GITHUB_SHA
           docker push $IMAGE:latest
@@ -66,6 +70,15 @@ jobs:
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           VITE_POSTHOG_KEY: ${{ vars.VITE_POSTHOG_KEY }}
           VITE_POSTHOG_HOST: ${{ vars.VITE_POSTHOG_HOST }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          # The only real secret here. Unset simply skips the source-map
+          # upload; see the secret mount in the Dockerfile.
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          # --secret needs BuildKit. It is the default in current Docker, but
+          # stated explicitly so a runner image that changes that default fails
+          # loudly here instead of silently building without the token.
+          DOCKER_BUILDKIT: "1"
 
       # THIS COMMAND MUST KEEP SETTING ONLY THE IMAGE. Do not add --set-env-vars,
       # --memory, --cpu, --min-instances, --service-account or anything else.
