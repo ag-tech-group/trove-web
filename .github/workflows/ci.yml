@@ -88,3 +88,74 @@ jobs:
             git diff src/api/generated/
             exit 1
           fi
+
+  # THE IMAGE, NOT JUST THE BUNDLE. lint-and-test runs `vite build`, which never
+  # assembles the container — so a broken ARG, a bad COPY path, or an nginx
+  # directive that does not parse passes this workflow and fails afterwards in
+  # the deploy that ships it. That is the worst place to find out, because main
+  # is already broken by the time anyone sees it.
+  #
+  # Pull requests only. On main the deploy performs this same build for real, so
+  # running it here too would build the image twice for every merge.
+  build-image:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Placeholder build args, no SENTRY_AUTH_TOKEN, and no push. The question
+      # here is whether the image assembles and serves. A real token would
+      # publish a Sentry release for a branch that may never merge, and pushing
+      # would put an image in the registry that nothing will ever run.
+      - name: Build the image
+        run: |
+          docker build \
+            --build-arg VITE_API_URL="https://api.invalid" \
+            --build-arg VITE_POSTHOG_KEY="phc_ci" \
+            --build-arg VITE_POSTHOG_HOST="https://ci.invalid/relay" \
+            --build-arg VITE_RELEASE_SHA="$GITHUB_SHA" \
+            -t trove-web:ci .
+
+      - name: Serve it and check it behaves
+        run: |
+          docker run -d --name trove-web-ci -p 8080:8080 trove-web:ci
+
+          fail() { echo "::error::$1"; docker logs trove-web-ci; exit 1; }
+
+          for _ in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/health >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:8080/health >/dev/null \
+            || fail "container never became healthy"
+
+          # A client-side route is not a file on disk and must still get the shell.
+          curl -fsS http://localhost:8080/items/123 | grep -q '<div id="root">' \
+            || fail "deep link did not return the SPA shell"
+
+          # A missing bundle must 404, not receive HTML under a .js content type
+          # — that surfaces in the browser as an opaque MIME error instead.
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/assets/nope.js)" = "404" ] \
+            || fail "missing asset did not 404"
+
+          # The entrypoint has to substitute the resolver into the relay config.
+          # An unsubstituted template leaves nginx holding a literal ${...} and
+          # the proxy quietly unusable.
+          docker exec trove-web-ci grep -qE '^[[:space:]]+resolver [0-9]' /etc/nginx/conf.d/default.conf \
+            || fail "resolver was not substituted into the nginx config"
+
+          # /relay must reach the proxy rather than falling through to the SPA.
+          # Asserting "not the shell" tests our routing without tying this job to
+          # PostHog being up, so it cannot go red for someone else's outage.
+          if curl -s --max-time 20 http://localhost:8080/relay/e/ | grep -q '<div id="root">'; then
+            fail "/relay fell through to the SPA fallback"
+          fi
+
+          # Source maps must never reach the image. Nothing uploaded them on this
+          # build, so nothing deleted them either — if they are here, the guard
+          # tying emission to upload has come undone.
+          [ "$(docker exec trove-web-ci sh -c 'find /usr/share/nginx/html -name "*.map" | wc -l')" = "0" ] \
+            || fail "source maps present in the image"
+
+          echo "image assembles and serves correctly"
