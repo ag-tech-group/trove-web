@@ -135,4 +135,16 @@ describe("initAnalytics", () => {
       expect.objectContaining({ autocapture: true })
     )
   })
+
+  it("leaves exception capture to Sentry", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    expect(init).toHaveBeenCalledWith(
+      "phc_test",
+      expect.objectContaining({ capture_exceptions: false })
+    )
+  })
 })
