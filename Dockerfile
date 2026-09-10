@@ -70,7 +70,15 @@ RUN --mount=type=secret,id=sentry_auth_token \
 # ── serve ─────────────────────────────────────────────────────────────────────
 FROM nginx:alpine AS serve
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# A TEMPLATE, NOT A FINISHED CONFIG. The entrypoint substitutes
+# ${NGINX_LOCAL_RESOLVERS} — read from the platform's /etc/resolv.conf — into
+# the PostHog relay's `resolver` directive, so the proxy uses whatever DNS the
+# runtime actually provides instead of a hardcoded address that is wrong
+# somewhere. The FILTER narrows substitution to that one variable so nginx's
+# own $uri, $posthog_ingest and friends survive envsubst untouched.
+ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
+ENV NGINX_ENVSUBST_FILTER=^NGINX_LOCAL_RESOLVERS
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Cloud Run routes to $PORT, which defaults to 8080 and is what the service
