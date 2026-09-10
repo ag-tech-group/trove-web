@@ -55,6 +55,14 @@ export async function initAnalytics(router: AnyRouter) {
     // including the text of the element clicked. The project setting can still
     // switch it off server-side; this states the intent rather than forcing it.
     autocapture: true,
+    // ERRORS GO TO SENTRY, NOT HERE. The project has exception autocapture on,
+    // which would report every uncaught error to PostHog too: the same error
+    // counted twice, and PostHog quota spent on what Sentry already handles
+    // with source maps and releases. It has to be an explicit false rather than
+    // omitted — posthog-js uses the client value when one is given and falls
+    // back to the project setting only when this is undefined, which is exactly
+    // how errors came to be captured here without anyone choosing it.
+    capture_exceptions: false,
   })
 
   const capture = (path: string) => {
