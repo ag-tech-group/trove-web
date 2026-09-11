@@ -6,7 +6,7 @@ export function PrivacyPolicyPage() {
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-8 text-3xl font-bold">Privacy Policy</h1>
         <p className="text-muted-foreground mb-6 text-sm">
-          Last updated: January 30, 2026
+          Last updated: September 10, 2026
         </p>
 
         <div className="prose prose-neutral dark:prose-invert space-y-6 text-sm leading-relaxed">
@@ -30,12 +30,30 @@ export function PrivacyPolicyPage() {
             <p>
               <strong>Collection data:</strong> Information you add to your
               collections, including item names, descriptions, images, and any
-              other details you choose to provide.
+              other details you choose to provide. Images are stored with our
+              hosting provider at unlisted web addresses: an address can't be
+              guessed, but anyone who has it can view the image.
             </p>
             <p>
               <strong>Usage data:</strong> We collect basic server logs (IP
               address, browser type, timestamps) for security and to maintain
-              the service.
+              the service. We also collect product analytics events about page
+              views and feature interactions, which help us understand usage
+              patterns and prioritize improvements. Analytics events are not
+              linked to your account.
+            </p>
+            <p>
+              <strong>Error reports:</strong> If an error occurs while you are
+              using the app, we collect a diagnostic report containing technical
+              details of the error, the page where it happened, your browser
+              version, and your IP address. If you are signed in, the report is
+              linked to your account. This helps us identify and fix bugs.
+            </p>
+            <p>
+              <strong>Cookies:</strong> We use authentication cookies to keep
+              you signed in; these are strictly functional. Our analytics tool
+              also stores an anonymous identifier in your browser. We do not use
+              advertising cookies.
             </p>
           </section>
 
@@ -47,11 +65,14 @@ export function PrivacyPolicyPage() {
             <ul className="list-disc space-y-1 pl-6">
               <li>Provide and maintain the Trove service</li>
               <li>Authenticate your identity and secure your account</li>
+              <li>Identify and fix errors</li>
+              <li>Understand usage patterns and prioritize improvements</li>
               <li>Respond to support requests</li>
             </ul>
             <p>
               We do not sell your personal information. We do not use your data
-              for advertising.
+              for advertising, and we do not use analytics to build a profile of
+              you.
             </p>
           </section>
 
@@ -112,13 +133,22 @@ export function PrivacyPolicyPage() {
                 authentication
               </li>
               <li>
-                <strong>Google Cloud:</strong> For hosting our backend and
-                database
+                <strong>Google Cloud:</strong> For hosting our application,
+                database, and uploaded images
               </li>
               <li>
-                <strong>Netlify:</strong> For hosting our frontend application
+                <strong>Sentry:</strong> For error and performance monitoring
+              </li>
+              <li>
+                <strong>PostHog:</strong> For product analytics, such as page
+                views and clicks
               </li>
             </ul>
+            <p>
+              Our hosting, analytics, and error-tracking providers (Google
+              Cloud, PostHog, and Sentry) store and process data in the United
+              States.
+            </p>
           </section>
 
           <section>
