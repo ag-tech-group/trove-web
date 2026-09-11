@@ -9,14 +9,20 @@ export function Footer() {
           <TroveFrameIcon className="text-primary h-4" />
           <span className="font-serif text-sm tracking-tight">Trove</span>
         </Link>
-        <div className="text-muted-foreground flex items-center gap-4 text-xs">
+        <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
           <Link
             to="/privacy-policy"
             className="underline-offset-4 hover:underline"
           >
             Privacy Policy
           </Link>
-          <span>&copy; {new Date().getFullYear()} Trove</span>
+          <Link
+            to="/terms-of-use"
+            className="underline-offset-4 hover:underline"
+          >
+            Terms of Use
+          </Link>
+          <span>&copy; {new Date().getFullYear()} AG Technology Group LLC</span>
         </div>
       </div>
     </footer>
