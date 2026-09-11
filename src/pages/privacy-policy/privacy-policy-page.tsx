@@ -6,7 +6,7 @@ export function PrivacyPolicyPage() {
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-8 text-3xl font-bold">Privacy Policy</h1>
         <p className="text-muted-foreground mb-6 text-sm">
-          Last updated: January 30, 2026
+          Last updated: September 10, 2026
         </p>
 
         <div className="prose prose-neutral dark:prose-invert space-y-6 text-sm leading-relaxed">
@@ -112,11 +112,15 @@ export function PrivacyPolicyPage() {
                 authentication
               </li>
               <li>
-                <strong>Google Cloud:</strong> For hosting our backend and
-                database
+                <strong>Google Cloud:</strong> For hosting our application,
+                database, and uploaded images
               </li>
               <li>
-                <strong>Netlify:</strong> For hosting our frontend application
+                <strong>Sentry:</strong> For error and performance monitoring
+              </li>
+              <li>
+                <strong>PostHog:</strong> For product analytics, such as page
+                views and clicks
               </li>
             </ul>
           </section>
