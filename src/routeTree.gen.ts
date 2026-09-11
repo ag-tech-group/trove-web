@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as TermsOfUseRouteImport } from './routes/terms-of-use'
 import { Route as CollectionsCollectionIdRouteImport } from './routes/collections.$collectionId'
 import { Route as ItemsIndexRouteImport } from './routes/items.index'
 import { Route as ItemsItemIdRouteImport } from './routes/items.$itemId'
@@ -29,6 +30,11 @@ const LoginRoute = LoginRouteImport.update({
 const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
   id: '/privacy-policy',
   path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsOfUseRoute = TermsOfUseRouteImport.update({
+  id: '/terms-of-use',
+  path: '/terms-of-use',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
+  '/terms-of-use': typeof TermsOfUseRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/items/$itemId': typeof ItemsItemIdRoute
   '/items/': typeof ItemsIndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
+  '/terms-of-use': typeof TermsOfUseRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/items/$itemId': typeof ItemsItemIdRoute
   '/items': typeof ItemsIndexRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
+  '/terms-of-use': typeof TermsOfUseRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/items/$itemId': typeof ItemsItemIdRoute
   '/items/': typeof ItemsIndexRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/privacy-policy'
+    | '/terms-of-use'
     | '/collections/$collectionId'
     | '/items/$itemId'
     | '/items/'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/privacy-policy'
+    | '/terms-of-use'
     | '/collections/$collectionId'
     | '/items/$itemId'
     | '/items'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/privacy-policy'
+    | '/terms-of-use'
     | '/collections/$collectionId'
     | '/items/$itemId'
     | '/items/'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
+  TermsOfUseRoute: typeof TermsOfUseRoute
   CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
   ItemsItemIdRoute: typeof ItemsItemIdRoute
   ItemsIndexRoute: typeof ItemsIndexRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy-policy'
       fullPath: '/privacy-policy'
       preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-of-use': {
+      id: '/terms-of-use'
+      path: '/terms-of-use'
+      fullPath: '/terms-of-use'
+      preLoaderRoute: typeof TermsOfUseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collections/$collectionId': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
+  TermsOfUseRoute: TermsOfUseRoute,
   CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
   ItemsItemIdRoute: ItemsItemIdRoute,
   ItemsIndexRoute: ItemsIndexRoute,

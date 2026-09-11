@@ -233,13 +233,22 @@ export function LoginPage() {
               {mode === "signin" ? "Sign up" : "Sign in"}
             </button>
           </p>
-          <p className="text-muted-foreground mt-4 text-center text-xs">
+          <p className="text-muted-foreground mt-4 text-center text-xs text-balance">
+            By continuing, you confirm you're 18 or older, agree to the{" "}
+            <Link
+              to="/terms-of-use"
+              className="hover:text-primary underline underline-offset-4"
+            >
+              Terms of Use
+            </Link>
+            , and acknowledge the{" "}
             <Link
               to="/privacy-policy"
-              className="underline-offset-4 hover:underline"
+              className="hover:text-primary underline underline-offset-4"
             >
               Privacy Policy
             </Link>
+            .
           </p>
         </CardContent>
       </Card>

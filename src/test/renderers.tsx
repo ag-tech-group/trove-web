@@ -36,6 +36,15 @@ const defaultAuth = {
   checkAuth: async () => {},
 }
 
+// Route guards (e.g. /login's beforeLoad) read auth from the router context,
+// not from AuthProvider, so signed-out tests need to pass this explicitly.
+export const signedOutAuth = {
+  ...defaultAuth,
+  isAuthenticated: false,
+  email: null,
+  userId: null,
+}
+
 export async function renderWithFileRoutes(
   ui: React.ReactElement,
   {
