@@ -19,10 +19,11 @@ import type {
 
 import {
   getGetCurrentUserAuthMeGetResponseMock,
-  getRegisterRegisterAuthRegisterPostResponseMock
+  getRegisterRegisterAuthRegisterPostResponseMock,
+  getVerifyVerifyAuthVerifyPostResponseMock
 } from './auth.faker';
 
-export { getRegisterRegisterAuthRegisterPostResponseMock, getGetCurrentUserAuthMeGetResponseMock } from './auth.faker';
+export { getRegisterRegisterAuthRegisterPostResponseMock, getVerifyVerifyAuthVerifyPostResponseMock, getGetCurrentUserAuthMeGetResponseMock } from './auth.faker';
 
 
 export const getRefreshAccessTokenAuthRefreshPostMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
@@ -67,6 +68,48 @@ export const getRegisterRegisterAuthRegisterPostMockHandler = (overrideResponse?
   }, options)
 }
 
+export const getResetForgotPasswordAuthForgotPasswordPostMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
+  return http.post('*/auth/forgot-password', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 202
+      })
+  }, options)
+}
+
+export const getResetResetPasswordAuthResetPasswordPostMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
+  return http.post('*/auth/reset-password', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 200
+      })
+  }, options)
+}
+
+export const getVerifyRequestTokenAuthRequestVerifyTokenPostMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
+  return http.post('*/auth/request-verify-token', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 202
+      })
+  }, options)
+}
+
+export const getVerifyVerifyAuthVerifyPostMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<UserRead> | UserRead), options?: RequestHandlerOptions) => {
+  return http.post('*/auth/verify', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getVerifyVerifyAuthVerifyPostResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
+
 export const getGoogleAuthorizeAuthGoogleAuthorizeGetMockHandler = (overrideResponse?: unknown | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<unknown> | unknown), options?: RequestHandlerOptions) => {
   return http.get('*/auth/google/authorize', async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
@@ -103,6 +146,10 @@ export const getAuthMock = () => [
   getAuthJwtLogoutAuthJwtLogoutPostMockHandler(),
   getAuthJwtLoginAuthJwtLoginPostMockHandler(),
   getRegisterRegisterAuthRegisterPostMockHandler(),
+  getResetForgotPasswordAuthForgotPasswordPostMockHandler(),
+  getResetResetPasswordAuthResetPasswordPostMockHandler(),
+  getVerifyRequestTokenAuthRequestVerifyTokenPostMockHandler(),
+  getVerifyVerifyAuthVerifyPostMockHandler(),
   getGoogleAuthorizeAuthGoogleAuthorizeGetMockHandler(),
   getGoogleCallbackAuthGoogleCallbackGetMockHandler(),
   getGetCurrentUserAuthMeGetMockHandler()
