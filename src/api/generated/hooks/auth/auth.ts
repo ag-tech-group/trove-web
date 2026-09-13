@@ -26,6 +26,10 @@ import type {
 
 import type {
   BodyAuthJwtLoginAuthJwtLoginPost,
+  BodyResetForgotPasswordAuthForgotPasswordPost,
+  BodyResetResetPasswordAuthResetPasswordPost,
+  BodyVerifyRequestTokenAuthRequestVerifyTokenPost,
+  BodyVerifyVerifyAuthVerifyPost,
   ErrorModel,
   HTTPValidationError,
   UserCreate,
@@ -468,6 +472,408 @@ export const useRegisterRegisterAuthRegisterPost = <TError = ErrorModel | HTTPVa
         TContext
       > => {
       return useMutation(getRegisterRegisterAuthRegisterPostMutationOptions(options), queryClient);
+    }
+    export type resetForgotPasswordAuthForgotPasswordPostResponse202 = {
+  data: unknown
+  status: 202
+}
+
+export type resetForgotPasswordAuthForgotPasswordPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type resetForgotPasswordAuthForgotPasswordPostResponseSuccess = (resetForgotPasswordAuthForgotPasswordPostResponse202) & {
+  headers: Headers;
+};
+export type resetForgotPasswordAuthForgotPasswordPostResponseError = (resetForgotPasswordAuthForgotPasswordPostResponse422) & {
+  headers: Headers;
+};
+
+export type resetForgotPasswordAuthForgotPasswordPostResponse = (resetForgotPasswordAuthForgotPasswordPostResponseSuccess | resetForgotPasswordAuthForgotPasswordPostResponseError)
+
+export const getResetForgotPasswordAuthForgotPasswordPostUrl = () => {
+
+
+
+
+  return `/auth/forgot-password`
+}
+
+/**
+ * @summary Reset:Forgot Password
+ */
+export const resetForgotPasswordAuthForgotPasswordPost = async (bodyResetForgotPasswordAuthForgotPasswordPost: BodyResetForgotPasswordAuthForgotPasswordPost, options?: Parameters<typeof orvalClient>[1]): Promise<resetForgotPasswordAuthForgotPasswordPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return orvalClient<resetForgotPasswordAuthForgotPasswordPostResponse>(getResetForgotPasswordAuthForgotPasswordPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(bodyResetForgotPasswordAuthForgotPasswordPost)
+  }
+);}
+
+
+
+
+
+export const getResetForgotPasswordAuthForgotPasswordPostMutationKey = () => ['resetForgotPasswordAuthForgotPasswordPost'] as const;
+
+export const getResetForgotPasswordAuthForgotPasswordPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>, TError,ResetForgotPasswordAuthForgotPasswordPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>, TError,ResetForgotPasswordAuthForgotPasswordPostMutationVariables, TContext> => {
+
+const mutationKey = getResetForgotPasswordAuthForgotPasswordPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>, ResetForgotPasswordAuthForgotPasswordPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  resetForgotPasswordAuthForgotPasswordPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResetForgotPasswordAuthForgotPasswordPostMutationResult = NonNullable<Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>>
+    export type ResetForgotPasswordAuthForgotPasswordPostMutationBody = BodyResetForgotPasswordAuthForgotPasswordPost
+    export type ResetForgotPasswordAuthForgotPasswordPostMutationError = HTTPValidationError
+    export type ResetForgotPasswordAuthForgotPasswordPostMutationVariables = {data: BodyResetForgotPasswordAuthForgotPasswordPost}
+
+    /**
+ * @summary Reset:Forgot Password
+ */
+export const useResetForgotPasswordAuthForgotPasswordPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>, TError,ResetForgotPasswordAuthForgotPasswordPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>,
+        TError,
+        ResetForgotPasswordAuthForgotPasswordPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getResetForgotPasswordAuthForgotPasswordPostMutationOptions(options), queryClient);
+    }
+    export type resetResetPasswordAuthResetPasswordPostResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type resetResetPasswordAuthResetPasswordPostResponse400 = {
+  data: ErrorModel
+  status: 400
+}
+
+export type resetResetPasswordAuthResetPasswordPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type resetResetPasswordAuthResetPasswordPostResponseSuccess = (resetResetPasswordAuthResetPasswordPostResponse200) & {
+  headers: Headers;
+};
+export type resetResetPasswordAuthResetPasswordPostResponseError = (resetResetPasswordAuthResetPasswordPostResponse400 | resetResetPasswordAuthResetPasswordPostResponse422) & {
+  headers: Headers;
+};
+
+export type resetResetPasswordAuthResetPasswordPostResponse = (resetResetPasswordAuthResetPasswordPostResponseSuccess | resetResetPasswordAuthResetPasswordPostResponseError)
+
+export const getResetResetPasswordAuthResetPasswordPostUrl = () => {
+
+
+
+
+  return `/auth/reset-password`
+}
+
+/**
+ * @summary Reset:Reset Password
+ */
+export const resetResetPasswordAuthResetPasswordPost = async (bodyResetResetPasswordAuthResetPasswordPost: BodyResetResetPasswordAuthResetPasswordPost, options?: Parameters<typeof orvalClient>[1]): Promise<resetResetPasswordAuthResetPasswordPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return orvalClient<resetResetPasswordAuthResetPasswordPostResponse>(getResetResetPasswordAuthResetPasswordPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(bodyResetResetPasswordAuthResetPasswordPost)
+  }
+);}
+
+
+
+
+
+export const getResetResetPasswordAuthResetPasswordPostMutationKey = () => ['resetResetPasswordAuthResetPasswordPost'] as const;
+
+export const getResetResetPasswordAuthResetPasswordPostMutationOptions = <TError = ErrorModel | HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>, TError,ResetResetPasswordAuthResetPasswordPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>, TError,ResetResetPasswordAuthResetPasswordPostMutationVariables, TContext> => {
+
+const mutationKey = getResetResetPasswordAuthResetPasswordPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>, ResetResetPasswordAuthResetPasswordPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  resetResetPasswordAuthResetPasswordPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResetResetPasswordAuthResetPasswordPostMutationResult = NonNullable<Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>>
+    export type ResetResetPasswordAuthResetPasswordPostMutationBody = BodyResetResetPasswordAuthResetPasswordPost
+    export type ResetResetPasswordAuthResetPasswordPostMutationError = ErrorModel | HTTPValidationError
+    export type ResetResetPasswordAuthResetPasswordPostMutationVariables = {data: BodyResetResetPasswordAuthResetPasswordPost}
+
+    /**
+ * @summary Reset:Reset Password
+ */
+export const useResetResetPasswordAuthResetPasswordPost = <TError = ErrorModel | HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>, TError,ResetResetPasswordAuthResetPasswordPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>,
+        TError,
+        ResetResetPasswordAuthResetPasswordPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getResetResetPasswordAuthResetPasswordPostMutationOptions(options), queryClient);
+    }
+    export type verifyRequestTokenAuthRequestVerifyTokenPostResponse202 = {
+  data: unknown
+  status: 202
+}
+
+export type verifyRequestTokenAuthRequestVerifyTokenPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verifyRequestTokenAuthRequestVerifyTokenPostResponseSuccess = (verifyRequestTokenAuthRequestVerifyTokenPostResponse202) & {
+  headers: Headers;
+};
+export type verifyRequestTokenAuthRequestVerifyTokenPostResponseError = (verifyRequestTokenAuthRequestVerifyTokenPostResponse422) & {
+  headers: Headers;
+};
+
+export type verifyRequestTokenAuthRequestVerifyTokenPostResponse = (verifyRequestTokenAuthRequestVerifyTokenPostResponseSuccess | verifyRequestTokenAuthRequestVerifyTokenPostResponseError)
+
+export const getVerifyRequestTokenAuthRequestVerifyTokenPostUrl = () => {
+
+
+
+
+  return `/auth/request-verify-token`
+}
+
+/**
+ * @summary Verify:Request-Token
+ */
+export const verifyRequestTokenAuthRequestVerifyTokenPost = async (bodyVerifyRequestTokenAuthRequestVerifyTokenPost: BodyVerifyRequestTokenAuthRequestVerifyTokenPost, options?: Parameters<typeof orvalClient>[1]): Promise<verifyRequestTokenAuthRequestVerifyTokenPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return orvalClient<verifyRequestTokenAuthRequestVerifyTokenPostResponse>(getVerifyRequestTokenAuthRequestVerifyTokenPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(bodyVerifyRequestTokenAuthRequestVerifyTokenPost)
+  }
+);}
+
+
+
+
+
+export const getVerifyRequestTokenAuthRequestVerifyTokenPostMutationKey = () => ['verifyRequestTokenAuthRequestVerifyTokenPost'] as const;
+
+export const getVerifyRequestTokenAuthRequestVerifyTokenPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>, TError,VerifyRequestTokenAuthRequestVerifyTokenPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>, TError,VerifyRequestTokenAuthRequestVerifyTokenPostMutationVariables, TContext> => {
+
+const mutationKey = getVerifyRequestTokenAuthRequestVerifyTokenPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>, VerifyRequestTokenAuthRequestVerifyTokenPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyRequestTokenAuthRequestVerifyTokenPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyRequestTokenAuthRequestVerifyTokenPostMutationResult = NonNullable<Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>>
+    export type VerifyRequestTokenAuthRequestVerifyTokenPostMutationBody = BodyVerifyRequestTokenAuthRequestVerifyTokenPost
+    export type VerifyRequestTokenAuthRequestVerifyTokenPostMutationError = HTTPValidationError
+    export type VerifyRequestTokenAuthRequestVerifyTokenPostMutationVariables = {data: BodyVerifyRequestTokenAuthRequestVerifyTokenPost}
+
+    /**
+ * @summary Verify:Request-Token
+ */
+export const useVerifyRequestTokenAuthRequestVerifyTokenPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>, TError,VerifyRequestTokenAuthRequestVerifyTokenPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>,
+        TError,
+        VerifyRequestTokenAuthRequestVerifyTokenPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyRequestTokenAuthRequestVerifyTokenPostMutationOptions(options), queryClient);
+    }
+    export type verifyVerifyAuthVerifyPostResponse200 = {
+  data: UserRead
+  status: 200
+}
+
+export type verifyVerifyAuthVerifyPostResponse400 = {
+  data: ErrorModel
+  status: 400
+}
+
+export type verifyVerifyAuthVerifyPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verifyVerifyAuthVerifyPostResponseSuccess = (verifyVerifyAuthVerifyPostResponse200) & {
+  headers: Headers;
+};
+export type verifyVerifyAuthVerifyPostResponseError = (verifyVerifyAuthVerifyPostResponse400 | verifyVerifyAuthVerifyPostResponse422) & {
+  headers: Headers;
+};
+
+export type verifyVerifyAuthVerifyPostResponse = (verifyVerifyAuthVerifyPostResponseSuccess | verifyVerifyAuthVerifyPostResponseError)
+
+export const getVerifyVerifyAuthVerifyPostUrl = () => {
+
+
+
+
+  return `/auth/verify`
+}
+
+/**
+ * @summary Verify:Verify
+ */
+export const verifyVerifyAuthVerifyPost = async (bodyVerifyVerifyAuthVerifyPost: BodyVerifyVerifyAuthVerifyPost, options?: Parameters<typeof orvalClient>[1]): Promise<verifyVerifyAuthVerifyPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return orvalClient<verifyVerifyAuthVerifyPostResponse>(getVerifyVerifyAuthVerifyPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(bodyVerifyVerifyAuthVerifyPost)
+  }
+);}
+
+
+
+
+
+export const getVerifyVerifyAuthVerifyPostMutationKey = () => ['verifyVerifyAuthVerifyPost'] as const;
+
+export const getVerifyVerifyAuthVerifyPostMutationOptions = <TError = ErrorModel | HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>, TError,VerifyVerifyAuthVerifyPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>, TError,VerifyVerifyAuthVerifyPostMutationVariables, TContext> => {
+
+const mutationKey = getVerifyVerifyAuthVerifyPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>, VerifyVerifyAuthVerifyPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyVerifyAuthVerifyPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyVerifyAuthVerifyPostMutationResult = NonNullable<Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>>
+    export type VerifyVerifyAuthVerifyPostMutationBody = BodyVerifyVerifyAuthVerifyPost
+    export type VerifyVerifyAuthVerifyPostMutationError = ErrorModel | HTTPValidationError
+    export type VerifyVerifyAuthVerifyPostMutationVariables = {data: BodyVerifyVerifyAuthVerifyPost}
+
+    /**
+ * @summary Verify:Verify
+ */
+export const useVerifyVerifyAuthVerifyPost = <TError = ErrorModel | HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>, TError,VerifyVerifyAuthVerifyPostMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>,
+        TError,
+        VerifyVerifyAuthVerifyPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyVerifyAuthVerifyPostMutationOptions(options), queryClient);
     }
     export type googleAuthorizeAuthGoogleAuthorizeGetResponse200 = {
   data: unknown

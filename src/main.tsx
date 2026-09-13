@@ -74,12 +74,12 @@ function App() {
   const auth = useAuth()
 
   useEffect(() => {
-    if (auth.isAuthenticated && auth.userId && auth.email) {
-      setErrorMonitoringUser({ id: auth.userId, email: auth.email })
+    if (auth.isAuthenticated && auth.userId) {
+      setErrorMonitoringUser({ id: auth.userId })
     } else {
       setErrorMonitoringUser(null)
     }
-  }, [auth.isAuthenticated, auth.userId, auth.email])
+  }, [auth.isAuthenticated, auth.userId])
 
   if (auth.isLoading) return null
   return <RouterProvider router={router} context={{ auth }} />

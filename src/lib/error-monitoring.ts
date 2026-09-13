@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react"
 import type { ErrorEvent as SentryErrorEvent, EventHint } from "@sentry/react"
+import { redactTelemetry } from "./telemetry-redaction"
 
 /**
  * Fraction of transactions traced. Low by default: Trove is a low-traffic
@@ -39,8 +40,14 @@ export function initErrorMonitoring() {
       import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE,
       DEFAULT_TRACES_SAMPLE_RATE
     ),
+    // Redacted after the noise filter: URLs, breadcrumbs and messages can carry
+    // credentials or addresses.
     beforeSend(event, hint) {
-      return shouldSuppressEvent(event, hint) ? null : event
+      return shouldSuppressEvent(event, hint) ? null : redactTelemetry(event)
+    },
+    // Transactions carry the page URL too, and skip beforeSend.
+    beforeSendTransaction(event) {
+      return redactTelemetry(event)
     },
     integrations: [Sentry.browserTracingIntegration()],
   })
@@ -85,9 +92,7 @@ export function captureException(error: unknown) {
   Sentry.captureException(error)
 }
 
-/** Associates later reports with the current user, or clears it on logout. */
-export function setErrorMonitoringUser(
-  user: { id: string; email: string } | null
-) {
-  Sentry.setUser(user ? { id: user.id, email: user.email } : null)
+/** Associates later reports with the current user, by id only, or clears it on logout. */
+export function setErrorMonitoringUser(user: { id: string } | null) {
+  Sentry.setUser(user ? { id: user.id } : null)
 }

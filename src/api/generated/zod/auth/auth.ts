@@ -63,6 +63,53 @@ export const RegisterRegisterAuthRegisterPostResponse = zod.object({
 }).describe('Schema for reading user data.')
 
 /**
+ * @summary Reset:Forgot Password
+ */
+export const ResetForgotPasswordAuthForgotPasswordPostBody = zod.object({
+  "email": zod.email()
+})
+
+export const ResetForgotPasswordAuthForgotPasswordPostResponse = zod.unknown()
+
+/**
+ * @summary Reset:Reset Password
+ */
+export const ResetResetPasswordAuthResetPasswordPostBody = zod.object({
+  "token": zod.string(),
+  "password": zod.string()
+})
+
+export const ResetResetPasswordAuthResetPasswordPostResponse = zod.unknown()
+
+/**
+ * @summary Verify:Request-Token
+ */
+export const VerifyRequestTokenAuthRequestVerifyTokenPostBody = zod.object({
+  "email": zod.email()
+})
+
+export const VerifyRequestTokenAuthRequestVerifyTokenPostResponse = zod.unknown()
+
+/**
+ * @summary Verify:Verify
+ */
+export const VerifyVerifyAuthVerifyPostBody = zod.object({
+  "token": zod.string()
+})
+
+export const verifyVerifyAuthVerifyPostResponseIsActiveDefault = true;
+export const verifyVerifyAuthVerifyPostResponseIsSuperuserDefault = false;
+export const verifyVerifyAuthVerifyPostResponseIsVerifiedDefault = false;
+
+export const VerifyVerifyAuthVerifyPostResponse = zod.object({
+  "id": zod.uuid(),
+  "email": zod.email(),
+  "is_active": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsActiveDefault),
+  "is_superuser": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsSuperuserDefault),
+  "is_verified": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsVerifiedDefault)
+}).describe('Schema for reading user data.')
+
+/**
  * Redirect user to Google's OAuth consent screen.
  * @summary Google Authorize
  */

@@ -7,8 +7,12 @@
  */
 
 export * from './bodyAuthJwtLoginAuthJwtLoginPost';
+export * from './bodyResetForgotPasswordAuthForgotPasswordPost';
+export * from './bodyResetResetPasswordAuthResetPasswordPost';
 export * from './bodyUploadItemImageItemsItemIdImagesPost';
 export * from './bodyUploadMarkImageItemsItemIdMarksMarkIdImagesPost';
+export * from './bodyVerifyRequestTokenAuthRequestVerifyTokenPost';
+export * from './bodyVerifyVerifyAuthVerifyPost';
 export * from './collectionCreate';
 export * from './collectionRead';
 export * from './collectionReadWithCount';

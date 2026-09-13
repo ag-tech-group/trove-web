@@ -1,4 +1,5 @@
 import type { AnyRouter } from "@tanstack/react-router"
+import { redactTelemetry } from "./telemetry-redaction"
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY
 
@@ -63,6 +64,11 @@ export async function initAnalytics(router: AnyRouter) {
     // back to the project setting only when this is undefined, which is exactly
     // how errors came to be captured here without anyone choosing it.
     capture_exceptions: false,
+    // Fragments can carry tokens, and stored URLs (e.g. $initial_current_url)
+    // leave in flags requests and cookies that never pass through before_send.
+    disable_capture_url_hashes: true,
+    // Events record the full page URL and clicked text, so each is redacted whole.
+    before_send: (event) => (event ? redactTelemetry(event) : event),
   })
 
   const capture = (path: string) => {

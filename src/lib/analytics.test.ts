@@ -147,4 +147,46 @@ describe("initAnalytics", () => {
       expect.objectContaining({ capture_exceptions: false })
     )
   })
+
+  it("keeps URL fragments out of what PostHog stores", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    expect(init).toHaveBeenCalledWith(
+      "phc_test",
+      expect.objectContaining({ disable_capture_url_hashes: true })
+    )
+  })
+
+  it("redacts every event before it is sent", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    const beforeSend = init.mock.calls[0][1].before_send
+    const event = {
+      uuid: "0",
+      event: "$pageview",
+      properties: {
+        $current_url: "https://trovebox.io/reset-password#token=abc",
+        $referrer: "https://trovebox.io/verify-email?token=def",
+      },
+    }
+    expect(beforeSend(event).properties).toEqual({
+      $current_url: "https://trovebox.io/reset-password#token=[REDACTED]",
+      $referrer: "https://trovebox.io/verify-email?token=[REDACTED]",
+    })
+  })
+
+  it("leaves an event another hook already dropped as dropped", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    expect(init.mock.calls[0][1].before_send(null)).toBeNull()
+  })
 })

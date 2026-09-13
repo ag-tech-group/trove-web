@@ -16,5 +16,7 @@ import type {
 
 export const getRegisterRegisterAuthRegisterPostResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), ...overrideResponse})
 
+export const getVerifyVerifyAuthVerifyPostResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), ...overrideResponse})
+
 export const getGetCurrentUserAuthMeGetResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), ...overrideResponse})
 
