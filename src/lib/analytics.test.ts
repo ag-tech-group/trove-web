@@ -148,6 +148,18 @@ describe("initAnalytics", () => {
     )
   })
 
+  it("keeps URL fragments out of what PostHog stores", async () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+    const { initAnalytics } = await loadAnalytics()
+
+    await initAnalytics(makeRouter("/") as unknown as AnyRouter)
+
+    expect(init).toHaveBeenCalledWith(
+      "phc_test",
+      expect.objectContaining({ disable_capture_url_hashes: true })
+    )
+  })
+
   it("redacts every event before it is sent", async () => {
     vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
     const { initAnalytics } = await loadAnalytics()
