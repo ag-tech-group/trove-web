@@ -16,7 +16,7 @@ collection_id?: string | null;
  */
 tag?: string | null;
 /**
- * Search in name and description
+ * Search in name, description and reference number
  */
 search?: string | null;
 };

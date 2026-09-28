@@ -26,6 +26,10 @@ export const ListMarkImagesItemsItemIdMarksMarkIdImagesGetResponseItem = zod.obj
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')
 export const ListMarkImagesItemsItemIdMarksMarkIdImagesGetResponse = zod.array(ListMarkImagesItemsItemIdMarksMarkIdImagesGetResponseItem)
@@ -52,6 +56,47 @@ export const UploadMarkImageItemsItemIdMarksMarkIdImagesPostResponse = zod.objec
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
+  "created_at": zod.iso.datetime({"offset":true})
+}).describe('Schema for reading an Image.')
+
+/**
+ * Update an image's caption or description.
+ * @summary Update Mark Image
+ */
+export const UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchParams = zod.object({
+  "image_id": zod.uuid(),
+  "item_id": zod.uuid(),
+  "mark_id": zod.uuid()
+})
+
+export const updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchBodyCaptionOneMax = 500;
+
+export const updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchBodyDescriptionOneMax = 20000;
+
+
+
+export const UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchBody = zod.object({
+  "caption": zod.union([zod.string().max(updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchBodyCaptionOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchBodyDescriptionOneMax),zod.null()]).optional()
+}).describe('Schema for updating an Image\'s text.')
+
+export const UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse = zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.int(),
+  "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')
 

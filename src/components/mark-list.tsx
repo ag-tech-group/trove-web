@@ -11,6 +11,7 @@ import {
 import {
   useUploadMarkImageItemsItemIdMarksMarkIdImagesPost,
   useDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDelete,
+  useUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch,
 } from "@/api/generated/hooks/mark-images/mark-images"
 import { getGetItemItemsItemIdGetQueryKey } from "@/api/generated/hooks/items/items"
 import type { MarkRead } from "@/api/generated/types"
@@ -401,6 +402,19 @@ function MarkImages({ itemId, mark }: { itemId: string; mark: MarkRead }) {
     },
   })
 
+  const updateMutation =
+    useUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch({
+      mutation: {
+        onSuccess: () => {
+          toast.success("Photo updated")
+          invalidate()
+        },
+        onError: async (err) => {
+          toast.error(await getErrorMessage(err, "Failed to update photo"))
+        },
+      },
+    })
+
   const deleteMutation =
     useDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDelete({
       mutation: {
@@ -430,6 +444,14 @@ function MarkImages({ itemId, mark }: { itemId: string; mark: MarkRead }) {
         }}
         onDelete={async (imageId) => {
           deleteMutation.mutate({ itemId, markId: mark.id, imageId })
+        }}
+        onUpdate={async (imageId, data) => {
+          await updateMutation.mutateAsync({
+            itemId,
+            markId: mark.id,
+            imageId,
+            data,
+          })
         }}
       />
     </div>

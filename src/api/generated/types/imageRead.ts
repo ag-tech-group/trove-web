@@ -18,5 +18,9 @@ export interface ImageRead {
   content_type: string;
   size_bytes: number;
   position: number;
+  width?: number | null;
+  height?: number | null;
+  caption?: string | null;
+  description?: string | null;
   created_at: string;
 }

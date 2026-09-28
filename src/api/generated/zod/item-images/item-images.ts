@@ -25,6 +25,10 @@ export const ListItemImagesItemsItemIdImagesGetResponseItem = zod.object({
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')
 export const ListItemImagesItemsItemIdImagesGetResponse = zod.array(ListItemImagesItemsItemIdImagesGetResponseItem)
@@ -50,6 +54,46 @@ export const UploadItemImageItemsItemIdImagesPostResponse = zod.object({
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
+  "created_at": zod.iso.datetime({"offset":true})
+}).describe('Schema for reading an Image.')
+
+/**
+ * Update an image's caption or description.
+ * @summary Update Item Image
+ */
+export const UpdateItemImageItemsItemIdImagesImageIdPatchParams = zod.object({
+  "image_id": zod.uuid(),
+  "item_id": zod.uuid()
+})
+
+export const updateItemImageItemsItemIdImagesImageIdPatchBodyCaptionOneMax = 500;
+
+export const updateItemImageItemsItemIdImagesImageIdPatchBodyDescriptionOneMax = 20000;
+
+
+
+export const UpdateItemImageItemsItemIdImagesImageIdPatchBody = zod.object({
+  "caption": zod.union([zod.string().max(updateItemImageItemsItemIdImagesImageIdPatchBodyCaptionOneMax),zod.null()]).optional(),
+  "description": zod.union([zod.string().max(updateItemImageItemsItemIdImagesImageIdPatchBodyDescriptionOneMax),zod.null()]).optional()
+}).describe('Schema for updating an Image\'s text.')
+
+export const UpdateItemImageItemsItemIdImagesImageIdPatchResponse = zod.object({
+  "id": zod.uuid(),
+  "item_id": zod.union([zod.uuid(),zod.null()]),
+  "mark_id": zod.union([zod.uuid(),zod.null()]),
+  "filename": zod.string(),
+  "url": zod.string(),
+  "content_type": zod.string(),
+  "size_bytes": zod.int(),
+  "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')
 

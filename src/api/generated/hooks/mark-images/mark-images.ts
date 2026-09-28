@@ -27,7 +27,8 @@ import type {
 import type {
   BodyUploadMarkImageItemsItemIdMarksMarkIdImagesPost,
   HTTPValidationError,
-  ImageRead
+  ImageRead,
+  ImageUpdate
 } from '../../types';
 
 import { orvalClient } from '../../../orval-client';
@@ -277,6 +278,110 @@ export const useUploadMarkImageItemsItemIdMarksMarkIdImagesPost = <TError = HTTP
         TContext
       > => {
       return useMutation(getUploadMarkImageItemsItemIdMarksMarkIdImagesPostMutationOptions(options), queryClient);
+    }
+    export type updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse200 = {
+  data: ImageRead
+  status: 200
+}
+
+export type updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseSuccess = (updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse200) & {
+  headers: Headers;
+};
+export type updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseError = (updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse422) & {
+  headers: Headers;
+};
+
+export type updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse = (updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseSuccess | updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseError)
+
+export const getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchUrl = (itemId: string,
+    markId: string,
+    imageId: string,) => {
+
+
+
+
+  return `/items/${itemId}/marks/${markId}/images/${imageId}`
+}
+
+/**
+ * Update an image's caption or description.
+ * @summary Update Mark Image
+ */
+export const updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch = async (itemId: string,
+    markId: string,
+    imageId: string,
+    imageUpdate: ImageUpdate, options?: Parameters<typeof orvalClient>[1]): Promise<updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return orvalClient<updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponse>(getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchUrl(itemId,markId,imageId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(imageUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationKey = () => ['updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch'] as const;
+
+export const getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch>>, TError,UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch>>, TError,UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch>>, UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationVariables> = (props) => {
+          const {itemId,markId,imageId,data} = props ?? {};
+
+          return  updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch(itemId,markId,imageId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationResult = NonNullable<Awaited<ReturnType<typeof updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch>>>
+    export type UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationBody = ImageUpdate
+    export type UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationError = HTTPValidationError
+    export type UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationVariables = {itemId: string;markId: string;imageId: string;data: ImageUpdate}
+
+    /**
+ * @summary Update Mark Image
+ */
+export const useUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch>>, TError,UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatch>>,
+        TError,
+        UpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMutationOptions(options), queryClient);
     }
     export type deleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDeleteResponse204 = {
   data: void

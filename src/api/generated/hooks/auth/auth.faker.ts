@@ -9,14 +9,19 @@ import {
   faker
 } from '@faker-js/faker';
 
+import {
+  UnitSystem
+} from '../../types';
 import type {
   UserRead
 } from '../../types';
 
 
-export const getRegisterRegisterAuthRegisterPostResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), ...overrideResponse})
+export const getRegisterRegisterAuthRegisterPostResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), preferred_units: faker.helpers.arrayElement(Object.values(UnitSystem)), ...overrideResponse})
 
-export const getVerifyVerifyAuthVerifyPostResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), ...overrideResponse})
+export const getVerifyVerifyAuthVerifyPostResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), preferred_units: faker.helpers.arrayElement(Object.values(UnitSystem)), ...overrideResponse})
 
-export const getGetCurrentUserAuthMeGetResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), ...overrideResponse})
+export const getGetCurrentUserAuthMeGetResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), preferred_units: faker.helpers.arrayElement(Object.values(UnitSystem)), ...overrideResponse})
+
+export const getUpdateCurrentUserAuthMePatchResponseMock = (overrideResponse: Partial<Extract<UserRead, object>> = {}): UserRead => ({id: faker.string.uuid(), email: faker.internet.email(), is_active: faker.datatype.boolean(), is_superuser: faker.datatype.boolean(), is_verified: faker.datatype.boolean(), preferred_units: faker.helpers.arrayElement(Object.values(UnitSystem)), ...overrideResponse})
 

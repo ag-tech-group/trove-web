@@ -10,6 +10,8 @@ interface ImageCarouselProps {
   showDots?: boolean
   showArrows?: boolean
   onImageClick?: (index: number) => void
+  /** Show the current photo's caption beneath it. */
+  showCaption?: boolean
   className?: string
 }
 
@@ -19,6 +21,7 @@ export function ImageCarousel({
   showDots = false,
   showArrows = false,
   onImageClick,
+  showCaption = false,
   className,
 }: ImageCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
@@ -52,20 +55,28 @@ export function ImageCarousel({
     )
   }
 
+  const caption = showCaption ? images[selectedIndex]?.caption : null
+  const captionLine = caption ? (
+    <p className="text-muted-foreground mt-2 text-center text-sm">{caption}</p>
+  ) : null
+
   if (images.length === 1) {
     return (
-      <div className={cn("overflow-hidden rounded-lg", className)}>
-        <div className={cn("relative", aspectRatio)}>
-          <img
-            src={images[0].url}
-            alt={images[0].filename}
-            className={cn(
-              "absolute inset-0 h-full w-full object-cover",
-              onImageClick && "cursor-pointer"
-            )}
-            onClick={() => onImageClick?.(0)}
-          />
+      <div className={className}>
+        <div className="overflow-hidden rounded-lg">
+          <div className={cn("relative", aspectRatio)}>
+            <img
+              src={images[0].url}
+              alt={images[0].caption ?? images[0].filename}
+              className={cn(
+                "absolute inset-0 h-full w-full object-cover",
+                onImageClick && "cursor-pointer"
+              )}
+              onClick={() => onImageClick?.(0)}
+            />
+          </div>
         </div>
+        {captionLine}
       </div>
     )
   }
@@ -79,7 +90,7 @@ export function ImageCarousel({
               <div className={cn("relative", aspectRatio)}>
                 <img
                   src={image.url}
-                  alt={image.filename}
+                  alt={image.caption ?? image.filename}
                   className={cn(
                     "absolute inset-0 h-full w-full object-cover",
                     onImageClick && "cursor-pointer"
@@ -137,6 +148,7 @@ export function ImageCarousel({
           ))}
         </div>
       )}
+      {captionLine}
     </div>
   )
 }
