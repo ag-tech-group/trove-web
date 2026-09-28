@@ -17,6 +17,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { TagInput } from "@/components/tag-input"
+import { PartialDateInput } from "@/components/partial-date-input"
+import {
+  formatPartialDate,
+  joinPartialDate,
+  splitPartialDate,
+  type PartialDateParts,
+} from "@/lib/partial-date"
 
 // Shared geometry for every bare edit control: matching the read-mode
 // button's box exactly is the entire point of these components, so this
@@ -114,9 +121,9 @@ function useInlineEdit({
   // Idempotent: a second call while a save is already in flight (e.g. the
   // navigate-away flush firing right after a blur-triggered commit) just
   // returns the same in-flight promise instead of double-submitting.
-  const commit = (): Promise<void> => {
+  // Takes the value to save for editors whose draft is derived, not typed.
+  const commitValue = (next: string): Promise<void> => {
     if (pendingRef.current) return pendingRef.current
-    const next = trim ? draft.trim() : draft
     if (required && !next) {
       setError(requiredMessage)
       return Promise.resolve()
@@ -143,6 +150,9 @@ function useInlineEdit({
     return promise
   }
 
+  // No parameters on purpose: this is wired straight to onBlur.
+  const commit = (): Promise<void> => commitValue(trim ? draft.trim() : draft)
+
   // Registered with the nearest InlineEditFlushScope so a pending draft
   // can be committed on navigate-away instead of silently discarded.
   const flushRef = useRef<FlushFn>(() => Promise.resolve())
@@ -153,7 +163,18 @@ function useInlineEdit({
     return registerFlush(() => flushRef.current())
   }, [registerFlush])
 
-  return { editing, draft, setDraft, saving, error, start, cancel, commit }
+  return {
+    editing,
+    draft,
+    setDraft,
+    saving,
+    error,
+    setError,
+    start,
+    cancel,
+    commit,
+    commitValue,
+  }
 }
 
 /** Large click-to-edit text field with no label — used for the item title. */
@@ -389,11 +410,13 @@ export function InlineSelectBadge<T extends string>({
   onSave,
   options,
   placeholder = "+ Select",
+  ariaLabel,
 }: {
   value: T | ""
   onSave: (value: T | "") => Promise<void>
   options: { value: T; label: string }[]
   placeholder?: string
+  ariaLabel?: string
 }) {
   const [saving, setSaving] = useState(false)
 
@@ -412,6 +435,7 @@ export function InlineSelectBadge<T extends string>({
     <Select value={value} onValueChange={handleChange} disabled={saving}>
       <SelectTrigger
         size="sm"
+        aria-label={ariaLabel}
         className={cn(
           badgeVariants({ variant: "outline" }),
           "h-auto gap-1 border-dashed py-0.5 capitalize [&_svg]:opacity-60"
@@ -496,5 +520,148 @@ export function InlineTagsBadges({
         </span>
       )}
     </button>
+  )
+}
+
+/**
+ * Label + click-to-edit date known to the year, the month, or the day. The
+ * value is the API's partial ISO text ("1998", "1998-06", "1998-06-15").
+ */
+export function InlinePartialDate({
+  label,
+  value,
+  onSave,
+  placeholder = "Add date...",
+  className,
+}: {
+  label: string
+  value: string
+  onSave: (value: string) => Promise<void>
+  placeholder?: string
+  className?: string
+}) {
+  const {
+    editing,
+    setDraft,
+    saving,
+    error,
+    setError,
+    start,
+    cancel,
+    commitValue,
+  } = useInlineEdit({ value, onSave })
+  const [parts, setParts] = useState<PartialDateParts>(() =>
+    splitPartialDate(value)
+  )
+  const fieldId = useId()
+
+  const begin = () => {
+    setParts(splitPartialDate(value))
+    start()
+  }
+
+  const change = (next: PartialDateParts) => {
+    setParts(next)
+    setError(null)
+    // Keeps the draft at the last complete date, which is what a navigate-away
+    // flush would save.
+    const joined = joinPartialDate(next)
+    if (joined !== null) setDraft(joined)
+  }
+
+  const finish = () => {
+    const joined = joinPartialDate(parts)
+    if (joined === null) {
+      setError("Enter a year, and a month and day that exist")
+      return
+    }
+    commitValue(joined)
+  }
+
+  return (
+    <div className={cn("text-sm", className)}>
+      <Label
+        htmlFor={`${fieldId}-year`}
+        className="text-muted-foreground mb-1 block text-xs font-medium"
+      >
+        {label}
+      </Label>
+      {editing ? (
+        <div
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) finish()
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.preventDefault()
+              cancel()
+            }
+            if (e.key === "Enter") {
+              e.preventDefault()
+              finish()
+            }
+          }}
+        >
+          <PartialDateInput
+            idPrefix={fieldId}
+            value={parts}
+            onChange={change}
+            disabled={saving}
+            invalid={!!error}
+            autoFocus
+          />
+          {error && (
+            <p role="alert" className="text-destructive mt-1 text-xs">
+              {error}
+            </p>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          id={`${fieldId}-year`}
+          onClick={begin}
+          className="hover:bg-muted/50 -mx-1.5 block w-[calc(100%+0.75rem)] rounded px-1.5 py-0.5 text-left transition-colors"
+        >
+          {value ? (
+            formatPartialDate(value)
+          ) : (
+            <span className="text-muted-foreground italic">{placeholder}</span>
+          )}
+        </button>
+      )}
+    </div>
+  )
+}
+
+/** Label above a select that saves on choice, for the stacked detail grid. */
+export function InlineSelectRow<T extends string>({
+  label,
+  value,
+  onSave,
+  options,
+  placeholder,
+  className,
+}: {
+  label: string
+  value: T | ""
+  onSave: (value: T | "") => Promise<void>
+  options: { value: T; label: string }[]
+  placeholder?: string
+  className?: string
+}) {
+  return (
+    <div className={cn("text-sm", className)}>
+      <span className="text-muted-foreground mb-1 block text-xs font-medium">
+        {label}
+      </span>
+      <InlineSelectBadge
+        value={value}
+        onSave={onSave}
+        options={options}
+        placeholder={placeholder}
+        ariaLabel={label}
+      />
+    </div>
   )
 }

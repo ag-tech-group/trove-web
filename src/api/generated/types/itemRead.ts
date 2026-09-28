@@ -5,6 +5,7 @@
  * Personal collection management API for tracking antiques, art, and valuables
  * OpenAPI spec version: 0.2.0
  */
+import type { AcquisitionMethod } from './acquisitionMethod';
 import type { Condition } from './condition';
 import type { ImageRead } from './imageRead';
 import type { ItemNoteRead } from './itemNoteRead';
@@ -12,6 +13,7 @@ import type { ItemReadTypeFields } from './itemReadTypeFields';
 import type { MarkRead } from './markRead';
 import type { ProvenanceEntryRead } from './provenanceEntryRead';
 import type { TagRead } from './tagRead';
+import type { ValuationRead } from './valuationRead';
 
 /**
  * Schema for reading an Item.
@@ -19,12 +21,15 @@ import type { TagRead } from './tagRead';
 export interface ItemRead {
   /** @maxLength 200 */
   name: string;
+  reference_number?: string | null;
   description?: string | null;
   condition?: Condition | null;
   location?: string | null;
   acquisition_date?: string | null;
+  acquisition_method?: AcquisitionMethod | null;
   acquisition_price?: string | null;
   acquisition_source?: string | null;
+  acquisition_place?: string | null;
   estimated_value?: string | null;
   artist_maker?: string | null;
   origin?: string | null;
@@ -32,6 +37,8 @@ export interface ItemRead {
   height_cm?: string | null;
   width_cm?: string | null;
   depth_cm?: string | null;
+  length_cm?: string | null;
+  diameter_cm?: string | null;
   weight_kg?: string | null;
   materials?: string | null;
   type_fields?: ItemReadTypeFields;
@@ -42,6 +49,7 @@ export interface ItemRead {
   tags?: TagRead[];
   marks?: MarkRead[];
   provenance_entries?: ProvenanceEntryRead[];
+  valuations?: ValuationRead[];
   item_notes?: ItemNoteRead[];
   images?: ImageRead[];
   created_at: string;

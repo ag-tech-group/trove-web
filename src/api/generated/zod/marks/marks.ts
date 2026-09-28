@@ -30,6 +30,10 @@ export const ListMarksItemsItemIdMarksGetResponseItem = zod.object({
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({"offset":true}),
@@ -70,6 +74,10 @@ export const CreateMarkItemsItemIdMarksPostResponse = zod.object({
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({"offset":true}),
@@ -110,6 +118,10 @@ export const UpdateMarkItemsItemIdMarksMarkIdPatchResponse = zod.object({
   "content_type": zod.string(),
   "size_bytes": zod.int(),
   "position": zod.int(),
+  "width": zod.union([zod.int(),zod.null()]).optional(),
+  "height": zod.union([zod.int(),zod.null()]).optional(),
+  "caption": zod.union([zod.string(),zod.null()]).optional(),
+  "description": zod.union([zod.string(),zod.null()]).optional(),
   "created_at": zod.iso.datetime({"offset":true})
 }).describe('Schema for reading an Image.')).optional(),
   "created_at": zod.iso.datetime({"offset":true}),

@@ -5,6 +5,7 @@
  * Personal collection management API for tracking antiques, art, and valuables
  * OpenAPI spec version: 0.2.0
  */
+import type { UnitSystem } from './unitSystem';
 
 /**
  * Schema for reading user data.
@@ -15,4 +16,5 @@ export interface UserRead {
   is_active?: boolean;
   is_superuser?: boolean;
   is_verified?: boolean;
+  preferred_units?: UnitSystem;
 }

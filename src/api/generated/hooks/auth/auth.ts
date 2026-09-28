@@ -33,6 +33,7 @@ import type {
   ErrorModel,
   HTTPValidationError,
   UserCreate,
+  UserPreferencesUpdate,
   UserRead
 } from '../../types';
 
@@ -1213,3 +1214,102 @@ export function useGetCurrentUserAuthMeGet<TData = Awaited<ReturnType<typeof get
 
 
 
+export type updateCurrentUserAuthMePatchResponse200 = {
+  data: UserRead
+  status: 200
+}
+
+export type updateCurrentUserAuthMePatchResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type updateCurrentUserAuthMePatchResponseSuccess = (updateCurrentUserAuthMePatchResponse200) & {
+  headers: Headers;
+};
+export type updateCurrentUserAuthMePatchResponseError = (updateCurrentUserAuthMePatchResponse422) & {
+  headers: Headers;
+};
+
+export type updateCurrentUserAuthMePatchResponse = (updateCurrentUserAuthMePatchResponseSuccess | updateCurrentUserAuthMePatchResponseError)
+
+export const getUpdateCurrentUserAuthMePatchUrl = () => {
+
+
+
+
+  return `/auth/me`
+}
+
+/**
+ * Change the current user's own settings. Credentials are changed elsewhere.
+ * @summary Update Current User
+ */
+export const updateCurrentUserAuthMePatch = async (userPreferencesUpdate: UserPreferencesUpdate, options?: Parameters<typeof orvalClient>[1]): Promise<updateCurrentUserAuthMePatchResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return orvalClient<updateCurrentUserAuthMePatchResponse>(getUpdateCurrentUserAuthMePatchUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(userPreferencesUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateCurrentUserAuthMePatchMutationKey = () => ['updateCurrentUserAuthMePatch'] as const;
+
+export const getUpdateCurrentUserAuthMePatchMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCurrentUserAuthMePatch>>, TError,UpdateCurrentUserAuthMePatchMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCurrentUserAuthMePatch>>, TError,UpdateCurrentUserAuthMePatchMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCurrentUserAuthMePatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCurrentUserAuthMePatch>>, UpdateCurrentUserAuthMePatchMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateCurrentUserAuthMePatch(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCurrentUserAuthMePatchMutationResult = NonNullable<Awaited<ReturnType<typeof updateCurrentUserAuthMePatch>>>
+    export type UpdateCurrentUserAuthMePatchMutationBody = UserPreferencesUpdate
+    export type UpdateCurrentUserAuthMePatchMutationError = HTTPValidationError
+    export type UpdateCurrentUserAuthMePatchMutationVariables = {data: UserPreferencesUpdate}
+
+    /**
+ * @summary Update Current User
+ */
+export const useUpdateCurrentUserAuthMePatch = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCurrentUserAuthMePatch>>, TError,UpdateCurrentUserAuthMePatchMutationVariables, TContext>, request?: SecondParameter<typeof orvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCurrentUserAuthMePatch>>,
+        TError,
+        UpdateCurrentUserAuthMePatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCurrentUserAuthMePatchMutationOptions(options), queryClient);
+    }

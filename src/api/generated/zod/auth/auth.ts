@@ -53,13 +53,15 @@ export const RegisterRegisterAuthRegisterPostBody = zod.object({
 export const registerRegisterAuthRegisterPostResponseIsActiveDefault = true;
 export const registerRegisterAuthRegisterPostResponseIsSuperuserDefault = false;
 export const registerRegisterAuthRegisterPostResponseIsVerifiedDefault = false;
+export const registerRegisterAuthRegisterPostResponsePreferredUnitsDefault = `metric`;
 
 export const RegisterRegisterAuthRegisterPostResponse = zod.object({
   "id": zod.uuid(),
   "email": zod.email(),
   "is_active": zod.boolean().default(registerRegisterAuthRegisterPostResponseIsActiveDefault),
   "is_superuser": zod.boolean().default(registerRegisterAuthRegisterPostResponseIsSuperuserDefault),
-  "is_verified": zod.boolean().default(registerRegisterAuthRegisterPostResponseIsVerifiedDefault)
+  "is_verified": zod.boolean().default(registerRegisterAuthRegisterPostResponseIsVerifiedDefault),
+  "preferred_units": zod.enum(['metric', 'imperial']).default(registerRegisterAuthRegisterPostResponsePreferredUnitsDefault).describe('How measurements are shown. They are always stored metric.')
 }).describe('Schema for reading user data.')
 
 /**
@@ -100,13 +102,15 @@ export const VerifyVerifyAuthVerifyPostBody = zod.object({
 export const verifyVerifyAuthVerifyPostResponseIsActiveDefault = true;
 export const verifyVerifyAuthVerifyPostResponseIsSuperuserDefault = false;
 export const verifyVerifyAuthVerifyPostResponseIsVerifiedDefault = false;
+export const verifyVerifyAuthVerifyPostResponsePreferredUnitsDefault = `metric`;
 
 export const VerifyVerifyAuthVerifyPostResponse = zod.object({
   "id": zod.uuid(),
   "email": zod.email(),
   "is_active": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsActiveDefault),
   "is_superuser": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsSuperuserDefault),
-  "is_verified": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsVerifiedDefault)
+  "is_verified": zod.boolean().default(verifyVerifyAuthVerifyPostResponseIsVerifiedDefault),
+  "preferred_units": zod.enum(['metric', 'imperial']).default(verifyVerifyAuthVerifyPostResponsePreferredUnitsDefault).describe('How measurements are shown. They are always stored metric.')
 }).describe('Schema for reading user data.')
 
 /**
@@ -127,12 +131,36 @@ export const GoogleCallbackAuthGoogleCallbackGetResponse = zod.unknown()
 export const getCurrentUserAuthMeGetResponseIsActiveDefault = true;
 export const getCurrentUserAuthMeGetResponseIsSuperuserDefault = false;
 export const getCurrentUserAuthMeGetResponseIsVerifiedDefault = false;
+export const getCurrentUserAuthMeGetResponsePreferredUnitsDefault = `metric`;
 
 export const GetCurrentUserAuthMeGetResponse = zod.object({
   "id": zod.uuid(),
   "email": zod.email(),
   "is_active": zod.boolean().default(getCurrentUserAuthMeGetResponseIsActiveDefault),
   "is_superuser": zod.boolean().default(getCurrentUserAuthMeGetResponseIsSuperuserDefault),
-  "is_verified": zod.boolean().default(getCurrentUserAuthMeGetResponseIsVerifiedDefault)
+  "is_verified": zod.boolean().default(getCurrentUserAuthMeGetResponseIsVerifiedDefault),
+  "preferred_units": zod.enum(['metric', 'imperial']).default(getCurrentUserAuthMeGetResponsePreferredUnitsDefault).describe('How measurements are shown. They are always stored metric.')
+}).describe('Schema for reading user data.')
+
+/**
+ * Change the current user's own settings. Credentials are changed elsewhere.
+ * @summary Update Current User
+ */
+export const UpdateCurrentUserAuthMePatchBody = zod.object({
+  "preferred_units": zod.union([zod.enum(['metric', 'imperial']).describe('How measurements are shown. They are always stored metric.'),zod.null()]).optional()
+}).describe('Schema for `PATCH \/auth\/me`: the settings a user changes about themselves.')
+
+export const updateCurrentUserAuthMePatchResponseIsActiveDefault = true;
+export const updateCurrentUserAuthMePatchResponseIsSuperuserDefault = false;
+export const updateCurrentUserAuthMePatchResponseIsVerifiedDefault = false;
+export const updateCurrentUserAuthMePatchResponsePreferredUnitsDefault = `metric`;
+
+export const UpdateCurrentUserAuthMePatchResponse = zod.object({
+  "id": zod.uuid(),
+  "email": zod.email(),
+  "is_active": zod.boolean().default(updateCurrentUserAuthMePatchResponseIsActiveDefault),
+  "is_superuser": zod.boolean().default(updateCurrentUserAuthMePatchResponseIsSuperuserDefault),
+  "is_verified": zod.boolean().default(updateCurrentUserAuthMePatchResponseIsVerifiedDefault),
+  "preferred_units": zod.enum(['metric', 'imperial']).default(updateCurrentUserAuthMePatchResponsePreferredUnitsDefault).describe('How measurements are shown. They are always stored metric.')
 }).describe('Schema for reading user data.')
 

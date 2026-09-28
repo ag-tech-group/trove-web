@@ -20,10 +20,11 @@ import type {
 import {
   getGetCurrentUserAuthMeGetResponseMock,
   getRegisterRegisterAuthRegisterPostResponseMock,
+  getUpdateCurrentUserAuthMePatchResponseMock,
   getVerifyVerifyAuthVerifyPostResponseMock
 } from './auth.faker';
 
-export { getRegisterRegisterAuthRegisterPostResponseMock, getVerifyVerifyAuthVerifyPostResponseMock, getGetCurrentUserAuthMeGetResponseMock } from './auth.faker';
+export { getRegisterRegisterAuthRegisterPostResponseMock, getVerifyVerifyAuthVerifyPostResponseMock, getGetCurrentUserAuthMeGetResponseMock, getUpdateCurrentUserAuthMePatchResponseMock } from './auth.faker';
 
 
 export const getRefreshAccessTokenAuthRefreshPostMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
@@ -141,6 +142,18 @@ export const getGetCurrentUserAuthMeGetMockHandler = (overrideResponse?: UserRea
       })
   }, options)
 }
+
+export const getUpdateCurrentUserAuthMePatchMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<UserRead> | UserRead), options?: RequestHandlerOptions) => {
+  return http.patch('*/auth/me', async (info: Parameters<Parameters<typeof http.patch>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getUpdateCurrentUserAuthMePatchResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
 export const getAuthMock = () => [
   getRefreshAccessTokenAuthRefreshPostMockHandler(),
   getAuthJwtLogoutAuthJwtLogoutPostMockHandler(),
@@ -152,5 +165,6 @@ export const getAuthMock = () => [
   getVerifyVerifyAuthVerifyPostMockHandler(),
   getGoogleAuthorizeAuthGoogleAuthorizeGetMockHandler(),
   getGoogleCallbackAuthGoogleCallbackGetMockHandler(),
-  getGetCurrentUserAuthMeGetMockHandler()
+  getGetCurrentUserAuthMeGetMockHandler(),
+  getUpdateCurrentUserAuthMePatchMockHandler()
 ]

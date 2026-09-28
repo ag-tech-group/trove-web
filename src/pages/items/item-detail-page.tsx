@@ -25,13 +25,18 @@ import {
 import {
   useUploadItemImageItemsItemIdImagesPost,
   useDeleteItemImageItemsItemIdImagesImageIdDelete,
+  useUpdateItemImageItemsItemIdImagesImageIdPatch,
 } from "@/api/generated/hooks/item-images/item-images"
 import {
   getGetCollectionCollectionsCollectionIdGetQueryKey,
   useGetCollectionCollectionsCollectionIdGet,
 } from "@/api/generated/hooks/collections/collections"
 import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
-import type { ItemRead, Condition } from "@/api/generated/types"
+import type {
+  AcquisitionMethod,
+  ItemRead,
+  Condition,
+} from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { useItemAutosave, type AutosaveStatus } from "@/lib/use-item-autosave"
 import { AppLayout } from "@/components/app-layout"
@@ -39,14 +44,20 @@ import { ImageCarousel } from "@/components/image-carousel"
 import { ImageLightbox } from "@/components/image-lightbox"
 import { ImageUpload } from "@/components/image-upload"
 import { CONDITIONS } from "@/lib/conditions"
+import { ACQUISITION_METHODS } from "@/lib/acquisition-methods"
+import { usePreferredUnits } from "@/lib/use-preferred-units"
 import {
   InlineText,
   InlineRow,
+  InlinePartialDate,
   InlineSelectBadge,
+  InlineSelectRow,
   InlineTagsBadges,
   InlineEditFlushScope,
   useFlushPendingEdits,
 } from "@/components/inline-edit"
+import { MeasurementRow, UnitsToggle } from "@/components/measurement-row"
+import { ValuationList } from "@/components/valuation-list"
 import { MarkList } from "@/components/mark-list"
 import { ProvenanceList } from "@/components/provenance-list"
 import { ItemNoteList } from "@/components/item-note-list"
@@ -76,6 +87,7 @@ export function ItemDetailPage() {
 
   const sectionKeys = [
     "details",
+    "valuations",
     "images",
     "provenance",
     "dimensions",
@@ -107,6 +119,7 @@ export function ItemDetailPage() {
   const collectionType = collection?.type
 
   const { types } = useCollectionTypes()
+  const { units } = usePreferredUnits()
   const typeDef = findCollectionType(types, collectionType)
 
   const backTo = item?.collection_id
@@ -187,6 +200,7 @@ export function ItemDetailPage() {
                   aspectRatio="aspect-video"
                   showDots
                   showArrows
+                  showCaption
                   onImageClick={(index) => {
                     setLightboxIndex(index)
                     setLightboxOpen(true)
@@ -231,18 +245,33 @@ export function ItemDetailPage() {
                   <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                     <InlineRow
                       layout="stacked"
+                      label="Reference Number"
+                      value={item.reference_number ?? ""}
+                      onSave={(v) =>
+                        saveField({ reference_number: v.trim() || null })
+                      }
+                      placeholder="Add reference number..."
+                    />
+                    <InlineRow
+                      layout="stacked"
                       label="Location"
                       value={item.location ?? ""}
                       onSave={(v) => saveField({ location: v || null })}
                       placeholder="Add location..."
                     />
-                    <InlineRow
-                      layout="stacked"
+                    <InlinePartialDate
                       label="Acquisition Date"
                       value={item.acquisition_date ?? ""}
                       onSave={(v) => saveField({ acquisition_date: v || null })}
-                      type="date"
-                      placeholder="Add date..."
+                    />
+                    <InlineSelectRow<AcquisitionMethod>
+                      label="Acquisition Method"
+                      value={item.acquisition_method ?? ""}
+                      onSave={(v) =>
+                        saveField({ acquisition_method: v || null })
+                      }
+                      options={ACQUISITION_METHODS}
+                      placeholder="+ Method"
                     />
                     <InlineRow
                       layout="stacked"
@@ -276,7 +305,15 @@ export function ItemDetailPage() {
                         saveField({ acquisition_source: v || null })
                       }
                       placeholder="e.g. Auction house, Estate sale"
-                      className="col-span-2"
+                    />
+                    <InlineRow
+                      layout="stacked"
+                      label="Acquisition Place"
+                      value={item.acquisition_place ?? ""}
+                      onSave={(v) =>
+                        saveField({ acquisition_place: v || null })
+                      }
+                      placeholder="e.g. Paris, a market in Cairo"
                     />
                   </div>
                   {typeDef && typeDef.fields.length > 0 && (
@@ -327,6 +364,17 @@ export function ItemDetailPage() {
               </DetailSection>
 
               <DetailSection
+                title="Valuations"
+                open={!!openSections.valuations}
+                onOpenChange={(v) => toggleSection("valuations", v)}
+              >
+                <ValuationList
+                  itemId={item.id}
+                  valuations={item.valuations ?? []}
+                />
+              </DetailSection>
+
+              <DetailSection
                 title="Images"
                 open={!!openSections.images}
                 onOpenChange={(v) => toggleSection("images", v)}
@@ -372,45 +420,56 @@ export function ItemDetailPage() {
                 onOpenChange={(v) => toggleSection("dimensions", v)}
               >
                 <div className="space-y-1">
-                  <InlineRow
+                  <div className="flex justify-end">
+                    <UnitsToggle />
+                  </div>
+                  <MeasurementRow
                     label="Height"
-                    value={item.height_cm ?? ""}
-                    onSave={(v) => saveField({ height_cm: v || null })}
-                    type="number"
-                    min="0"
-                    step="0.1"
+                    kind="length"
+                    units={units}
+                    value={item.height_cm}
+                    onSave={(v) => saveField({ height_cm: v })}
                     placeholder="Add height..."
-                    formatDisplay={(v) => `${v} cm`}
                   />
-                  <InlineRow
+                  <MeasurementRow
                     label="Width"
-                    value={item.width_cm ?? ""}
-                    onSave={(v) => saveField({ width_cm: v || null })}
-                    type="number"
-                    min="0"
-                    step="0.1"
+                    kind="length"
+                    units={units}
+                    value={item.width_cm}
+                    onSave={(v) => saveField({ width_cm: v })}
                     placeholder="Add width..."
-                    formatDisplay={(v) => `${v} cm`}
                   />
-                  <InlineRow
+                  <MeasurementRow
                     label="Depth"
-                    value={item.depth_cm ?? ""}
-                    onSave={(v) => saveField({ depth_cm: v || null })}
-                    type="number"
-                    min="0"
-                    step="0.1"
+                    kind="length"
+                    units={units}
+                    value={item.depth_cm}
+                    onSave={(v) => saveField({ depth_cm: v })}
                     placeholder="Add depth..."
-                    formatDisplay={(v) => `${v} cm`}
                   />
-                  <InlineRow
+                  <MeasurementRow
+                    label="Length"
+                    kind="length"
+                    units={units}
+                    value={item.length_cm}
+                    onSave={(v) => saveField({ length_cm: v })}
+                    placeholder="Add length..."
+                  />
+                  <MeasurementRow
+                    label="Diameter"
+                    kind="length"
+                    units={units}
+                    value={item.diameter_cm}
+                    onSave={(v) => saveField({ diameter_cm: v })}
+                    placeholder="Add diameter..."
+                  />
+                  <MeasurementRow
                     label="Weight"
-                    value={item.weight_kg ?? ""}
-                    onSave={(v) => saveField({ weight_kg: v || null })}
-                    type="number"
-                    min="0"
-                    step="0.01"
+                    kind="weight"
+                    units={units}
+                    value={item.weight_kg}
+                    onSave={(v) => saveField({ weight_kg: v })}
                     placeholder="Add weight..."
-                    formatDisplay={(v) => `${v} kg`}
                   />
                   <InlineRow
                     label="Materials"
@@ -643,6 +702,20 @@ function ItemImages({
     },
   })
 
+  const updateMutation = useUpdateItemImageItemsItemIdImagesImageIdPatch({
+    mutation: {
+      onSuccess: () => {
+        toast.success("Photo updated")
+        queryClient.invalidateQueries({
+          queryKey: getGetItemItemsItemIdGetQueryKey(itemId),
+        })
+      },
+      onError: async (err) => {
+        toast.error(await getErrorMessage(err, "Failed to update photo"))
+      },
+    },
+  })
+
   const deleteMutation = useDeleteItemImageItemsItemIdImagesImageIdDelete({
     mutation: {
       onSuccess: () => {
@@ -667,6 +740,9 @@ function ItemImages({
       }}
       onDelete={async (imageId) => {
         deleteMutation.mutate({ itemId, imageId })
+      }}
+      onUpdate={async (imageId, data) => {
+        await updateMutation.mutateAsync({ itemId, imageId, data })
       }}
     />
   )

@@ -19,10 +19,11 @@ import type {
 
 import {
   getListItemImagesItemsItemIdImagesGetResponseMock,
+  getUpdateItemImageItemsItemIdImagesImageIdPatchResponseMock,
   getUploadItemImageItemsItemIdImagesPostResponseMock
 } from './item-images.faker';
 
-export { getListItemImagesItemsItemIdImagesGetResponseMock, getUploadItemImageItemsItemIdImagesPostResponseMock } from './item-images.faker';
+export { getListItemImagesItemsItemIdImagesGetResponseMock, getUploadItemImageItemsItemIdImagesPostResponseMock, getUpdateItemImageItemsItemIdImagesImageIdPatchResponseMock } from './item-images.faker';
 
 
 export const getListItemImagesItemsItemIdImagesGetMockHandler = (overrideResponse?: ImageRead[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ImageRead[]> | ImageRead[]), options?: RequestHandlerOptions) => {
@@ -49,6 +50,18 @@ export const getUploadItemImageItemsItemIdImagesPostMockHandler = (overrideRespo
   }, options)
 }
 
+export const getUpdateItemImageItemsItemIdImagesImageIdPatchMockHandler = (overrideResponse?: ImageRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<ImageRead> | ImageRead), options?: RequestHandlerOptions) => {
+  return http.patch('*/items/:itemId/images/:imageId', async (info: Parameters<Parameters<typeof http.patch>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getUpdateItemImageItemsItemIdImagesImageIdPatchResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
+
 export const getDeleteItemImageItemsItemIdImagesImageIdDeleteMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
   return http.delete('*/items/:itemId/images/:imageId', async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
@@ -61,5 +74,6 @@ export const getDeleteItemImageItemsItemIdImagesImageIdDeleteMockHandler = (over
 export const getItemImagesMock = () => [
   getListItemImagesItemsItemIdImagesGetMockHandler(),
   getUploadItemImageItemsItemIdImagesPostMockHandler(),
+  getUpdateItemImageItemsItemIdImagesImageIdPatchMockHandler(),
   getDeleteItemImageItemsItemIdImagesImageIdDeleteMockHandler()
 ]

@@ -5,6 +5,7 @@
  * Personal collection management API for tracking antiques, art, and valuables
  * OpenAPI spec version: 0.2.0
  */
+import type { AcquisitionMethod } from './acquisitionMethod';
 import type { Condition } from './condition';
 import type { ItemUpdateTypeFields } from './itemUpdateTypeFields';
 
@@ -13,14 +14,17 @@ import type { ItemUpdateTypeFields } from './itemUpdateTypeFields';
  */
 export interface ItemUpdate {
   name?: string | null;
+  reference_number?: string | null;
   description?: string | null;
   condition?: Condition | null;
   location?: string | null;
   collection_id?: string | null;
   tag_ids?: string[] | null;
   acquisition_date?: string | null;
+  acquisition_method?: AcquisitionMethod | null;
   acquisition_price?: number | string | null;
   acquisition_source?: string | null;
+  acquisition_place?: string | null;
   estimated_value?: number | string | null;
   artist_maker?: string | null;
   origin?: string | null;
@@ -28,6 +32,8 @@ export interface ItemUpdate {
   height_cm?: number | string | null;
   width_cm?: number | string | null;
   depth_cm?: number | string | null;
+  length_cm?: number | string | null;
+  diameter_cm?: number | string | null;
   weight_kg?: number | string | null;
   materials?: string | null;
   type_fields?: ItemUpdateTypeFields;

@@ -70,4 +70,17 @@ describe("ImageCarousel", () => {
     )
     expect(container.firstChild).toHaveClass("custom-class")
   })
+
+  it("shows the current photo's caption, and uses it as the alt text", () => {
+    const image = makeImage({ caption: "Maker's mark on the base" })
+    render(<ImageCarousel images={[image]} showCaption />)
+    expect(screen.getByText("Maker's mark on the base")).toBeInTheDocument()
+    expect(screen.getByAltText("Maker's mark on the base")).toBeInTheDocument()
+  })
+
+  it("leaves captions out unless asked", () => {
+    const image = makeImage({ caption: "Front view" })
+    render(<ImageCarousel images={[image]} />)
+    expect(screen.queryByText("Front view")).not.toBeInTheDocument()
+  })
 })

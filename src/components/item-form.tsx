@@ -2,7 +2,11 @@ import { useState, useRef } from "react"
 import { ChevronDown, ChevronsUpDown, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useCreateItemItemsPost } from "@/api/generated/hooks/items/items"
-import type { ItemRead, Condition } from "@/api/generated/types"
+import type {
+  AcquisitionMethod,
+  ItemRead,
+  Condition,
+} from "@/api/generated/types"
 import { getErrorMessage } from "@/lib/api-errors"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +27,16 @@ import {
 import { cn } from "@/lib/utils"
 import { useCollectionTypes, findCollectionType } from "@/lib/collection-types"
 import { CONDITIONS } from "@/lib/conditions"
+import { ACQUISITION_METHODS } from "@/lib/acquisition-methods"
+import {
+  joinPartialDate,
+  splitPartialDate,
+  type PartialDateParts,
+} from "@/lib/partial-date"
+import { MeasurementError, parseLength, parseWeight } from "@/lib/units"
+import { usePreferredUnits } from "@/lib/use-preferred-units"
+import { PartialDateInput } from "@/components/partial-date-input"
+import { UnitsToggle } from "@/components/measurement-row"
 import { ImagePicker } from "@/components/image-picker"
 import { TagInput } from "@/components/tag-input"
 
@@ -54,30 +68,39 @@ export function ItemForm({
   onSuccess,
 }: ItemFormProps) {
   const [name, setName] = useState("")
+  const [referenceNumber, setReferenceNumber] = useState("")
   const [description, setDescription] = useState("")
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [condition, setCondition] = useState<string>("")
   const [location, setLocation] = useState("")
 
   // Acquisition
-  const [acquisitionDate, setAcquisitionDate] = useState("")
+  const [acquisitionDate, setAcquisitionDate] = useState<PartialDateParts>(() =>
+    splitPartialDate(null)
+  )
+  const [acquisitionMethod, setAcquisitionMethod] = useState<string>("")
   const [acquisitionPrice, setAcquisitionPrice] = useState("")
   const [estimatedValue, setEstimatedValue] = useState("")
 
   // Acquisition (cont.)
   const [acquisitionSource, setAcquisitionSource] = useState("")
+  const [acquisitionPlace, setAcquisitionPlace] = useState("")
 
   // Provenance
   const [artistMaker, setArtistMaker] = useState("")
   const [origin, setOrigin] = useState("")
   const [dateEra, setDateEra] = useState("")
 
-  // Dimensions
-  const [heightCm, setHeightCm] = useState("")
-  const [widthCm, setWidthCm] = useState("")
-  const [depthCm, setDepthCm] = useState("")
-  const [weightKg, setWeightKg] = useState("")
+  // Dimensions, as typed in the user's units; converted to metric on submit
+  const { units } = usePreferredUnits()
+  const [height, setHeight] = useState("")
+  const [width, setWidth] = useState("")
+  const [depth, setDepth] = useState("")
+  const [length, setLength] = useState("")
+  const [diameter, setDiameter] = useState("")
+  const [weight, setWeight] = useState("")
   const [materials, setMaterials] = useState("")
+  const [formError, setFormError] = useState<string | null>(null)
 
   // Type-specific fields
   const [typeFields, setTypeFields] = useState<Record<string, string>>({})
@@ -139,7 +162,20 @@ export function ItemForm({
 
   const isPending = createMutation.isPending
 
-  const buildData = () => {
+  // Throws MeasurementError for a measurement that can't be read.
+  const lengthUnit = units === "imperial" ? "in" : "cm"
+  const lengthPlaceholder = units === "imperial" ? "e.g. 3 1/2" : "e.g. 12.5"
+
+  const toCm = (text: string) => {
+    const cm = parseLength(text, units)
+    return cm === null ? undefined : cm.toFixed(2)
+  }
+  const toKg = (text: string) => {
+    const kg = parseWeight(text, units)
+    return kg === null ? undefined : kg.toFixed(3)
+  }
+
+  const buildData = (acquired: string) => {
     // Only include type_fields if there are any non-empty values
     const nonEmptyTypeFields = Object.fromEntries(
       Object.entries(typeFields).filter(([, v]) => v !== "")
@@ -148,20 +184,25 @@ export function ItemForm({
 
     return {
       name,
+      reference_number: referenceNumber.trim() || undefined,
       description: description || undefined,
       condition: (condition as Condition) || undefined,
       location: location || undefined,
-      acquisition_date: acquisitionDate || undefined,
+      acquisition_date: acquired || undefined,
+      acquisition_method: (acquisitionMethod as AcquisitionMethod) || undefined,
       acquisition_price: acquisitionPrice || undefined,
       acquisition_source: acquisitionSource || undefined,
+      acquisition_place: acquisitionPlace || undefined,
       estimated_value: estimatedValue || undefined,
       artist_maker: artistMaker || undefined,
       origin: origin || undefined,
       date_era: dateEra || undefined,
-      height_cm: heightCm || undefined,
-      width_cm: widthCm || undefined,
-      depth_cm: depthCm || undefined,
-      weight_kg: weightKg || undefined,
+      height_cm: toCm(height),
+      width_cm: toCm(width),
+      depth_cm: toCm(depth),
+      length_cm: toCm(length),
+      diameter_cm: toCm(diameter),
+      weight_kg: toKg(weight),
       materials: materials || undefined,
       collection_id: collectionId,
       tag_ids: selectedTagIds,
@@ -171,21 +212,47 @@ export function ItemForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    createMutation.mutate({ data: buildData() })
+    const acquired = joinPartialDate(acquisitionDate)
+    if (acquired === null) {
+      setFormError("Enter an acquisition year, and a month and day that exist")
+      return
+    }
+    let data: ReturnType<typeof buildData>
+    try {
+      data = buildData(acquired)
+    } catch (err) {
+      if (!(err instanceof MeasurementError)) throw err
+      setFormError(err.message)
+      return
+    }
+    setFormError(null)
+    createMutation.mutate({ data })
   }
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       {/* Basic fields */}
-      <div className="grid gap-1.5">
-        <Label htmlFor="item-name">Name *</Label>
-        <Input
-          id="item-name"
-          required
-          maxLength={200}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-2 grid gap-1.5">
+          <Label htmlFor="item-name">Name *</Label>
+          <Input
+            id="item-name"
+            required
+            maxLength={200}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="item-reference">Reference No.</Label>
+          <Input
+            id="item-reference"
+            maxLength={100}
+            placeholder="e.g. A-01"
+            value={referenceNumber}
+            onChange={(e) => setReferenceNumber(e.target.value)}
+          />
+        </div>
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="item-desc">Description</Label>
@@ -241,16 +308,15 @@ export function ItemForm({
         onOpenChange={(v) => toggleSection("acquisition", v)}
       >
         <div className="grid gap-3">
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-acq-date-year">Date</Label>
+            <PartialDateInput
+              idPrefix="item-acq-date"
+              value={acquisitionDate}
+              onChange={setAcquisitionDate}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="grid gap-1.5">
-              <Label htmlFor="item-acq-date">Date</Label>
-              <Input
-                id="item-acq-date"
-                type="date"
-                value={acquisitionDate}
-                onChange={(e) => setAcquisitionDate(e.target.value)}
-              />
-            </div>
             <div className="grid gap-1.5">
               <Label htmlFor="item-acq-price">Purchase Price</Label>
               <Input
@@ -287,14 +353,44 @@ export function ItemForm({
             </div>
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="item-acq-source">Source</Label>
-            <Input
-              id="item-acq-source"
-              maxLength={200}
-              placeholder="e.g. Auction house, Estate sale"
-              value={acquisitionSource}
-              onChange={(e) => setAcquisitionSource(e.target.value)}
-            />
+            <Label>Method</Label>
+            <Select
+              value={acquisitionMethod}
+              onValueChange={setAcquisitionMethod}
+            >
+              <SelectTrigger aria-label="Acquisition method">
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                {ACQUISITION_METHODS.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="item-acq-source">Source</Label>
+              <Input
+                id="item-acq-source"
+                maxLength={200}
+                placeholder="e.g. Auction house, Estate sale"
+                value={acquisitionSource}
+                onChange={(e) => setAcquisitionSource(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="item-acq-place">Place</Label>
+              <Input
+                id="item-acq-place"
+                maxLength={200}
+                placeholder="e.g. Paris"
+                value={acquisitionPlace}
+                onChange={(e) => setAcquisitionPlace(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </CollapsibleSection>
@@ -393,53 +489,75 @@ export function ItemForm({
         onOpenChange={(v) => toggleSection("dimensions", v)}
       >
         <div className="grid gap-3">
+          <div className="flex justify-end">
+            <UnitsToggle />
+          </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="grid gap-1.5">
-              <Label htmlFor="item-h">Height (cm)</Label>
+              <Label htmlFor="item-h">Height ({lengthUnit})</Label>
               <Input
                 id="item-h"
-                type="number"
-                step="0.1"
-                min="0"
-                value={heightCm}
-                onChange={(e) => setHeightCm(e.target.value)}
+                inputMode="decimal"
+                placeholder={lengthPlaceholder}
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
               />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="item-w">Width (cm)</Label>
+              <Label htmlFor="item-w">Width ({lengthUnit})</Label>
               <Input
                 id="item-w"
-                type="number"
-                step="0.1"
-                min="0"
-                value={widthCm}
-                onChange={(e) => setWidthCm(e.target.value)}
+                inputMode="decimal"
+                placeholder={lengthPlaceholder}
+                value={width}
+                onChange={(e) => setWidth(e.target.value)}
               />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="item-d">Depth (cm)</Label>
+              <Label htmlFor="item-d">Depth ({lengthUnit})</Label>
               <Input
                 id="item-d"
-                type="number"
-                step="0.1"
-                min="0"
-                value={depthCm}
-                onChange={(e) => setDepthCm(e.target.value)}
+                inputMode="decimal"
+                placeholder={lengthPlaceholder}
+                value={depth}
+                onChange={(e) => setDepth(e.target.value)}
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="grid gap-1.5">
-              <Label htmlFor="item-weight">Weight (kg)</Label>
+              <Label htmlFor="item-l">Length ({lengthUnit})</Label>
               <Input
-                id="item-weight"
-                type="number"
-                step="0.01"
-                min="0"
-                value={weightKg}
-                onChange={(e) => setWeightKg(e.target.value)}
+                id="item-l"
+                inputMode="decimal"
+                placeholder={lengthPlaceholder}
+                value={length}
+                onChange={(e) => setLength(e.target.value)}
               />
             </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="item-diameter">Diameter ({lengthUnit})</Label>
+              <Input
+                id="item-diameter"
+                inputMode="decimal"
+                placeholder={lengthPlaceholder}
+                value={diameter}
+                onChange={(e) => setDiameter(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="item-weight">
+                Weight ({units === "imperial" ? "lb" : "kg"})
+              </Label>
+              <Input
+                id="item-weight"
+                inputMode="decimal"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid gap-3">
             <div className="grid gap-1.5">
               <Label htmlFor="item-materials">Materials</Label>
               <Input
@@ -470,6 +588,11 @@ export function ItemForm({
         <StagedNoteList notes={stagedNotes} onChange={setStagedNotes} />
       </CollapsibleSection>
 
+      {formError && (
+        <p role="alert" className="text-destructive text-sm">
+          {formError}
+        </p>
+      )}
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isPending}>
           {isPending ? "Creating..." : "Create Item"}

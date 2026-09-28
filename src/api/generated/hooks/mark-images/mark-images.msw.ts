@@ -19,10 +19,11 @@ import type {
 
 import {
   getListMarkImagesItemsItemIdMarksMarkIdImagesGetResponseMock,
+  getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseMock,
   getUploadMarkImageItemsItemIdMarksMarkIdImagesPostResponseMock
 } from './mark-images.faker';
 
-export { getListMarkImagesItemsItemIdMarksMarkIdImagesGetResponseMock, getUploadMarkImageItemsItemIdMarksMarkIdImagesPostResponseMock } from './mark-images.faker';
+export { getListMarkImagesItemsItemIdMarksMarkIdImagesGetResponseMock, getUploadMarkImageItemsItemIdMarksMarkIdImagesPostResponseMock, getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseMock } from './mark-images.faker';
 
 
 export const getListMarkImagesItemsItemIdMarksMarkIdImagesGetMockHandler = (overrideResponse?: ImageRead[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ImageRead[]> | ImageRead[]), options?: RequestHandlerOptions) => {
@@ -49,6 +50,18 @@ export const getUploadMarkImageItemsItemIdMarksMarkIdImagesPostMockHandler = (ov
   }, options)
 }
 
+export const getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMockHandler = (overrideResponse?: ImageRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<ImageRead> | ImageRead), options?: RequestHandlerOptions) => {
+  return http.patch('*/items/:itemId/marks/:markId/images/:imageId', async (info: Parameters<Parameters<typeof http.patch>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
+
 export const getDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDeleteMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
   return http.delete('*/items/:itemId/marks/:markId/images/:imageId', async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
@@ -61,5 +74,6 @@ export const getDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDeleteMockHand
 export const getMarkImagesMock = () => [
   getListMarkImagesItemsItemIdMarksMarkIdImagesGetMockHandler(),
   getUploadMarkImageItemsItemIdMarksMarkIdImagesPostMockHandler(),
+  getUpdateMarkImageItemsItemIdMarksMarkIdImagesImageIdPatchMockHandler(),
   getDeleteMarkImageItemsItemIdMarksMarkIdImagesImageIdDeleteMockHandler()
 ]
