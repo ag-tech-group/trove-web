@@ -148,7 +148,7 @@ export const GetCurrentUserAuthMeGetResponse = zod.object({
  */
 export const UpdateCurrentUserAuthMePatchBody = zod.object({
   "preferred_units": zod.union([zod.enum(['metric', 'imperial']).describe('How measurements are shown. They are always stored metric.'),zod.null()]).optional()
-}).describe('Schema for `PATCH \/auth\/me`: the settings a user changes about themselves.')
+}).describe('Schema for `PATCH /auth/me`: the settings a user changes about themselves.')
 
 export const updateCurrentUserAuthMePatchResponseIsActiveDefault = true;
 export const updateCurrentUserAuthMePatchResponseIsSuperuserDefault = false;

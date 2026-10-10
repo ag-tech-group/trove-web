@@ -9,8 +9,8 @@ import type { ImportSource } from './importSource';
 
 export interface BodyCreateImportImportsPost {
   /** The catalog's entries export: CatalogIt's zip as downloaded, or its JSON. */
-  entries: Blob;
+  entries: Blob | File;
   /** CatalogIt's media index CSV, which says which photo belongs to which entry. */
-  media_index?: Blob | null;
+  media_index?: Blob | File | null;
   source?: ImportSource;
 }

@@ -8,5 +8,5 @@
 
 export interface BodyUploadPhotoImportsImportIdPhotosPost {
   /** One photo from the export, sent under its own file name. */
-  file: Blob;
+  file: Blob | File;
 }
