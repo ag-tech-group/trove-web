@@ -7,5 +7,5 @@
  */
 
 export interface BodyUploadMarkImageItemsItemIdMarksMarkIdImagesPost {
-  file: Blob;
+  file: Blob | File;
 }

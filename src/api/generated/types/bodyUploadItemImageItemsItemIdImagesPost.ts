@@ -7,5 +7,5 @@
  */
 
 export interface BodyUploadItemImageItemsItemIdImagesPost {
-  file: Blob;
+  file: Blob | File;
 }
